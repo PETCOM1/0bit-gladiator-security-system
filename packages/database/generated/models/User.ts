@@ -360,6 +360,7 @@ export type UserWhereInput = {
   visitorsLogged?: Prisma.VisitorListRelationFilter
   incidentsReported?: Prisma.IncidentListRelationFilter
   patrolLogs?: Prisma.PatrolLogListRelationFilter
+  occurrenceBooks?: Prisma.OccurrenceBookEntryListRelationFilter
   ticketsCreated?: Prisma.SupportTicketListRelationFilter
   ticketMessages?: Prisma.TicketMessageListRelationFilter
 }
@@ -401,6 +402,7 @@ export type UserOrderByWithRelationInput = {
   visitorsLogged?: Prisma.VisitorOrderByRelationAggregateInput
   incidentsReported?: Prisma.IncidentOrderByRelationAggregateInput
   patrolLogs?: Prisma.PatrolLogOrderByRelationAggregateInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryOrderByRelationAggregateInput
   ticketsCreated?: Prisma.SupportTicketOrderByRelationAggregateInput
   ticketMessages?: Prisma.TicketMessageOrderByRelationAggregateInput
 }
@@ -445,6 +447,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   visitorsLogged?: Prisma.VisitorListRelationFilter
   incidentsReported?: Prisma.IncidentListRelationFilter
   patrolLogs?: Prisma.PatrolLogListRelationFilter
+  occurrenceBooks?: Prisma.OccurrenceBookEntryListRelationFilter
   ticketsCreated?: Prisma.SupportTicketListRelationFilter
   ticketMessages?: Prisma.TicketMessageListRelationFilter
 }, "id" | "email" | "googleId">
@@ -547,6 +550,7 @@ export type UserCreateInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -585,6 +589,7 @@ export type UserUncheckedCreateInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -623,6 +628,7 @@ export type UserUpdateInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -661,6 +667,7 @@ export type UserUncheckedUpdateInput = {
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -1080,6 +1087,20 @@ export type UserUpdateOneRequiredWithoutShiftsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutShiftsInput, Prisma.UserUpdateWithoutShiftsInput>, Prisma.UserUncheckedUpdateWithoutShiftsInput>
 }
 
+export type UserCreateNestedOneWithoutOccurrenceBooksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOccurrenceBooksInput, Prisma.UserUncheckedCreateWithoutOccurrenceBooksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOccurrenceBooksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOccurrenceBooksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOccurrenceBooksInput, Prisma.UserUncheckedCreateWithoutOccurrenceBooksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOccurrenceBooksInput
+  upsert?: Prisma.UserUpsertWithoutOccurrenceBooksInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOccurrenceBooksInput, Prisma.UserUpdateWithoutOccurrenceBooksInput>, Prisma.UserUncheckedUpdateWithoutOccurrenceBooksInput>
+}
+
 export type UserCreateNestedOneWithoutPatrolLogsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutPatrolLogsInput, Prisma.UserUncheckedCreateWithoutPatrolLogsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutPatrolLogsInput
@@ -1155,6 +1176,7 @@ export type UserCreateWithoutInviteesInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -1192,6 +1214,7 @@ export type UserUncheckedCreateWithoutInviteesInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -1234,6 +1257,7 @@ export type UserCreateWithoutInvitedByInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -1271,6 +1295,7 @@ export type UserUncheckedCreateWithoutInvitedByInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -1329,6 +1354,7 @@ export type UserUpdateWithoutInviteesInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -1366,6 +1392,7 @@ export type UserUncheckedUpdateWithoutInviteesInput = {
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -1451,6 +1478,7 @@ export type UserCreateWithoutAuditLogsInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -1488,6 +1516,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -1541,6 +1570,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -1578,6 +1608,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -1615,6 +1646,7 @@ export type UserCreateWithoutNotificationsInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -1652,6 +1684,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -1705,6 +1738,7 @@ export type UserUpdateWithoutNotificationsInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -1742,6 +1776,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -1779,6 +1814,7 @@ export type UserCreateWithoutTenantInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -1816,6 +1852,7 @@ export type UserUncheckedCreateWithoutTenantInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -1879,6 +1916,7 @@ export type UserCreateWithoutSiteInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -1916,6 +1954,7 @@ export type UserUncheckedCreateWithoutSiteInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -1979,6 +2018,7 @@ export type UserCreateWithoutVisitorsLoggedInput = {
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -2016,6 +2056,7 @@ export type UserUncheckedCreateWithoutVisitorsLoggedInput = {
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -2069,6 +2110,7 @@ export type UserUpdateWithoutVisitorsLoggedInput = {
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -2106,6 +2148,7 @@ export type UserUncheckedUpdateWithoutVisitorsLoggedInput = {
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -2143,6 +2186,7 @@ export type UserCreateWithoutIncidentsReportedInput = {
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -2180,6 +2224,7 @@ export type UserUncheckedCreateWithoutIncidentsReportedInput = {
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -2233,6 +2278,7 @@ export type UserUpdateWithoutIncidentsReportedInput = {
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -2270,6 +2316,7 @@ export type UserUncheckedUpdateWithoutIncidentsReportedInput = {
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -2307,6 +2354,7 @@ export type UserCreateWithoutShiftsInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -2344,6 +2392,7 @@ export type UserUncheckedCreateWithoutShiftsInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -2397,6 +2446,7 @@ export type UserUpdateWithoutShiftsInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -2431,6 +2481,175 @@ export type UserUncheckedUpdateWithoutShiftsInput = {
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutOccurrenceBooksInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutOccurrenceBooksInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutOccurrenceBooksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOccurrenceBooksInput, Prisma.UserUncheckedCreateWithoutOccurrenceBooksInput>
+}
+
+export type UserUpsertWithoutOccurrenceBooksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOccurrenceBooksInput, Prisma.UserUncheckedUpdateWithoutOccurrenceBooksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOccurrenceBooksInput, Prisma.UserUncheckedCreateWithoutOccurrenceBooksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOccurrenceBooksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOccurrenceBooksInput, Prisma.UserUncheckedUpdateWithoutOccurrenceBooksInput>
+}
+
+export type UserUpdateWithoutOccurrenceBooksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOccurrenceBooksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
@@ -2471,6 +2690,7 @@ export type UserCreateWithoutPatrolLogsInput = {
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
@@ -2508,6 +2728,7 @@ export type UserUncheckedCreateWithoutPatrolLogsInput = {
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
@@ -2561,6 +2782,7 @@ export type UserUpdateWithoutPatrolLogsInput = {
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -2598,6 +2820,7 @@ export type UserUncheckedUpdateWithoutPatrolLogsInput = {
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -2636,6 +2859,7 @@ export type UserCreateWithoutTicketsCreatedInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
 
@@ -2673,6 +2897,7 @@ export type UserUncheckedCreateWithoutTicketsCreatedInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
@@ -2726,6 +2951,7 @@ export type UserUpdateWithoutTicketsCreatedInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
 
@@ -2763,6 +2989,7 @@ export type UserUncheckedUpdateWithoutTicketsCreatedInput = {
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
@@ -2800,6 +3027,7 @@ export type UserCreateWithoutTicketMessagesInput = {
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
 }
 
@@ -2837,6 +3065,7 @@ export type UserUncheckedCreateWithoutTicketMessagesInput = {
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
   incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
   ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
@@ -2890,6 +3119,7 @@ export type UserUpdateWithoutTicketMessagesInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
 }
 
@@ -2927,6 +3157,7 @@ export type UserUncheckedUpdateWithoutTicketMessagesInput = {
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
@@ -2991,6 +3222,7 @@ export type UserUpdateWithoutInvitedByInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -3028,6 +3260,7 @@ export type UserUncheckedUpdateWithoutInvitedByInput = {
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -3121,6 +3354,7 @@ export type UserUpdateWithoutTenantInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -3158,6 +3392,7 @@ export type UserUncheckedUpdateWithoutTenantInput = {
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -3251,6 +3486,7 @@ export type UserUpdateWithoutSiteInput = {
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
@@ -3288,6 +3524,7 @@ export type UserUncheckedUpdateWithoutSiteInput = {
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
   incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
@@ -3333,6 +3570,7 @@ export type UserCountOutputType = {
   visitorsLogged: number
   incidentsReported: number
   patrolLogs: number
+  occurrenceBooks: number
   ticketsCreated: number
   ticketMessages: number
 }
@@ -3345,6 +3583,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   visitorsLogged?: boolean | UserCountOutputTypeCountVisitorsLoggedArgs
   incidentsReported?: boolean | UserCountOutputTypeCountIncidentsReportedArgs
   patrolLogs?: boolean | UserCountOutputTypeCountPatrolLogsArgs
+  occurrenceBooks?: boolean | UserCountOutputTypeCountOccurrenceBooksArgs
   ticketsCreated?: boolean | UserCountOutputTypeCountTicketsCreatedArgs
   ticketMessages?: boolean | UserCountOutputTypeCountTicketMessagesArgs
 }
@@ -3411,6 +3650,13 @@ export type UserCountOutputTypeCountPatrolLogsArgs<ExtArgs extends runtime.Types
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountOccurrenceBooksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OccurrenceBookEntryWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountTicketsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SupportTicketWhereInput
 }
@@ -3460,6 +3706,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   visitorsLogged?: boolean | Prisma.User$visitorsLoggedArgs<ExtArgs>
   incidentsReported?: boolean | Prisma.User$incidentsReportedArgs<ExtArgs>
   patrolLogs?: boolean | Prisma.User$patrolLogsArgs<ExtArgs>
+  occurrenceBooks?: boolean | Prisma.User$occurrenceBooksArgs<ExtArgs>
   ticketsCreated?: boolean | Prisma.User$ticketsCreatedArgs<ExtArgs>
   ticketMessages?: boolean | Prisma.User$ticketMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -3570,6 +3817,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   visitorsLogged?: boolean | Prisma.User$visitorsLoggedArgs<ExtArgs>
   incidentsReported?: boolean | Prisma.User$incidentsReportedArgs<ExtArgs>
   patrolLogs?: boolean | Prisma.User$patrolLogsArgs<ExtArgs>
+  occurrenceBooks?: boolean | Prisma.User$occurrenceBooksArgs<ExtArgs>
   ticketsCreated?: boolean | Prisma.User$ticketsCreatedArgs<ExtArgs>
   ticketMessages?: boolean | Prisma.User$ticketMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -3598,6 +3846,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     visitorsLogged: Prisma.$VisitorPayload<ExtArgs>[]
     incidentsReported: Prisma.$IncidentPayload<ExtArgs>[]
     patrolLogs: Prisma.$PatrolLogPayload<ExtArgs>[]
+    occurrenceBooks: Prisma.$OccurrenceBookEntryPayload<ExtArgs>[]
     ticketsCreated: Prisma.$SupportTicketPayload<ExtArgs>[]
     ticketMessages: Prisma.$TicketMessagePayload<ExtArgs>[]
   }
@@ -4032,6 +4281,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   visitorsLogged<T extends Prisma.User$visitorsLoggedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$visitorsLoggedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VisitorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   incidentsReported<T extends Prisma.User$incidentsReportedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$incidentsReportedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncidentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   patrolLogs<T extends Prisma.User$patrolLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$patrolLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  occurrenceBooks<T extends Prisma.User$occurrenceBooksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$occurrenceBooksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OccurrenceBookEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ticketsCreated<T extends Prisma.User$ticketsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ticketsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ticketMessages<T extends Prisma.User$ticketMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ticketMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TicketMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -4712,6 +4962,30 @@ export type User$patrolLogsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.PatrolLogScalarFieldEnum | Prisma.PatrolLogScalarFieldEnum[]
+}
+
+/**
+ * User.occurrenceBooks
+ */
+export type User$occurrenceBooksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OccurrenceBookEntry
+   */
+  select?: Prisma.OccurrenceBookEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OccurrenceBookEntry
+   */
+  omit?: Prisma.OccurrenceBookEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OccurrenceBookEntryInclude<ExtArgs> | null
+  where?: Prisma.OccurrenceBookEntryWhereInput
+  orderBy?: Prisma.OccurrenceBookEntryOrderByWithRelationInput | Prisma.OccurrenceBookEntryOrderByWithRelationInput[]
+  cursor?: Prisma.OccurrenceBookEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OccurrenceBookEntryScalarFieldEnum | Prisma.OccurrenceBookEntryScalarFieldEnum[]
 }
 
 /**

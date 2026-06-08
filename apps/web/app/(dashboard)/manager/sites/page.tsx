@@ -96,21 +96,6 @@ export default function SitesManagerPage() {
               </tr>
             </thead>
             <tbody>
-              {isCreating && isEditing === "new" && (
-                <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-accent-subtle)" }}>
-                  <td style={{ padding: "16px 24px" }}><input style={inputStyle} placeholder="E.g. Downtown Mall" value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} autoFocus /></td>
-                  <td style={{ padding: "16px 24px" }}><input style={inputStyle} placeholder="123 Commerce St" value={editForm.address} onChange={e => setEditForm({ ...editForm, address: e.target.value })} /></td>
-                  <td style={{ padding: "16px 24px" }}>
-                    <span style={{ fontSize: "12px", color: "var(--color-text-muted)", fontStyle: "italic" }}>Assign via Personnel tab</span>
-                  </td>
-                  <td style={{ padding: "16px 24px" }}>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <button onClick={() => handleSaveSite()} style={{ padding: "8px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}>Save</button>
-                      <button onClick={() => { setIsCreating(false); setIsEditing(null); }} style={{ padding: "8px 16px", background: "var(--color-bg-subtle)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}>Cancel</button>
-                    </div>
-                  </td>
-                </tr>
-              )}
               {loading ? (
                 <tr><td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading sites...</td></tr>
               ) : sites.length === 0 && !isCreating ? (
@@ -162,6 +147,43 @@ export default function SitesManagerPage() {
           </table>
         </div>
       </div>
+
+      {/* Modal */}
+      {isCreating && isEditing === "new" && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px"
+        }}>
+          <div style={{
+            background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)",
+            boxShadow: "0 24px 64px rgba(0,0,0,0.3)", width: "100%", maxWidth: "500px",
+            display: "flex", flexDirection: "column", overflow: "hidden"
+          }}>
+            <div style={{ padding: "24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Add New Site</h2>
+              <button onClick={() => { setIsCreating(false); setIsEditing(null); }} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: "4px" }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "6px" }}>Site Name</label>
+                <input style={inputStyle} placeholder="E.g. Downtown Mall" value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} autoFocus />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "6px" }}>Address / Location</label>
+                <input style={inputStyle} placeholder="123 Commerce St" value={editForm.address} onChange={e => setEditForm({ ...editForm, address: e.target.value })} />
+              </div>
+            </div>
+            <div style={{ padding: "20px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              <button onClick={() => { setIsCreating(false); setIsEditing(null); }} style={{ padding: "10px 20px", background: "transparent", color: "var(--color-text-primary)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "14px", fontWeight: 600 }}>Cancel</button>
+              <button onClick={() => handleSaveSite()} style={{ padding: "10px 20px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                <Save size={16} /> Save Site
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

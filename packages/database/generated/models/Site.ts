@@ -197,6 +197,8 @@ export type SiteWhereInput = {
   shifts?: Prisma.ShiftListRelationFilter
   patrolLogs?: Prisma.PatrolLogListRelationFilter
   patrolRoutes?: Prisma.PatrolRouteListRelationFilter
+  posts?: Prisma.PostListRelationFilter
+  occurrenceBooks?: Prisma.OccurrenceBookEntryListRelationFilter
 }
 
 export type SiteOrderByWithRelationInput = {
@@ -213,6 +215,8 @@ export type SiteOrderByWithRelationInput = {
   shifts?: Prisma.ShiftOrderByRelationAggregateInput
   patrolLogs?: Prisma.PatrolLogOrderByRelationAggregateInput
   patrolRoutes?: Prisma.PatrolRouteOrderByRelationAggregateInput
+  posts?: Prisma.PostOrderByRelationAggregateInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryOrderByRelationAggregateInput
 }
 
 export type SiteWhereUniqueInput = Prisma.AtLeast<{
@@ -232,6 +236,8 @@ export type SiteWhereUniqueInput = Prisma.AtLeast<{
   shifts?: Prisma.ShiftListRelationFilter
   patrolLogs?: Prisma.PatrolLogListRelationFilter
   patrolRoutes?: Prisma.PatrolRouteListRelationFilter
+  posts?: Prisma.PostListRelationFilter
+  occurrenceBooks?: Prisma.OccurrenceBookEntryListRelationFilter
 }, "id">
 
 export type SiteOrderByWithAggregationInput = {
@@ -271,6 +277,8 @@ export type SiteCreateInput = {
   shifts?: Prisma.ShiftCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutSiteInput
 }
 
 export type SiteUncheckedCreateInput = {
@@ -286,6 +294,8 @@ export type SiteUncheckedCreateInput = {
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type SiteUpdateInput = {
@@ -301,6 +311,8 @@ export type SiteUpdateInput = {
   shifts?: Prisma.ShiftUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteUncheckedUpdateInput = {
@@ -316,6 +328,8 @@ export type SiteUncheckedUpdateInput = {
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteCreateManyInput = {
@@ -491,6 +505,34 @@ export type SiteUpdateOneRequiredWithoutShiftsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SiteUpdateToOneWithWhereWithoutShiftsInput, Prisma.SiteUpdateWithoutShiftsInput>, Prisma.SiteUncheckedUpdateWithoutShiftsInput>
 }
 
+export type SiteCreateNestedOneWithoutPostsInput = {
+  create?: Prisma.XOR<Prisma.SiteCreateWithoutPostsInput, Prisma.SiteUncheckedCreateWithoutPostsInput>
+  connectOrCreate?: Prisma.SiteCreateOrConnectWithoutPostsInput
+  connect?: Prisma.SiteWhereUniqueInput
+}
+
+export type SiteUpdateOneRequiredWithoutPostsNestedInput = {
+  create?: Prisma.XOR<Prisma.SiteCreateWithoutPostsInput, Prisma.SiteUncheckedCreateWithoutPostsInput>
+  connectOrCreate?: Prisma.SiteCreateOrConnectWithoutPostsInput
+  upsert?: Prisma.SiteUpsertWithoutPostsInput
+  connect?: Prisma.SiteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SiteUpdateToOneWithWhereWithoutPostsInput, Prisma.SiteUpdateWithoutPostsInput>, Prisma.SiteUncheckedUpdateWithoutPostsInput>
+}
+
+export type SiteCreateNestedOneWithoutOccurrenceBooksInput = {
+  create?: Prisma.XOR<Prisma.SiteCreateWithoutOccurrenceBooksInput, Prisma.SiteUncheckedCreateWithoutOccurrenceBooksInput>
+  connectOrCreate?: Prisma.SiteCreateOrConnectWithoutOccurrenceBooksInput
+  connect?: Prisma.SiteWhereUniqueInput
+}
+
+export type SiteUpdateOneRequiredWithoutOccurrenceBooksNestedInput = {
+  create?: Prisma.XOR<Prisma.SiteCreateWithoutOccurrenceBooksInput, Prisma.SiteUncheckedCreateWithoutOccurrenceBooksInput>
+  connectOrCreate?: Prisma.SiteCreateOrConnectWithoutOccurrenceBooksInput
+  upsert?: Prisma.SiteUpsertWithoutOccurrenceBooksInput
+  connect?: Prisma.SiteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SiteUpdateToOneWithWhereWithoutOccurrenceBooksInput, Prisma.SiteUpdateWithoutOccurrenceBooksInput>, Prisma.SiteUncheckedUpdateWithoutOccurrenceBooksInput>
+}
+
 export type SiteCreateNestedOneWithoutPatrolRoutesInput = {
   create?: Prisma.XOR<Prisma.SiteCreateWithoutPatrolRoutesInput, Prisma.SiteUncheckedCreateWithoutPatrolRoutesInput>
   connectOrCreate?: Prisma.SiteCreateOrConnectWithoutPatrolRoutesInput
@@ -531,6 +573,8 @@ export type SiteCreateWithoutUsersInput = {
   shifts?: Prisma.ShiftCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutSiteInput
 }
 
 export type SiteUncheckedCreateWithoutUsersInput = {
@@ -545,6 +589,8 @@ export type SiteUncheckedCreateWithoutUsersInput = {
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type SiteCreateOrConnectWithoutUsersInput = {
@@ -575,6 +621,8 @@ export type SiteUpdateWithoutUsersInput = {
   shifts?: Prisma.ShiftUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteUncheckedUpdateWithoutUsersInput = {
@@ -589,6 +637,8 @@ export type SiteUncheckedUpdateWithoutUsersInput = {
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteCreateWithoutTenantInput = {
@@ -603,6 +653,8 @@ export type SiteCreateWithoutTenantInput = {
   shifts?: Prisma.ShiftCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutSiteInput
 }
 
 export type SiteUncheckedCreateWithoutTenantInput = {
@@ -617,6 +669,8 @@ export type SiteUncheckedCreateWithoutTenantInput = {
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type SiteCreateOrConnectWithoutTenantInput = {
@@ -669,6 +723,8 @@ export type SiteCreateWithoutVisitorsInput = {
   shifts?: Prisma.ShiftCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutSiteInput
 }
 
 export type SiteUncheckedCreateWithoutVisitorsInput = {
@@ -683,6 +739,8 @@ export type SiteUncheckedCreateWithoutVisitorsInput = {
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type SiteCreateOrConnectWithoutVisitorsInput = {
@@ -713,6 +771,8 @@ export type SiteUpdateWithoutVisitorsInput = {
   shifts?: Prisma.ShiftUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteUncheckedUpdateWithoutVisitorsInput = {
@@ -727,6 +787,8 @@ export type SiteUncheckedUpdateWithoutVisitorsInput = {
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteCreateWithoutIncidentsInput = {
@@ -741,6 +803,8 @@ export type SiteCreateWithoutIncidentsInput = {
   shifts?: Prisma.ShiftCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutSiteInput
 }
 
 export type SiteUncheckedCreateWithoutIncidentsInput = {
@@ -755,6 +819,8 @@ export type SiteUncheckedCreateWithoutIncidentsInput = {
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type SiteCreateOrConnectWithoutIncidentsInput = {
@@ -785,6 +851,8 @@ export type SiteUpdateWithoutIncidentsInput = {
   shifts?: Prisma.ShiftUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteUncheckedUpdateWithoutIncidentsInput = {
@@ -799,6 +867,8 @@ export type SiteUncheckedUpdateWithoutIncidentsInput = {
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteCreateWithoutShiftsInput = {
@@ -813,6 +883,8 @@ export type SiteCreateWithoutShiftsInput = {
   incidents?: Prisma.IncidentCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutSiteInput
 }
 
 export type SiteUncheckedCreateWithoutShiftsInput = {
@@ -827,6 +899,8 @@ export type SiteUncheckedCreateWithoutShiftsInput = {
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type SiteCreateOrConnectWithoutShiftsInput = {
@@ -857,6 +931,8 @@ export type SiteUpdateWithoutShiftsInput = {
   incidents?: Prisma.IncidentUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteUncheckedUpdateWithoutShiftsInput = {
@@ -871,6 +947,168 @@ export type SiteUncheckedUpdateWithoutShiftsInput = {
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutSiteNestedInput
+}
+
+export type SiteCreateWithoutPostsInput = {
+  id?: string
+  name: string
+  address?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
+  users?: Prisma.UserCreateNestedManyWithoutSiteInput
+  visitors?: Prisma.VisitorCreateNestedManyWithoutSiteInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutSiteInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutSiteInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutSiteInput
+  patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutSiteInput
+}
+
+export type SiteUncheckedCreateWithoutPostsInput = {
+  id?: string
+  tenantId: string
+  name: string
+  address?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
+  visitors?: Prisma.VisitorUncheckedCreateNestedManyWithoutSiteInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutSiteInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutSiteInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutSiteInput
+  patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutSiteInput
+}
+
+export type SiteCreateOrConnectWithoutPostsInput = {
+  where: Prisma.SiteWhereUniqueInput
+  create: Prisma.XOR<Prisma.SiteCreateWithoutPostsInput, Prisma.SiteUncheckedCreateWithoutPostsInput>
+}
+
+export type SiteUpsertWithoutPostsInput = {
+  update: Prisma.XOR<Prisma.SiteUpdateWithoutPostsInput, Prisma.SiteUncheckedUpdateWithoutPostsInput>
+  create: Prisma.XOR<Prisma.SiteCreateWithoutPostsInput, Prisma.SiteUncheckedCreateWithoutPostsInput>
+  where?: Prisma.SiteWhereInput
+}
+
+export type SiteUpdateToOneWithWhereWithoutPostsInput = {
+  where?: Prisma.SiteWhereInput
+  data: Prisma.XOR<Prisma.SiteUpdateWithoutPostsInput, Prisma.SiteUncheckedUpdateWithoutPostsInput>
+}
+
+export type SiteUpdateWithoutPostsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
+  users?: Prisma.UserUpdateManyWithoutSiteNestedInput
+  visitors?: Prisma.VisitorUpdateManyWithoutSiteNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutSiteNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutSiteNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutSiteNestedInput
+  patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutSiteNestedInput
+}
+
+export type SiteUncheckedUpdateWithoutPostsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
+  visitors?: Prisma.VisitorUncheckedUpdateManyWithoutSiteNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutSiteNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutSiteNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutSiteNestedInput
+  patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutSiteNestedInput
+}
+
+export type SiteCreateWithoutOccurrenceBooksInput = {
+  id?: string
+  name: string
+  address?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
+  users?: Prisma.UserCreateNestedManyWithoutSiteInput
+  visitors?: Prisma.VisitorCreateNestedManyWithoutSiteInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutSiteInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutSiteInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutSiteInput
+  patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostCreateNestedManyWithoutSiteInput
+}
+
+export type SiteUncheckedCreateWithoutOccurrenceBooksInput = {
+  id?: string
+  tenantId: string
+  name: string
+  address?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
+  visitors?: Prisma.VisitorUncheckedCreateNestedManyWithoutSiteInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutSiteInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutSiteInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutSiteInput
+  patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutSiteInput
+}
+
+export type SiteCreateOrConnectWithoutOccurrenceBooksInput = {
+  where: Prisma.SiteWhereUniqueInput
+  create: Prisma.XOR<Prisma.SiteCreateWithoutOccurrenceBooksInput, Prisma.SiteUncheckedCreateWithoutOccurrenceBooksInput>
+}
+
+export type SiteUpsertWithoutOccurrenceBooksInput = {
+  update: Prisma.XOR<Prisma.SiteUpdateWithoutOccurrenceBooksInput, Prisma.SiteUncheckedUpdateWithoutOccurrenceBooksInput>
+  create: Prisma.XOR<Prisma.SiteCreateWithoutOccurrenceBooksInput, Prisma.SiteUncheckedCreateWithoutOccurrenceBooksInput>
+  where?: Prisma.SiteWhereInput
+}
+
+export type SiteUpdateToOneWithWhereWithoutOccurrenceBooksInput = {
+  where?: Prisma.SiteWhereInput
+  data: Prisma.XOR<Prisma.SiteUpdateWithoutOccurrenceBooksInput, Prisma.SiteUncheckedUpdateWithoutOccurrenceBooksInput>
+}
+
+export type SiteUpdateWithoutOccurrenceBooksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
+  users?: Prisma.UserUpdateManyWithoutSiteNestedInput
+  visitors?: Prisma.VisitorUpdateManyWithoutSiteNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutSiteNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutSiteNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutSiteNestedInput
+  patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUpdateManyWithoutSiteNestedInput
+}
+
+export type SiteUncheckedUpdateWithoutOccurrenceBooksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
+  visitors?: Prisma.VisitorUncheckedUpdateManyWithoutSiteNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutSiteNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutSiteNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutSiteNestedInput
+  patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteCreateWithoutPatrolRoutesInput = {
@@ -885,6 +1123,8 @@ export type SiteCreateWithoutPatrolRoutesInput = {
   incidents?: Prisma.IncidentCreateNestedManyWithoutSiteInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutSiteInput
 }
 
 export type SiteUncheckedCreateWithoutPatrolRoutesInput = {
@@ -899,6 +1139,8 @@ export type SiteUncheckedCreateWithoutPatrolRoutesInput = {
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutSiteInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutSiteInput
   patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type SiteCreateOrConnectWithoutPatrolRoutesInput = {
@@ -929,6 +1171,8 @@ export type SiteUpdateWithoutPatrolRoutesInput = {
   incidents?: Prisma.IncidentUpdateManyWithoutSiteNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteUncheckedUpdateWithoutPatrolRoutesInput = {
@@ -943,6 +1187,8 @@ export type SiteUncheckedUpdateWithoutPatrolRoutesInput = {
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutSiteNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteCreateWithoutPatrolLogsInput = {
@@ -957,6 +1203,8 @@ export type SiteCreateWithoutPatrolLogsInput = {
   incidents?: Prisma.IncidentCreateNestedManyWithoutSiteInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutSiteInput
 }
 
 export type SiteUncheckedCreateWithoutPatrolLogsInput = {
@@ -971,6 +1219,8 @@ export type SiteUncheckedCreateWithoutPatrolLogsInput = {
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutSiteInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutSiteInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutSiteInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutSiteInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type SiteCreateOrConnectWithoutPatrolLogsInput = {
@@ -1001,6 +1251,8 @@ export type SiteUpdateWithoutPatrolLogsInput = {
   incidents?: Prisma.IncidentUpdateManyWithoutSiteNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteUncheckedUpdateWithoutPatrolLogsInput = {
@@ -1015,6 +1267,8 @@ export type SiteUncheckedUpdateWithoutPatrolLogsInput = {
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutSiteNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteCreateManyTenantInput = {
@@ -1037,6 +1291,8 @@ export type SiteUpdateWithoutTenantInput = {
   shifts?: Prisma.ShiftUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteUncheckedUpdateWithoutTenantInput = {
@@ -1051,6 +1307,8 @@ export type SiteUncheckedUpdateWithoutTenantInput = {
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutSiteNestedInput
   patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutSiteNestedInput
   patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutSiteNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutSiteNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type SiteUncheckedUpdateManyWithoutTenantInput = {
@@ -1073,6 +1331,8 @@ export type SiteCountOutputType = {
   shifts: number
   patrolLogs: number
   patrolRoutes: number
+  posts: number
+  occurrenceBooks: number
 }
 
 export type SiteCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1082,6 +1342,8 @@ export type SiteCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   shifts?: boolean | SiteCountOutputTypeCountShiftsArgs
   patrolLogs?: boolean | SiteCountOutputTypeCountPatrolLogsArgs
   patrolRoutes?: boolean | SiteCountOutputTypeCountPatrolRoutesArgs
+  posts?: boolean | SiteCountOutputTypeCountPostsArgs
+  occurrenceBooks?: boolean | SiteCountOutputTypeCountOccurrenceBooksArgs
 }
 
 /**
@@ -1136,6 +1398,20 @@ export type SiteCountOutputTypeCountPatrolRoutesArgs<ExtArgs extends runtime.Typ
   where?: Prisma.PatrolRouteWhereInput
 }
 
+/**
+ * SiteCountOutputType without action
+ */
+export type SiteCountOutputTypeCountPostsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PostWhereInput
+}
+
+/**
+ * SiteCountOutputType without action
+ */
+export type SiteCountOutputTypeCountOccurrenceBooksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OccurrenceBookEntryWhereInput
+}
+
 
 export type SiteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1151,6 +1427,8 @@ export type SiteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   shifts?: boolean | Prisma.Site$shiftsArgs<ExtArgs>
   patrolLogs?: boolean | Prisma.Site$patrolLogsArgs<ExtArgs>
   patrolRoutes?: boolean | Prisma.Site$patrolRoutesArgs<ExtArgs>
+  posts?: boolean | Prisma.Site$postsArgs<ExtArgs>
+  occurrenceBooks?: boolean | Prisma.Site$occurrenceBooksArgs<ExtArgs>
   _count?: boolean | Prisma.SiteCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["site"]>
 
@@ -1192,6 +1470,8 @@ export type SiteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   shifts?: boolean | Prisma.Site$shiftsArgs<ExtArgs>
   patrolLogs?: boolean | Prisma.Site$patrolLogsArgs<ExtArgs>
   patrolRoutes?: boolean | Prisma.Site$patrolRoutesArgs<ExtArgs>
+  posts?: boolean | Prisma.Site$postsArgs<ExtArgs>
+  occurrenceBooks?: boolean | Prisma.Site$occurrenceBooksArgs<ExtArgs>
   _count?: boolean | Prisma.SiteCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SiteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1211,6 +1491,8 @@ export type $SitePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     shifts: Prisma.$ShiftPayload<ExtArgs>[]
     patrolLogs: Prisma.$PatrolLogPayload<ExtArgs>[]
     patrolRoutes: Prisma.$PatrolRoutePayload<ExtArgs>[]
+    posts: Prisma.$PostPayload<ExtArgs>[]
+    occurrenceBooks: Prisma.$OccurrenceBookEntryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1620,6 +1902,8 @@ export interface Prisma__SiteClient<T, Null = never, ExtArgs extends runtime.Typ
   shifts<T extends Prisma.Site$shiftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Site$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   patrolLogs<T extends Prisma.Site$patrolLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Site$patrolLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   patrolRoutes<T extends Prisma.Site$patrolRoutesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Site$patrolRoutesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolRoutePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  posts<T extends Prisma.Site$postsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Site$postsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  occurrenceBooks<T extends Prisma.Site$occurrenceBooksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Site$occurrenceBooksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OccurrenceBookEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2197,6 +2481,54 @@ export type Site$patrolRoutesArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.PatrolRouteScalarFieldEnum | Prisma.PatrolRouteScalarFieldEnum[]
+}
+
+/**
+ * Site.posts
+ */
+export type Site$postsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Post
+   */
+  select?: Prisma.PostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Post
+   */
+  omit?: Prisma.PostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PostInclude<ExtArgs> | null
+  where?: Prisma.PostWhereInput
+  orderBy?: Prisma.PostOrderByWithRelationInput | Prisma.PostOrderByWithRelationInput[]
+  cursor?: Prisma.PostWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PostScalarFieldEnum | Prisma.PostScalarFieldEnum[]
+}
+
+/**
+ * Site.occurrenceBooks
+ */
+export type Site$occurrenceBooksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OccurrenceBookEntry
+   */
+  select?: Prisma.OccurrenceBookEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OccurrenceBookEntry
+   */
+  omit?: Prisma.OccurrenceBookEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OccurrenceBookEntryInclude<ExtArgs> | null
+  where?: Prisma.OccurrenceBookEntryWhereInput
+  orderBy?: Prisma.OccurrenceBookEntryOrderByWithRelationInput | Prisma.OccurrenceBookEntryOrderByWithRelationInput[]
+  cursor?: Prisma.OccurrenceBookEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OccurrenceBookEntryScalarFieldEnum | Prisma.OccurrenceBookEntryScalarFieldEnum[]
 }
 
 /**

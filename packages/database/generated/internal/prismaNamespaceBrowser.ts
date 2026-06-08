@@ -62,6 +62,8 @@ export const ModelName = {
   Visitor: 'Visitor',
   Incident: 'Incident',
   Shift: 'Shift',
+  Post: 'Post',
+  OccurrenceBookEntry: 'OccurrenceBookEntry',
   PatrolRoute: 'PatrolRoute',
   PatrolCheckpoint: 'PatrolCheckpoint',
   PatrolLog: 'PatrolLog',
@@ -225,6 +227,8 @@ export const VisitorScalarFieldEnum = {
   loggedById: 'loggedById',
   name: 'name',
   idNumber: 'idNumber',
+  company: 'company',
+  personVisiting: 'personVisiting',
   vehicleReg: 'vehicleReg',
   purpose: 'purpose',
   status: 'status',
@@ -258,12 +262,41 @@ export const ShiftScalarFieldEnum = {
   userId: 'userId',
   startTime: 'startTime',
   endTime: 'endTime',
+  actualStartTime: 'actualStartTime',
+  actualEndTime: 'actualEndTime',
   status: 'status',
+  postId: 'postId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof ShiftScalarFieldEnum]
+
+
+export const PostScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
+  name: 'name',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
+
+
+export const OccurrenceBookEntryScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
+  userId: 'userId',
+  entryText: 'entryText',
+  category: 'category',
+  createdAt: 'createdAt'
+} as const
+
+export type OccurrenceBookEntryScalarFieldEnum = (typeof OccurrenceBookEntryScalarFieldEnum)[keyof typeof OccurrenceBookEntryScalarFieldEnum]
 
 
 export const PatrolRouteScalarFieldEnum = {

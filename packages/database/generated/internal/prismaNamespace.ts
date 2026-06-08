@@ -395,6 +395,8 @@ export const ModelName = {
   Visitor: 'Visitor',
   Incident: 'Incident',
   Shift: 'Shift',
+  Post: 'Post',
+  OccurrenceBookEntry: 'OccurrenceBookEntry',
   PatrolRoute: 'PatrolRoute',
   PatrolCheckpoint: 'PatrolCheckpoint',
   PatrolLog: 'PatrolLog',
@@ -415,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "payment" | "user" | "auditLog" | "notification" | "systemSetting" | "subscriptionTier" | "tenant" | "site" | "visitor" | "incident" | "shift" | "patrolRoute" | "patrolCheckpoint" | "patrolLog" | "supportTicket" | "ticketMessage"
+    modelProps: "payment" | "user" | "auditLog" | "notification" | "systemSetting" | "subscriptionTier" | "tenant" | "site" | "visitor" | "incident" | "shift" | "post" | "occurrenceBookEntry" | "patrolRoute" | "patrolCheckpoint" | "patrolLog" | "supportTicket" | "ticketMessage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1233,6 +1235,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Post: {
+      payload: Prisma.$PostPayload<ExtArgs>
+      fields: Prisma.PostFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PostFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PostFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload>
+        }
+        findFirst: {
+          args: Prisma.PostFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PostFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload>
+        }
+        findMany: {
+          args: Prisma.PostFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload>[]
+        }
+        create: {
+          args: Prisma.PostCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload>
+        }
+        createMany: {
+          args: Prisma.PostCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PostCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload>[]
+        }
+        delete: {
+          args: Prisma.PostDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload>
+        }
+        update: {
+          args: Prisma.PostUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload>
+        }
+        deleteMany: {
+          args: Prisma.PostDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PostUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PostUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload>[]
+        }
+        upsert: {
+          args: Prisma.PostUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostPayload>
+        }
+        aggregate: {
+          args: Prisma.PostAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePost>
+        }
+        groupBy: {
+          args: Prisma.PostGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PostGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PostCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PostCountAggregateOutputType> | number
+        }
+      }
+    }
+    OccurrenceBookEntry: {
+      payload: Prisma.$OccurrenceBookEntryPayload<ExtArgs>
+      fields: Prisma.OccurrenceBookEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OccurrenceBookEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OccurrenceBookEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.OccurrenceBookEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OccurrenceBookEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload>
+        }
+        findMany: {
+          args: Prisma.OccurrenceBookEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload>[]
+        }
+        create: {
+          args: Prisma.OccurrenceBookEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload>
+        }
+        createMany: {
+          args: Prisma.OccurrenceBookEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OccurrenceBookEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.OccurrenceBookEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload>
+        }
+        update: {
+          args: Prisma.OccurrenceBookEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.OccurrenceBookEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OccurrenceBookEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OccurrenceBookEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.OccurrenceBookEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OccurrenceBookEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.OccurrenceBookEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOccurrenceBookEntry>
+        }
+        groupBy: {
+          args: Prisma.OccurrenceBookEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OccurrenceBookEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OccurrenceBookEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OccurrenceBookEntryCountAggregateOutputType> | number
+        }
+      }
+    }
     PatrolRoute: {
       payload: Prisma.$PatrolRoutePayload<ExtArgs>
       fields: Prisma.PatrolRouteFieldRefs
@@ -1782,6 +1932,8 @@ export const VisitorScalarFieldEnum = {
   loggedById: 'loggedById',
   name: 'name',
   idNumber: 'idNumber',
+  company: 'company',
+  personVisiting: 'personVisiting',
   vehicleReg: 'vehicleReg',
   purpose: 'purpose',
   status: 'status',
@@ -1815,12 +1967,41 @@ export const ShiftScalarFieldEnum = {
   userId: 'userId',
   startTime: 'startTime',
   endTime: 'endTime',
+  actualStartTime: 'actualStartTime',
+  actualEndTime: 'actualEndTime',
   status: 'status',
+  postId: 'postId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof ShiftScalarFieldEnum]
+
+
+export const PostScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
+  name: 'name',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
+
+
+export const OccurrenceBookEntryScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
+  userId: 'userId',
+  entryText: 'entryText',
+  category: 'category',
+  createdAt: 'createdAt'
+} as const
+
+export type OccurrenceBookEntryScalarFieldEnum = (typeof OccurrenceBookEntryScalarFieldEnum)[keyof typeof OccurrenceBookEntryScalarFieldEnum]
 
 
 export const PatrolRouteScalarFieldEnum = {
@@ -2270,6 +2451,8 @@ export type GlobalOmitConfig = {
   visitor?: Prisma.VisitorOmit
   incident?: Prisma.IncidentOmit
   shift?: Prisma.ShiftOmit
+  post?: Prisma.PostOmit
+  occurrenceBookEntry?: Prisma.OccurrenceBookEntryOmit
   patrolRoute?: Prisma.PatrolRouteOmit
   patrolCheckpoint?: Prisma.PatrolCheckpointOmit
   patrolLog?: Prisma.PatrolLogOmit

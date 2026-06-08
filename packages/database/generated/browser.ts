@@ -73,6 +73,16 @@ export type Incident = Prisma.IncidentModel
  */
 export type Shift = Prisma.ShiftModel
 /**
+ * Model Post
+ * 
+ */
+export type Post = Prisma.PostModel
+/**
+ * Model OccurrenceBookEntry
+ * 
+ */
+export type OccurrenceBookEntry = Prisma.OccurrenceBookEntryModel
+/**
  * Model PatrolRoute
  * 
  */

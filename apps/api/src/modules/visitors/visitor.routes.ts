@@ -9,4 +9,6 @@ router.route("/")
   .get(visitorController.getVisitors)
   .post(visitorController.checkInVisitor);
 
+router.patch("/:id/checkout", visitorController.checkOutVisitor);
+
 export default router;

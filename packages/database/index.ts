@@ -22,8 +22,8 @@ if (!connectionString) {
 
 const pool = new pg.Pool({
   connectionString,
-  max: 10,
-  idleTimeoutMillis: 30000,
+  max: process.env.NODE_ENV === "production" ? 10 : 2,
+  idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 5000,
 });
 

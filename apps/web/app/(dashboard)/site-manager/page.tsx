@@ -14,5 +14,5 @@ export default function SiteManagerDashboard() {
     );
   }
 
-  return <SiteDetailsView siteId={user.siteId} />;
+  return <SiteDetailsView siteId={user.siteId} hideBackButton={true} />;
 }

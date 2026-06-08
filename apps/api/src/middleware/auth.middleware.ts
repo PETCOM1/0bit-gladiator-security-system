@@ -67,8 +67,12 @@ export const protect = async (
     };
 
     next();
-  } catch {
-    return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid or expired session" });
+  } catch (error: any) {
+    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid or expired session" });
+    }
+    // For database or other errors, pass to global error handler
+    next(error);
   }
 };
 

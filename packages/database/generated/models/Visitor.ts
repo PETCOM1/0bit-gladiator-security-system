@@ -31,6 +31,8 @@ export type VisitorMinAggregateOutputType = {
   loggedById: string | null
   name: string | null
   idNumber: string | null
+  company: string | null
+  personVisiting: string | null
   vehicleReg: string | null
   purpose: string | null
   status: $Enums.VisitorStatus | null
@@ -45,6 +47,8 @@ export type VisitorMaxAggregateOutputType = {
   loggedById: string | null
   name: string | null
   idNumber: string | null
+  company: string | null
+  personVisiting: string | null
   vehicleReg: string | null
   purpose: string | null
   status: $Enums.VisitorStatus | null
@@ -59,6 +63,8 @@ export type VisitorCountAggregateOutputType = {
   loggedById: number
   name: number
   idNumber: number
+  company: number
+  personVisiting: number
   vehicleReg: number
   purpose: number
   status: number
@@ -75,6 +81,8 @@ export type VisitorMinAggregateInputType = {
   loggedById?: true
   name?: true
   idNumber?: true
+  company?: true
+  personVisiting?: true
   vehicleReg?: true
   purpose?: true
   status?: true
@@ -89,6 +97,8 @@ export type VisitorMaxAggregateInputType = {
   loggedById?: true
   name?: true
   idNumber?: true
+  company?: true
+  personVisiting?: true
   vehicleReg?: true
   purpose?: true
   status?: true
@@ -103,6 +113,8 @@ export type VisitorCountAggregateInputType = {
   loggedById?: true
   name?: true
   idNumber?: true
+  company?: true
+  personVisiting?: true
   vehicleReg?: true
   purpose?: true
   status?: true
@@ -190,6 +202,8 @@ export type VisitorGroupByOutputType = {
   loggedById: string
   name: string
   idNumber: string | null
+  company: string | null
+  personVisiting: string | null
   vehicleReg: string | null
   purpose: string | null
   status: $Enums.VisitorStatus
@@ -225,6 +239,8 @@ export type VisitorWhereInput = {
   loggedById?: Prisma.StringFilter<"Visitor"> | string
   name?: Prisma.StringFilter<"Visitor"> | string
   idNumber?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  company?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  personVisiting?: Prisma.StringNullableFilter<"Visitor"> | string | null
   vehicleReg?: Prisma.StringNullableFilter<"Visitor"> | string | null
   purpose?: Prisma.StringNullableFilter<"Visitor"> | string | null
   status?: Prisma.EnumVisitorStatusFilter<"Visitor"> | $Enums.VisitorStatus
@@ -242,6 +258,8 @@ export type VisitorOrderByWithRelationInput = {
   loggedById?: Prisma.SortOrder
   name?: Prisma.SortOrder
   idNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  company?: Prisma.SortOrderInput | Prisma.SortOrder
+  personVisiting?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleReg?: Prisma.SortOrderInput | Prisma.SortOrder
   purpose?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -262,6 +280,8 @@ export type VisitorWhereUniqueInput = Prisma.AtLeast<{
   loggedById?: Prisma.StringFilter<"Visitor"> | string
   name?: Prisma.StringFilter<"Visitor"> | string
   idNumber?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  company?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  personVisiting?: Prisma.StringNullableFilter<"Visitor"> | string | null
   vehicleReg?: Prisma.StringNullableFilter<"Visitor"> | string | null
   purpose?: Prisma.StringNullableFilter<"Visitor"> | string | null
   status?: Prisma.EnumVisitorStatusFilter<"Visitor"> | $Enums.VisitorStatus
@@ -279,6 +299,8 @@ export type VisitorOrderByWithAggregationInput = {
   loggedById?: Prisma.SortOrder
   name?: Prisma.SortOrder
   idNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  company?: Prisma.SortOrderInput | Prisma.SortOrder
+  personVisiting?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleReg?: Prisma.SortOrderInput | Prisma.SortOrder
   purpose?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -299,6 +321,8 @@ export type VisitorScalarWhereWithAggregatesInput = {
   loggedById?: Prisma.StringWithAggregatesFilter<"Visitor"> | string
   name?: Prisma.StringWithAggregatesFilter<"Visitor"> | string
   idNumber?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
+  company?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
+  personVisiting?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
   vehicleReg?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
   purpose?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
   status?: Prisma.EnumVisitorStatusWithAggregatesFilter<"Visitor"> | $Enums.VisitorStatus
@@ -310,6 +334,8 @@ export type VisitorCreateInput = {
   id?: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -327,6 +353,8 @@ export type VisitorUncheckedCreateInput = {
   loggedById: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -338,6 +366,8 @@ export type VisitorUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -355,6 +385,8 @@ export type VisitorUncheckedUpdateInput = {
   loggedById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -369,6 +401,8 @@ export type VisitorCreateManyInput = {
   loggedById: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -380,6 +414,8 @@ export type VisitorUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -394,6 +430,8 @@ export type VisitorUncheckedUpdateManyInput = {
   loggedById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -418,6 +456,8 @@ export type VisitorCountOrderByAggregateInput = {
   loggedById?: Prisma.SortOrder
   name?: Prisma.SortOrder
   idNumber?: Prisma.SortOrder
+  company?: Prisma.SortOrder
+  personVisiting?: Prisma.SortOrder
   vehicleReg?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -432,6 +472,8 @@ export type VisitorMaxOrderByAggregateInput = {
   loggedById?: Prisma.SortOrder
   name?: Prisma.SortOrder
   idNumber?: Prisma.SortOrder
+  company?: Prisma.SortOrder
+  personVisiting?: Prisma.SortOrder
   vehicleReg?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -446,6 +488,8 @@ export type VisitorMinOrderByAggregateInput = {
   loggedById?: Prisma.SortOrder
   name?: Prisma.SortOrder
   idNumber?: Prisma.SortOrder
+  company?: Prisma.SortOrder
+  personVisiting?: Prisma.SortOrder
   vehicleReg?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -587,6 +631,8 @@ export type VisitorCreateWithoutLoggedByInput = {
   id?: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -602,6 +648,8 @@ export type VisitorUncheckedCreateWithoutLoggedByInput = {
   siteId: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -645,6 +693,8 @@ export type VisitorScalarWhereInput = {
   loggedById?: Prisma.StringFilter<"Visitor"> | string
   name?: Prisma.StringFilter<"Visitor"> | string
   idNumber?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  company?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  personVisiting?: Prisma.StringNullableFilter<"Visitor"> | string | null
   vehicleReg?: Prisma.StringNullableFilter<"Visitor"> | string | null
   purpose?: Prisma.StringNullableFilter<"Visitor"> | string | null
   status?: Prisma.EnumVisitorStatusFilter<"Visitor"> | $Enums.VisitorStatus
@@ -656,6 +706,8 @@ export type VisitorCreateWithoutTenantInput = {
   id?: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -671,6 +723,8 @@ export type VisitorUncheckedCreateWithoutTenantInput = {
   loggedById: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -708,6 +762,8 @@ export type VisitorCreateWithoutSiteInput = {
   id?: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -723,6 +779,8 @@ export type VisitorUncheckedCreateWithoutSiteInput = {
   loggedById: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -762,6 +820,8 @@ export type VisitorCreateManyLoggedByInput = {
   siteId: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -773,6 +833,8 @@ export type VisitorUpdateWithoutLoggedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -788,6 +850,8 @@ export type VisitorUncheckedUpdateWithoutLoggedByInput = {
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -801,6 +865,8 @@ export type VisitorUncheckedUpdateManyWithoutLoggedByInput = {
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -814,6 +880,8 @@ export type VisitorCreateManyTenantInput = {
   loggedById: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -825,6 +893,8 @@ export type VisitorUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -840,6 +910,8 @@ export type VisitorUncheckedUpdateWithoutTenantInput = {
   loggedById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -853,6 +925,8 @@ export type VisitorUncheckedUpdateManyWithoutTenantInput = {
   loggedById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -866,6 +940,8 @@ export type VisitorCreateManySiteInput = {
   loggedById: string
   name: string
   idNumber?: string | null
+  company?: string | null
+  personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
   status?: $Enums.VisitorStatus
@@ -877,6 +953,8 @@ export type VisitorUpdateWithoutSiteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -892,6 +970,8 @@ export type VisitorUncheckedUpdateWithoutSiteInput = {
   loggedById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -905,6 +985,8 @@ export type VisitorUncheckedUpdateManyWithoutSiteInput = {
   loggedById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
@@ -921,6 +1003,8 @@ export type VisitorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   loggedById?: boolean
   name?: boolean
   idNumber?: boolean
+  company?: boolean
+  personVisiting?: boolean
   vehicleReg?: boolean
   purpose?: boolean
   status?: boolean
@@ -938,6 +1022,8 @@ export type VisitorSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   loggedById?: boolean
   name?: boolean
   idNumber?: boolean
+  company?: boolean
+  personVisiting?: boolean
   vehicleReg?: boolean
   purpose?: boolean
   status?: boolean
@@ -955,6 +1041,8 @@ export type VisitorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   loggedById?: boolean
   name?: boolean
   idNumber?: boolean
+  company?: boolean
+  personVisiting?: boolean
   vehicleReg?: boolean
   purpose?: boolean
   status?: boolean
@@ -972,6 +1060,8 @@ export type VisitorSelectScalar = {
   loggedById?: boolean
   name?: boolean
   idNumber?: boolean
+  company?: boolean
+  personVisiting?: boolean
   vehicleReg?: boolean
   purpose?: boolean
   status?: boolean
@@ -979,7 +1069,7 @@ export type VisitorSelectScalar = {
   checkOutTime?: boolean
 }
 
-export type VisitorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "siteId" | "loggedById" | "name" | "idNumber" | "vehicleReg" | "purpose" | "status" | "checkInTime" | "checkOutTime", ExtArgs["result"]["visitor"]>
+export type VisitorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "siteId" | "loggedById" | "name" | "idNumber" | "company" | "personVisiting" | "vehicleReg" | "purpose" | "status" | "checkInTime" | "checkOutTime", ExtArgs["result"]["visitor"]>
 export type VisitorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
@@ -1010,6 +1100,8 @@ export type $VisitorPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     loggedById: string
     name: string
     idNumber: string | null
+    company: string | null
+    personVisiting: string | null
     vehicleReg: string | null
     purpose: string | null
     status: $Enums.VisitorStatus
@@ -1447,6 +1539,8 @@ export interface VisitorFieldRefs {
   readonly loggedById: Prisma.FieldRef<"Visitor", 'String'>
   readonly name: Prisma.FieldRef<"Visitor", 'String'>
   readonly idNumber: Prisma.FieldRef<"Visitor", 'String'>
+  readonly company: Prisma.FieldRef<"Visitor", 'String'>
+  readonly personVisiting: Prisma.FieldRef<"Visitor", 'String'>
   readonly vehicleReg: Prisma.FieldRef<"Visitor", 'String'>
   readonly purpose: Prisma.FieldRef<"Visitor", 'String'>
   readonly status: Prisma.FieldRef<"Visitor", 'VisitorStatus'>

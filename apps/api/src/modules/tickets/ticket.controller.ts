@@ -10,8 +10,11 @@ export const getTickets = catchAsync(async (req: Request, res: Response) => {
   const { tenantId, status } = req.query;
   const where: any = {};
   
-  if (req.user!.role === "MANAGER") {
+  if (req.user!.role === "MANAGER" || req.user!.role === "SITE_MANAGER") {
     where.tenantId = req.user!.tenantId;
+    if (req.user!.role === "SITE_MANAGER") {
+      where.createdById = req.user!.userId;
+    }
   } else if (tenantId) {
     where.tenantId = tenantId;
   }
@@ -52,8 +55,11 @@ export const getTicketById = catchAsync(async (req: Request, res: Response) => {
 
   if (!ticket) throw new AppError("Ticket not found", HttpStatus.NOT_FOUND);
 
-  if (req.user!.role === "MANAGER" && ticket.tenantId !== req.user!.tenantId) {
-    throw new AppError("Not authorised", HttpStatus.FORBIDDEN);
+  if (req.user!.role === "MANAGER" || req.user!.role === "SITE_MANAGER") {
+    if (ticket.tenantId !== req.user!.tenantId) throw new AppError("Not authorised", HttpStatus.FORBIDDEN);
+    if (req.user!.role === "SITE_MANAGER" && ticket.createdById !== req.user!.userId) {
+      throw new AppError("Not authorised", HttpStatus.FORBIDDEN);
+    }
   }
 
   return res.status(HttpStatus.OK).json({ status: "success", data: { ticket } });
@@ -67,7 +73,7 @@ export const createTicket = catchAsync(async (req: Request, res: Response) => {
     throw new AppError("Subject and description required", HttpStatus.BAD_REQUEST);
   }
 
-  const tenantId = req.user!.role === "MANAGER" ? req.user!.tenantId : req.body.tenantId;
+  const tenantId = (req.user!.role === "MANAGER" || req.user!.role === "SITE_MANAGER") ? req.user!.tenantId : req.body.tenantId;
   if (!tenantId) {
     throw new AppError("Tenant ID required", HttpStatus.BAD_REQUEST);
   }
@@ -105,8 +111,11 @@ export const replyToTicket = catchAsync(async (req: Request, res: Response) => {
   const ticket = await prisma.supportTicket.findUnique({ where: { id } });
   if (!ticket) throw new AppError("Ticket not found", HttpStatus.NOT_FOUND);
 
-  if (req.user!.role === "MANAGER" && ticket.tenantId !== req.user!.tenantId) {
-    throw new AppError("Not authorised", HttpStatus.FORBIDDEN);
+  if (req.user!.role === "MANAGER" || req.user!.role === "SITE_MANAGER") {
+    if (ticket.tenantId !== req.user!.tenantId) throw new AppError("Not authorised", HttpStatus.FORBIDDEN);
+    if (req.user!.role === "SITE_MANAGER" && ticket.createdById !== req.user!.userId) {
+      throw new AppError("Not authorised", HttpStatus.FORBIDDEN);
+    }
   }
 
   const message = await prisma.ticketMessage.create({
@@ -118,7 +127,7 @@ export const replyToTicket = catchAsync(async (req: Request, res: Response) => {
   });
 
   // Update ticket status depending on who replied
-  const newStatus = req.user!.role === "MANAGER" ? "OPEN" : "WAITING_ON_CUSTOMER";
+  const newStatus = (req.user!.role === "MANAGER" || req.user!.role === "SITE_MANAGER") ? "OPEN" : "WAITING_ON_CUSTOMER";
   await prisma.supportTicket.update({
     where: { id },
     data: { status: newStatus as any, updatedAt: new Date() }
@@ -138,9 +147,12 @@ export const updateTicketStatus = catchAsync(async (req: Request, res: Response)
   if (!ticket) throw new AppError("Ticket not found", HttpStatus.NOT_FOUND);
 
   // Managers can only close tickets. Admins can do anything.
-  if (req.user!.role === "MANAGER") {
+  if (req.user!.role === "MANAGER" || req.user!.role === "SITE_MANAGER") {
     if (ticket.tenantId !== req.user!.tenantId) throw new AppError("Not authorised", HttpStatus.FORBIDDEN);
-    if (status !== "CLOSED" && status !== "RESOLVED") throw new AppError("Managers can only close tickets", HttpStatus.FORBIDDEN);
+    if (req.user!.role === "SITE_MANAGER" && ticket.createdById !== req.user!.userId) {
+      throw new AppError("Not authorised", HttpStatus.FORBIDDEN);
+    }
+    if (status !== "CLOSED" && status !== "RESOLVED") throw new AppError("Managers can only close/resolve tickets", HttpStatus.FORBIDDEN);
   }
 
   const updatedTicket = await prisma.supportTicket.update({

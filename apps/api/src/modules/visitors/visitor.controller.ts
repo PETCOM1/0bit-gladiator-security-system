@@ -4,16 +4,34 @@ import { HttpStatus } from "@repo/types";
 import { catchAsync } from "../../utils/catchAsync.js";
 
 export const checkInVisitor = catchAsync(async (req: Request, res: Response) => {
-  const { name, idNumber, vehicleReg, purpose } = req.body;
+  const { name, idNumber, company, personVisiting, vehicleReg, purpose } = req.body;
   const tenantId = req.user!.tenantId;
   const siteId = req.user!.siteId;
   
   if (!tenantId || !siteId) return res.status(403).json({ message: "No tenant/site context" });
 
   const visitor = await prisma.visitor.create({
-    data: { tenantId, siteId, loggedById: req.user!.userId, name, idNumber, vehicleReg, purpose }
+    data: { tenantId, siteId, loggedById: req.user!.userId, name, idNumber, company, personVisiting, vehicleReg, purpose }
   });
   res.status(HttpStatus.CREATED).json({ status: "success", data: { visitor } });
+});
+
+export const checkOutVisitor = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const tenantId = req.user!.tenantId;
+
+  if (!tenantId) return res.status(403).json({ message: "No tenant context" });
+
+  const visitor = await prisma.visitor.updateMany({
+    where: { id, tenantId },
+    data: { status: "CHECKED_OUT", checkOutTime: new Date() }
+  });
+  
+  if (visitor.count === 0) {
+    return res.status(404).json({ message: "Visitor not found or already checked out" });
+  }
+
+  res.status(HttpStatus.OK).json({ status: "success", message: "Visitor checked out" });
 });
 
 export const getVisitors = catchAsync(async (req: Request, res: Response) => {

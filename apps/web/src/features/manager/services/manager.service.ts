@@ -20,13 +20,28 @@ export const managerService = {
 
   // Incidents
   getIncidents: () => apiClient.get("/incidents"),
+  createIncident: (data: { title: string; description: string; severity?: string; siteId?: string }) => apiClient.post("/incidents", data),
   updateIncidentStatus: (id: string, data: { status?: string; severity?: string }) => apiClient.patch(`/incidents/${id}`, data),
 
   // Visitors
   getVisitors: () => apiClient.get("/visitors"),
+  checkInVisitor: (data: { name: string; idNumber?: string; company?: string; personVisiting?: string; vehicleReg?: string; purpose?: string; siteId?: string }) => apiClient.post("/visitors", data),
+  checkOutVisitor: (id: string) => apiClient.patch(`/visitors/${id}/checkout`),
 
   // Shifts & Attendance
   getTenantShifts: () => apiClient.get("/shifts/tenant"),
+  createShift: (data: { userId: string; startTime: string; endTime: string; postId?: string; siteId?: string }) => apiClient.post("/shifts", data),
+  startShift: (data: { shiftId?: string }) => apiClient.post("/shifts/start", data),
+  endShift: (id: string) => apiClient.post(`/shifts/${id}/end`),
+
+  // Posts
+  getTenantPosts: (siteId?: string) => apiClient.get("/posts/tenant", { params: { siteId } }),
+  createPost: (data: { name: string; siteId?: string }) => apiClient.post("/posts", data),
+  updatePost: (id: string, data: { name?: string; isActive?: boolean }) => apiClient.patch(`/posts/${id}`, data),
+
+  // Occurrences
+  getOccurrences: (siteId?: string) => apiClient.get("/occurrences", { params: { siteId } }),
+  createOccurrence: (data: { entryText: string; category?: string; siteId?: string }) => apiClient.post("/occurrences", data),
 
   // Profile & Settings
   updateTenantProfile: (data: { name: string }) => apiClient.patch("/manager/profile", data),

@@ -139,6 +139,7 @@ model User {
   visitorsLogged    Visitor[]
   incidentsReported Incident[]
   patrolLogs        PatrolLog[]
+  occurrenceBooks   OccurrenceBookEntry[]
   ticketsCreated    SupportTicket[]
   ticketMessages    TicketMessage[]
 
@@ -232,6 +233,8 @@ model Tenant {
   shifts       Shift[]
   patrolLogs   PatrolLog[]
   patrolRoutes PatrolRoute[]
+  posts        Post[]
+  occurrenceBooks OccurrenceBookEntry[]
   payments     Payment[]
   tickets      SupportTicket[]
 
@@ -253,6 +256,8 @@ model Site {
   shifts       Shift[]
   patrolLogs   PatrolLog[]
   patrolRoutes PatrolRoute[]
+  posts        Post[]
+  occurrenceBooks OccurrenceBookEntry[]
 
   @@index([tenantId])
 }
@@ -267,11 +272,13 @@ model Visitor {
   loggedById String
   loggedBy   User   @relation(fields: [loggedById], references: [id])
 
-  name       String
-  idNumber   String?
-  vehicleReg String?
-  purpose    String?
-  status     VisitorStatus @default(CHECKED_IN)
+  name           String
+  idNumber       String?
+  company        String?
+  personVisiting String?
+  vehicleReg     String?
+  purpose        String?
+  status         VisitorStatus @default(CHECKED_IN)
 
   checkInTime  DateTime  @default(now())
   checkOutTime DateTime?
@@ -315,9 +322,14 @@ model Shift {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  startTime DateTime
-  endTime   DateTime?
-  status    ShiftStatus @default(SCHEDULED)
+  startTime       DateTime
+  endTime         DateTime?
+  actualStartTime DateTime?
+  actualEndTime   DateTime?
+  status          ShiftStatus @default(SCHEDULED)
+
+  postId String?
+  post   Post?   @relation(fields: [postId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -325,6 +337,45 @@ model Shift {
   @@index([tenantId])
   @@index([siteId])
   @@index([userId])
+  @@index([postId])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  siteId    String
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shifts    Shift[]
+
+  @@index([tenantId])
+  @@index([siteId])
+}
+
+model OccurrenceBookEntry {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  siteId    String
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  entryText String
+  category  String   @default("ROUTINE") // e.g. ROUTINE, HANDOVER, EMERGENCY
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([siteId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model PatrolRoute {

@@ -129,10 +129,11 @@ export const inviteUser = catchAsync(async (req: Request, res: Response) => {
 
 export const getTenantUsers = catchAsync(async (req: Request, res: Response) => {
   const tenantId = req.user!.tenantId;
+  const siteId = req.user!.role === "MANAGER" ? null : req.user!.siteId;
   if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
 
   const users = await prisma.user.findMany({
-    where: { tenantId, role: { in: ["SITE_MANAGER", "USER"] }, accountStatus: { not: "DELETED" } },
+    where: { tenantId, role: { in: ["SITE_MANAGER", "USER"] }, accountStatus: { not: "DELETED" }, ...(siteId && { siteId }) },
     select: { ...PROFILE_SELECT, site: { select: { id: true, name: true } } },
     orderBy: { createdAt: "desc" }
   });
@@ -180,7 +181,12 @@ export const disableUser = catchAsync(async (req: Request, res: Response) => {
   const user = await prisma.user.findFirst({ where: { id, tenantId } });
   if (!user) return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
 
-  await prisma.user.update({ where: { id }, data: { accountStatus: "SUSPENDED" } });
+  const newStatus = user.accountStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
 
-  res.status(HttpStatus.OK).json({ status: "success", message: "User access disabled" });
+  await prisma.user.update({
+    where: { id },
+    data: { accountStatus: newStatus }
+  });
+
+  res.status(HttpStatus.OK).json({ status: "success", message: `User status changed to ${newStatus}` });
 });

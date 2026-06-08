@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { managerService } from "@/features/manager/services/manager.service";
-import { MapPin, Users, ShieldAlert, Contact, Calendar, Activity, Info } from "lucide-react";
+import { MapPin, Users, ShieldAlert, Contact, Calendar, Activity, Info, ArrowLeft } from "lucide-react";
 
 interface Props {
   siteId: string;
+  hideBackButton?: boolean;
 }
 
-export default function SiteDetailsView({ siteId }: Props) {
+export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
+  const router = useRouter();
   const [site, setSite] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "incidents" | "visitors" | "personnel" | "shifts">("overview");
@@ -43,13 +46,30 @@ export default function SiteDetailsView({ siteId }: Props) {
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
       
       {/* Header */}
-      <div>
-        <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-          <MapPin size={28} color="var(--color-accent)" /> {site.name}
-        </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-muted)", marginTop: "6px" }}>
-          {site.address || "No address provided"}
-        </p>
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        {!hideBackButton && (
+          <button 
+            onClick={() => router.back()}
+            style={{ 
+              display: "flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", 
+              background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", 
+              borderRadius: "var(--radius-md)", cursor: "pointer", color: "var(--color-text-secondary)",
+              transition: "all var(--transition-fast)" 
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = "var(--color-border)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+          >
+            <ArrowLeft size={18} />
+          </button>
+        )}
+        <div>
+          <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px", margin: 0 }}>
+            <MapPin size={28} color="var(--color-accent)" /> {site.name}
+          </h1>
+          <p style={{ fontSize: "15px", color: "var(--color-text-muted)", marginTop: "6px", marginBottom: 0 }}>
+            {site.address || "No address provided"}
+          </p>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -75,18 +95,42 @@ export default function SiteDetailsView({ siteId }: Props) {
       <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
         
         {activeTab === "overview" && (
-          <div style={{ padding: "32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "24px" }}>
-            <div style={{ background: "var(--color-bg-subtle)", padding: "20px", borderRadius: "var(--radius-lg)" }}>
-              <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "8px" }}>Total Personnel</p>
-              <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.users.length}</h2>
+          <div style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "32px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "24px" }}>
+              <div style={{ background: "var(--color-bg-subtle)", padding: "20px", borderRadius: "var(--radius-lg)" }}>
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "8px" }}>Total Personnel</p>
+                <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.users?.length || 0}</h2>
+              </div>
+              <div style={{ background: "var(--color-bg-subtle)", padding: "20px", borderRadius: "var(--radius-lg)" }}>
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "8px" }}>Total Incidents</p>
+                <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.incidents?.length || 0}</h2>
+              </div>
+              <div style={{ background: "var(--color-bg-subtle)", padding: "20px", borderRadius: "var(--radius-lg)" }}>
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "8px" }}>Total Visitors</p>
+                <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.visitors?.length || 0}</h2>
+              </div>
             </div>
-            <div style={{ background: "var(--color-bg-subtle)", padding: "20px", borderRadius: "var(--radius-lg)" }}>
-              <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "8px" }}>Total Incidents</p>
-              <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.incidents.length}</h2>
-            </div>
-            <div style={{ background: "var(--color-bg-subtle)", padding: "20px", borderRadius: "var(--radius-lg)" }}>
-              <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "8px" }}>Total Visitors</p>
-              <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.visitors.length}</h2>
+
+            <div>
+              <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "16px" }}>Live Site Coverage</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "16px" }}>
+                {site.posts?.length === 0 ? (
+                  <div style={{ padding: "20px", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-lg)", color: "var(--color-text-muted)", textAlign: "center" }}>No posts configured.</div>
+                ) : site.posts?.map((post: any) => {
+                  const activeShift = site.shifts?.find((s: any) => s.status === "IN_PROGRESS" && s.postId === post.id);
+                  return (
+                    <div key={post.id} style={{ padding: "16px", borderRadius: "var(--radius-lg)", border: "1px solid var(--color-border)", background: activeShift ? "var(--color-success-subtle)" : "var(--color-danger-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)" }}>{post.name}</h4>
+                        <p style={{ margin: 0, fontSize: "13px", color: activeShift ? "var(--color-success)" : "var(--color-danger)", fontWeight: 500, marginTop: "4px" }}>
+                          {activeShift ? `Covered by ${activeShift.user?.firstName}` : "Unmanned"}
+                        </p>
+                      </div>
+                      <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: activeShift ? "var(--color-success)" : "var(--color-danger)" }} />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}

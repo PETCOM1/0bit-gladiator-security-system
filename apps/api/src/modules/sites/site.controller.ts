@@ -37,8 +37,9 @@ export const getSiteById = catchAsync(async (req: Request, res: Response) => {
       },
       shifts: {
         orderBy: { startTime: 'desc' },
-        include: { user: { select: { firstName: true, lastName: true } } }
-      }
+        include: { user: { select: { firstName: true, lastName: true } }, post: { select: { name: true } } }
+      },
+      posts: true
     }
   });
 

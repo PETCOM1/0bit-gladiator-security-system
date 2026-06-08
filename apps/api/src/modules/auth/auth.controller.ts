@@ -51,6 +51,8 @@ export const login = catchAsync(async (req: Request, res: Response) => {
         displayName: user.displayName,
         avatarUrl:   user.avatarUrl,
         accountStatus: user.accountStatus,
+        siteId:      user.siteId,
+        tenantId:    user.tenantId,
       },
     },
   });
@@ -65,7 +67,7 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
       id: true, email: true, role: true, accountStatus: true,
       firstName: true, lastName: true, displayName: true,
       avatarUrl: true, phone: true,
-      // city, country, language, dateOfBirth added after migration
+      siteId: true, tenantId: true,
       lastActiveAt: true, createdAt: true,
     },
   });

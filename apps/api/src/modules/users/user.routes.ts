@@ -50,7 +50,7 @@ import { Role } from "@repo/types";
  */
 router.get(
   "/tenant",
-  authorize([Role.MANAGER]),
+  authorize([Role.MANAGER, Role.SITE_MANAGER]),
   getTenantUsers
 );
 
