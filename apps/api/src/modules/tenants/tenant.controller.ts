@@ -3,6 +3,7 @@ import { prisma } from "@repo/database";
 import { HttpStatus } from "@repo/types";
 import { catchAsync } from "../../utils/catchAsync.js";
 import { sendInviteEmail } from "../../services/mail.service.js";
+import { AppError } from "../../utils/appError.js";
 
 export const getTenants = catchAsync(async (req: Request, res: Response) => {
   const tenants = await prisma.tenant.findMany({ orderBy: { name: 'asc' }});

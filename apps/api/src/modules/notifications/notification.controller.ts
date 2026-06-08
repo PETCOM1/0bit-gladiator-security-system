@@ -85,8 +85,7 @@ export const broadcastNotification = catchAsync(async (req: Request, res: Respon
     const notifications = managers.map(m => ({
       userId: m.id,
       title,
-      message,
-      type: "SYSTEM_ALERT"
+      body: message
     }));
 
     await prisma.notification.createMany({

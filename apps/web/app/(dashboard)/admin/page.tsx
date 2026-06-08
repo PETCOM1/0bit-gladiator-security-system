@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { Building2, Plus, X, CheckCircle2, ChevronRight, ChevronLeft, Users, Search, Filter } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
@@ -40,7 +40,7 @@ const mockGrowthData = [
   { name: 'Week 4', tenants: 18 },
 ];
 
-export default function PlatformAdminDashboard() {
+function PlatformAdminDashboardContent() {
   const [tenants, setTenants] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -407,8 +407,8 @@ export default function PlatformAdminDashboard() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                       <div>
                         <label style={labelStyle}>Subscription Plan <span style={{ color: "var(--color-danger)" }}>*</span></label>
-                        <select name="subscriptionPlan" value={formData.subscriptionPlan} onChange={handleChange} style={selectStyle}>
-                          <option value="BASIC">Basic</option><option value="PRO">Pro</option><option value="ENTERPRISE">Enterprise</option>
+                        <select name="subscriptionTierId" value={formData.subscriptionTierId} onChange={handleChange} style={selectStyle}>
+                          <option value="tier-basic">Basic</option><option value="tier-pro">Pro</option><option value="tier-enterprise">Enterprise</option>
                         </select>
                       </div>
                       <div>
@@ -490,5 +490,13 @@ export default function PlatformAdminDashboard() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PlatformAdminDashboard() {
+  return (
+    <Suspense fallback={<div style={{ padding: "24px" }}>Loading...</div>}>
+      <PlatformAdminDashboardContent />
+    </Suspense>
   );
 }

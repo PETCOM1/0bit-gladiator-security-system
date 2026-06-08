@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { Building2, Plus, X, CheckCircle2, ChevronRight, ChevronLeft, DollarSign, Search, Filter } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
@@ -30,7 +30,7 @@ const labelStyle: React.CSSProperties = {
   marginBottom: "6px",
 };
 
-export default function SuperAdminDashboard() {
+function SuperAdminDashboardContent() {
   const [stats, setStats] = useState({ mrr: 0, activeTenants: 0, platformUsers: 0 });
   const [tenants, setTenants] = useState<any[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -451,5 +451,13 @@ export default function SuperAdminDashboard() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SuperAdminDashboard() {
+  return (
+    <Suspense fallback={<div style={{ padding: "24px" }}>Loading...</div>}>
+      <SuperAdminDashboardContent />
+    </Suspense>
   );
 }
