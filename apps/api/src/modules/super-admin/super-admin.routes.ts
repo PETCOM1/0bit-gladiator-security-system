@@ -9,7 +9,6 @@ import {
 
 const router = Router();
 router.use(protect);
-router.use(authorize([Role.SUPER_ADMIN]));
 
 /**
  * @openapi
@@ -20,7 +19,7 @@ router.use(authorize([Role.SUPER_ADMIN]));
  *     security:
  *       - cookieAuth: []
  */
-router.get("/stats", platformStats);
+router.get("/stats", authorize([Role.SUPER_ADMIN, Role.ADMIN]), platformStats);
 
 /**
  * @openapi
@@ -31,7 +30,7 @@ router.get("/stats", platformStats);
  *     security:
  *       - cookieAuth: []
  */
-router.get("/admins", listAdmins);
+router.get("/admins", authorize([Role.SUPER_ADMIN]), listAdmins);
 
 /**
  * @openapi
@@ -41,24 +40,8 @@ router.get("/admins", listAdmins);
  *     summary: Invite a new admin (sends email with set-password link)
  *     security:
  *       - cookieAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
  */
-router.post("/admins/invite", inviteAdmin);
+router.post("/admins/invite", authorize([Role.SUPER_ADMIN]), inviteAdmin);
 
 /**
  * @openapi
@@ -68,13 +51,8 @@ router.post("/admins/invite", inviteAdmin);
  *     summary: Remove an admin
  *     security:
  *       - cookieAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: string }
  */
-router.delete("/admins/:id", removeAdmin);
+router.delete("/admins/:id", authorize([Role.SUPER_ADMIN]), removeAdmin);
 
 /**
  * @openapi
@@ -85,8 +63,8 @@ router.delete("/admins/:id", removeAdmin);
  *     security:
  *       - cookieAuth: []
  */
-router.get("/audit",    auditLog);
-router.get("/settings", getSettings);
+router.get("/audit", authorize([Role.SUPER_ADMIN, Role.ADMIN]), auditLog);
+router.get("/settings", authorize([Role.SUPER_ADMIN, Role.ADMIN]), getSettings);
 
 /**
  * @openapi
@@ -96,21 +74,7 @@ router.get("/settings", getSettings);
  *     summary: Update a system setting
  *     security:
  *       - cookieAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - key
- *               - value
- *             properties:
- *               key:
- *                 type: string
- *               value:
- *                 type: string
  */
-router.put("/settings", updateSetting);
+router.put("/settings", authorize([Role.SUPER_ADMIN, Role.ADMIN]), updateSetting);
 
 export default router;

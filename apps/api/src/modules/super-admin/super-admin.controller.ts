@@ -10,7 +10,12 @@ import { sendInviteEmail } from "../../services/mail.service.js";
 // ── Platform stats ─────────────────────────────────────────────────────────────
 
 export const platformStats = catchAsync(async (_req: Request, res: Response) => {
-  const [totalUsers, totalAdmins, pendingUsers, recentActivity] = await Promise.all([
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+  const [
+    totalUsers, totalAdmins, pendingUsers, recentActivity, tenants, 
+    totalSites, totalGuards, totalIncidents, newTenants
+  ] = await Promise.all([
     prisma.user.count({ where: { accountStatus: { not: "DELETED" } } }),
     prisma.user.count({ where: { role: "ADMIN", accountStatus: { not: "DELETED" } } }),
     prisma.user.count({ where: { accountStatus: "PENDING" } }),
@@ -19,11 +24,30 @@ export const platformStats = catchAsync(async (_req: Request, res: Response) => 
       take:    10,
       include: { user: { select: { email: true, displayName: true } } },
     }),
+    prisma.tenant.findMany({ 
+      where: { subscriptionStatus: { not: "SUSPENDED" } },
+      select: { subscriptionTier: { select: { price: true } } } 
+    }),
+    prisma.site.count(),
+    prisma.user.count({ where: { role: "USER", accountStatus: { not: "DELETED" } } }),
+    prisma.incident.count(),
+    prisma.tenant.count({ where: { createdAt: { gte: thirtyDaysAgo } } })
   ]);
+
+  let mrr = 0;
+  tenants.forEach(t => {
+    if (t.subscriptionTier?.price) {
+      mrr += t.subscriptionTier.price;
+    }
+  });
 
   return res.status(HttpStatus.OK).json({
     status: "success",
-    data:   { totalUsers, totalAdmins, pendingUsers, recentActivity },
+    data:   { 
+      totalUsers, totalAdmins, pendingUsers, recentActivity, 
+      totalTenants: tenants.length, mrr,
+      totalSites, totalGuards, totalIncidents, newTenants
+    },
   });
 });
 
@@ -52,7 +76,7 @@ export const inviteAdmin = catchAsync(async (req: Request, res: Response) => {
   if (existing) throw new AppError("User with this email already exists", HttpStatus.CONFLICT);
 
   const code    = Math.random().toString(36).slice(2, 10).toUpperCase();
-  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  const expires = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
   const admin = await prisma.user.create({
     data: {

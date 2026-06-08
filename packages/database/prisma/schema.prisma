@@ -11,6 +11,7 @@ enum Role {
   SUPER_ADMIN
   ADMIN
   MANAGER
+  SITE_MANAGER
   USER
 }
 
@@ -25,6 +26,77 @@ enum RegistrationMode {
   INVITE_ONLY
   SELF_REGISTER
   SELF_REGISTER_AUTO
+}
+
+enum ShiftStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+enum VisitorStatus {
+  CHECKED_IN
+  CHECKED_OUT
+}
+
+enum PatrolStatus {
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_ON_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+enum PaymentStatus {
+  PAID
+  PENDING
+  FAILED
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  tenantId      String
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  amount        Float
+  currency      String        @default("USD")
+  status        PaymentStatus @default(PAID)
+  invoiceNumber String?
+  billingPeriod String?
+  createdAt     DateTime      @default(now())
+
+  @@index([tenantId])
 }
 
 model User {
@@ -50,14 +122,25 @@ model User {
   language    String?
   dateOfBirth DateTime?
 
-  googleId           String?   @unique
+  googleId           String? @unique
   googleRefreshToken String?
 
-  invitedById String?
-  invitedBy   User?   @relation("UserInvites", fields: [invitedById], references: [id])
-  invitees    User[]  @relation("UserInvites")
-  auditLogs     AuditLog[]
-  notifications Notification[]
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id])
+  siteId   String?
+  site     Site?   @relation(fields: [siteId], references: [id])
+
+  invitedById       String?
+  invitedBy         User?          @relation("UserInvites", fields: [invitedById], references: [id])
+  invitees          User[]         @relation("UserInvites")
+  auditLogs         AuditLog[]
+  notifications     Notification[]
+  shifts            Shift[]
+  visitorsLogged    Visitor[]
+  incidentsReported Incident[]
+  patrolLogs        PatrolLog[]
+  ticketsCreated    SupportTicket[]
+  ticketMessages    TicketMessage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -65,6 +148,8 @@ model User {
   @@index([email])
   @@index([role])
   @@index([googleId])
+  @@index([tenantId])
+  @@index([siteId])
 }
 
 model AuditLog {
@@ -101,4 +186,232 @@ model SystemSetting {
   value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model SubscriptionTier {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  price       Float
+  maxUsers    Int      @default(50)
+  maxSites    Int      @default(1)
+  features    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenants     Tenant[]
+}
+
+model Tenant {
+  id                 String   @id @default(cuid())
+  name               String
+  
+  orgType            String?
+  registrationNumber String?
+  physicalAddress    String?
+  countryRegion      String?
+  contactEmail       String?
+  contactPhone       String?
+  logoUrl            String?
+  expectedSites      Int?
+  timeZone           String?
+
+  subscriptionTierId String?
+  subscriptionTier   SubscriptionTier? @relation(fields: [subscriptionTierId], references: [id])
+  billingCycle       BillingCycle     @default(MONTHLY)
+  subscriptionStatus String           @default("TRIAL")
+  allowedUsers       Int              @default(50)
+  subscriptionId     String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  users        User[]
+  sites        Site[]
+  visitors     Visitor[]
+  incidents    Incident[]
+  shifts       Shift[]
+  patrolLogs   PatrolLog[]
+  patrolRoutes PatrolRoute[]
+  payments     Payment[]
+  tickets      SupportTicket[]
+
+  @@index([subscriptionTierId])
+}
+
+model Site {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  visitors     Visitor[]
+  incidents    Incident[]
+  shifts       Shift[]
+  patrolLogs   PatrolLog[]
+  patrolRoutes PatrolRoute[]
+
+  @@index([tenantId])
+}
+
+model Visitor {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  siteId   String
+  site     Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  loggedById String
+  loggedBy   User   @relation(fields: [loggedById], references: [id])
+
+  name       String
+  idNumber   String?
+  vehicleReg String?
+  purpose    String?
+  status     VisitorStatus @default(CHECKED_IN)
+
+  checkInTime  DateTime  @default(now())
+  checkOutTime DateTime?
+
+  @@index([tenantId])
+  @@index([siteId])
+  @@index([status])
+}
+
+model Incident {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  siteId   String
+  site     Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  reportedById String
+  reportedBy   User   @relation(fields: [reportedById], references: [id])
+
+  title       String
+  description String
+  severity    IncidentSeverity @default(LOW)
+  status      IncidentStatus   @default(OPEN)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([siteId])
+  @@index([status])
+  @@index([severity])
+}
+
+model Shift {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  siteId   String
+  site     Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  startTime DateTime
+  endTime   DateTime?
+  status    ShiftStatus @default(SCHEDULED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([siteId])
+  @@index([userId])
+}
+
+model PatrolRoute {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  siteId   String
+  site     Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  name        String
+  checkpoints PatrolCheckpoint[]
+  logs        PatrolLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([siteId])
+}
+
+model PatrolCheckpoint {
+  id      String      @id @default(cuid())
+  routeId String
+  route   PatrolRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  name     String
+  nfcTagId String? @unique
+  order    Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([routeId])
+}
+
+model PatrolLog {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  siteId   String
+  site     Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  routeId String
+  route   PatrolRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  startTime DateTime     @default(now())
+  endTime   DateTime?
+  status    PatrolStatus @default(IN_PROGRESS)
+
+  @@index([tenantId])
+  @@index([siteId])
+  @@index([userId])
+}
+
+model SupportTicket {
+  id          String         @id @default(cuid())
+  tenantId    String
+  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User           @relation(fields: [createdById], references: [id])
+  
+  subject     String
+  description String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  
+  messages    TicketMessage[]
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+}
+
+model TicketMessage {
+  id          String        @id @default(cuid())
+  ticketId    String
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  
+  content     String
+  
+  createdAt   DateTime      @default(now())
+
+  @@index([ticketId])
 }

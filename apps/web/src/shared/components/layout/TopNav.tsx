@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/shared/context/AuthContext";
 import { useTheme } from "@/shared/context/ThemeContext";
 import { Bell, ChevronDown, User, Settings, LogOut, Sun, Moon, Check } from "lucide-react";
+import NotificationBell from "./NotificationBell";
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 function Avatar({ initials, size = 32 }: { initials: string; size?: number }) {
@@ -147,42 +148,7 @@ export default function TopNav() {
     }}>
 
       {/* ── Bell ──────────────────────────────────────────────────────────── */}
-      <Link
-        href="/notifications"
-        style={{
-          position:       "relative",
-          display:        "flex",
-          alignItems:     "center",
-          justifyContent: "center",
-          width:          "36px",
-          height:         "36px",
-          borderRadius:   "var(--radius-md)",
-          color:          "var(--color-text-secondary)",
-          transition:     "background var(--transition-fast), color var(--transition-fast)",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = "var(--color-accent-subtle)";
-          e.currentTarget.style.color      = "var(--color-accent)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color      = "var(--color-text-secondary)";
-        }}
-        title="Notifications"
-      >
-        <Bell size={18} strokeWidth={1.8} />
-        {/* Unread badge — shown when there are notifications */}
-        <span style={{
-          position:    "absolute",
-          top:         "6px",
-          right:       "6px",
-          width:       "7px",
-          height:      "7px",
-          borderRadius: "var(--radius-pill)",
-          background:  "var(--color-accent)",
-          border:      "2px solid var(--color-topnav-bg)",
-        }} />
-      </Link>
+      <NotificationBell />
 
       {/* ── Divider ───────────────────────────────────────────────────────── */}
       <div style={{ width: "1px", height: "20px", background: "var(--color-border)" }} />

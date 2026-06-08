@@ -51,10 +51,22 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  Payment: 'Payment',
   User: 'User',
   AuditLog: 'AuditLog',
   Notification: 'Notification',
-  SystemSetting: 'SystemSetting'
+  SystemSetting: 'SystemSetting',
+  SubscriptionTier: 'SubscriptionTier',
+  Tenant: 'Tenant',
+  Site: 'Site',
+  Visitor: 'Visitor',
+  Incident: 'Incident',
+  Shift: 'Shift',
+  PatrolRoute: 'PatrolRoute',
+  PatrolCheckpoint: 'PatrolCheckpoint',
+  PatrolLog: 'PatrolLog',
+  SupportTicket: 'SupportTicket',
+  TicketMessage: 'TicketMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -71,6 +83,20 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  invoiceNumber: 'invoiceNumber',
+  billingPeriod: 'billingPeriod',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -95,6 +121,8 @@ export const UserScalarFieldEnum = {
   dateOfBirth: 'dateOfBirth',
   googleId: 'googleId',
   googleRefreshToken: 'googleRefreshToken',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
   invitedById: 'invitedById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -138,6 +166,168 @@ export const SystemSettingScalarFieldEnum = {
 } as const
 
 export type SystemSettingScalarFieldEnum = (typeof SystemSettingScalarFieldEnum)[keyof typeof SystemSettingScalarFieldEnum]
+
+
+export const SubscriptionTierScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  price: 'price',
+  maxUsers: 'maxUsers',
+  maxSites: 'maxSites',
+  features: 'features',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionTierScalarFieldEnum = (typeof SubscriptionTierScalarFieldEnum)[keyof typeof SubscriptionTierScalarFieldEnum]
+
+
+export const TenantScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  orgType: 'orgType',
+  registrationNumber: 'registrationNumber',
+  physicalAddress: 'physicalAddress',
+  countryRegion: 'countryRegion',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  logoUrl: 'logoUrl',
+  expectedSites: 'expectedSites',
+  timeZone: 'timeZone',
+  subscriptionTierId: 'subscriptionTierId',
+  billingCycle: 'billingCycle',
+  subscriptionStatus: 'subscriptionStatus',
+  allowedUsers: 'allowedUsers',
+  subscriptionId: 'subscriptionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
+
+
+export const SiteScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  name: 'name',
+  address: 'address',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteScalarFieldEnum = (typeof SiteScalarFieldEnum)[keyof typeof SiteScalarFieldEnum]
+
+
+export const VisitorScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
+  loggedById: 'loggedById',
+  name: 'name',
+  idNumber: 'idNumber',
+  vehicleReg: 'vehicleReg',
+  purpose: 'purpose',
+  status: 'status',
+  checkInTime: 'checkInTime',
+  checkOutTime: 'checkOutTime'
+} as const
+
+export type VisitorScalarFieldEnum = (typeof VisitorScalarFieldEnum)[keyof typeof VisitorScalarFieldEnum]
+
+
+export const IncidentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
+  reportedById: 'reportedById',
+  title: 'title',
+  description: 'description',
+  severity: 'severity',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IncidentScalarFieldEnum = (typeof IncidentScalarFieldEnum)[keyof typeof IncidentScalarFieldEnum]
+
+
+export const ShiftScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
+  userId: 'userId',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof ShiftScalarFieldEnum]
+
+
+export const PatrolRouteScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PatrolRouteScalarFieldEnum = (typeof PatrolRouteScalarFieldEnum)[keyof typeof PatrolRouteScalarFieldEnum]
+
+
+export const PatrolCheckpointScalarFieldEnum = {
+  id: 'id',
+  routeId: 'routeId',
+  name: 'name',
+  nfcTagId: 'nfcTagId',
+  order: 'order',
+  createdAt: 'createdAt'
+} as const
+
+export type PatrolCheckpointScalarFieldEnum = (typeof PatrolCheckpointScalarFieldEnum)[keyof typeof PatrolCheckpointScalarFieldEnum]
+
+
+export const PatrolLogScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  siteId: 'siteId',
+  routeId: 'routeId',
+  userId: 'userId',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  status: 'status'
+} as const
+
+export type PatrolLogScalarFieldEnum = (typeof PatrolLogScalarFieldEnum)[keyof typeof PatrolLogScalarFieldEnum]
+
+
+export const SupportTicketScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  createdById: 'createdById',
+  subject: 'subject',
+  description: 'description',
+  status: 'status',
+  priority: 'priority',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SupportTicketScalarFieldEnum = (typeof SupportTicketScalarFieldEnum)[keyof typeof SupportTicketScalarFieldEnum]
+
+
+export const TicketMessageScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  senderId: 'senderId',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type TicketMessageScalarFieldEnum = (typeof TicketMessageScalarFieldEnum)[keyof typeof TicketMessageScalarFieldEnum]
 
 
 export const SortOrder = {

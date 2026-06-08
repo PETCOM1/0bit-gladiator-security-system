@@ -9,11 +9,13 @@ import {
   LayoutDashboard, FolderKanban, Users, UserCircle,
   FileText, Receipt, UsersRound, Activity, ScrollText,
   Settings, ChevronRight, ChevronLeft,
+  MapPin, Calendar, Contact, ShieldAlert, BarChart
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ComponentType<{ size?: number; strokeWidth?: number }>> = {
   LayoutDashboard, FolderKanban, Users, UserCircle,
   FileText, Receipt, UsersRound, Activity, ScrollText, Settings,
+  MapPin, Calendar, Contact, ShieldAlert, BarChart
 };
 
 interface Props {

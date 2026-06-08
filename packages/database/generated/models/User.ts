@@ -46,6 +46,8 @@ export type UserMinAggregateOutputType = {
   dateOfBirth: Date | null
   googleId: string | null
   googleRefreshToken: string | null
+  tenantId: string | null
+  siteId: string | null
   invitedById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -73,6 +75,8 @@ export type UserMaxAggregateOutputType = {
   dateOfBirth: Date | null
   googleId: string | null
   googleRefreshToken: string | null
+  tenantId: string | null
+  siteId: string | null
   invitedById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -100,6 +104,8 @@ export type UserCountAggregateOutputType = {
   dateOfBirth: number
   googleId: number
   googleRefreshToken: number
+  tenantId: number
+  siteId: number
   invitedById: number
   createdAt: number
   updatedAt: number
@@ -129,6 +135,8 @@ export type UserMinAggregateInputType = {
   dateOfBirth?: true
   googleId?: true
   googleRefreshToken?: true
+  tenantId?: true
+  siteId?: true
   invitedById?: true
   createdAt?: true
   updatedAt?: true
@@ -156,6 +164,8 @@ export type UserMaxAggregateInputType = {
   dateOfBirth?: true
   googleId?: true
   googleRefreshToken?: true
+  tenantId?: true
+  siteId?: true
   invitedById?: true
   createdAt?: true
   updatedAt?: true
@@ -183,6 +193,8 @@ export type UserCountAggregateInputType = {
   dateOfBirth?: true
   googleId?: true
   googleRefreshToken?: true
+  tenantId?: true
+  siteId?: true
   invitedById?: true
   createdAt?: true
   updatedAt?: true
@@ -283,6 +295,8 @@ export type UserGroupByOutputType = {
   dateOfBirth: Date | null
   googleId: string | null
   googleRefreshToken: string | null
+  tenantId: string | null
+  siteId: string | null
   invitedById: string | null
   createdAt: Date
   updatedAt: Date
@@ -331,13 +345,23 @@ export type UserWhereInput = {
   dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   googleId?: Prisma.StringNullableFilter<"User"> | string | null
   googleRefreshToken?: Prisma.StringNullableFilter<"User"> | string | null
+  tenantId?: Prisma.StringNullableFilter<"User"> | string | null
+  siteId?: Prisma.StringNullableFilter<"User"> | string | null
   invitedById?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
+  site?: Prisma.XOR<Prisma.SiteNullableScalarRelationFilter, Prisma.SiteWhereInput> | null
   invitedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   invitees?: Prisma.UserListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  shifts?: Prisma.ShiftListRelationFilter
+  visitorsLogged?: Prisma.VisitorListRelationFilter
+  incidentsReported?: Prisma.IncidentListRelationFilter
+  patrolLogs?: Prisma.PatrolLogListRelationFilter
+  ticketsCreated?: Prisma.SupportTicketListRelationFilter
+  ticketMessages?: Prisma.TicketMessageListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -362,13 +386,23 @@ export type UserOrderByWithRelationInput = {
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
   googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  tenantId?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  tenant?: Prisma.TenantOrderByWithRelationInput
+  site?: Prisma.SiteOrderByWithRelationInput
   invitedBy?: Prisma.UserOrderByWithRelationInput
   invitees?: Prisma.UserOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  shifts?: Prisma.ShiftOrderByRelationAggregateInput
+  visitorsLogged?: Prisma.VisitorOrderByRelationAggregateInput
+  incidentsReported?: Prisma.IncidentOrderByRelationAggregateInput
+  patrolLogs?: Prisma.PatrolLogOrderByRelationAggregateInput
+  ticketsCreated?: Prisma.SupportTicketOrderByRelationAggregateInput
+  ticketMessages?: Prisma.TicketMessageOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -396,13 +430,23 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   language?: Prisma.StringNullableFilter<"User"> | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   googleRefreshToken?: Prisma.StringNullableFilter<"User"> | string | null
+  tenantId?: Prisma.StringNullableFilter<"User"> | string | null
+  siteId?: Prisma.StringNullableFilter<"User"> | string | null
   invitedById?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
+  site?: Prisma.XOR<Prisma.SiteNullableScalarRelationFilter, Prisma.SiteWhereInput> | null
   invitedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   invitees?: Prisma.UserListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  shifts?: Prisma.ShiftListRelationFilter
+  visitorsLogged?: Prisma.VisitorListRelationFilter
+  incidentsReported?: Prisma.IncidentListRelationFilter
+  patrolLogs?: Prisma.PatrolLogListRelationFilter
+  ticketsCreated?: Prisma.SupportTicketListRelationFilter
+  ticketMessages?: Prisma.TicketMessageListRelationFilter
 }, "id" | "email" | "googleId">
 
 export type UserOrderByWithAggregationInput = {
@@ -427,6 +471,8 @@ export type UserOrderByWithAggregationInput = {
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
   googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  tenantId?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -460,6 +506,8 @@ export type UserScalarWhereWithAggregatesInput = {
   dateOfBirth?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   googleId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   googleRefreshToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  tenantId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  siteId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   invitedById?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -489,10 +537,18 @@ export type UserCreateInput = {
   googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -517,12 +573,20 @@ export type UserUncheckedCreateInput = {
   dateOfBirth?: Date | string | null
   googleId?: string | null
   googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserUpdateInput = {
@@ -549,10 +613,18 @@ export type UserUpdateInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -577,12 +649,20 @@ export type UserUncheckedUpdateInput = {
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -607,6 +687,8 @@ export type UserCreateManyInput = {
   dateOfBirth?: Date | string | null
   googleId?: string | null
   googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -660,6 +742,8 @@ export type UserUncheckedUpdateManyInput = {
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -702,6 +786,8 @@ export type UserCountOrderByAggregateInput = {
   dateOfBirth?: Prisma.SortOrder
   googleId?: Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrder
+  tenantId?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   invitedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -729,6 +815,8 @@ export type UserMaxOrderByAggregateInput = {
   dateOfBirth?: Prisma.SortOrder
   googleId?: Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrder
+  tenantId?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   invitedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -756,6 +844,8 @@ export type UserMinOrderByAggregateInput = {
   dateOfBirth?: Prisma.SortOrder
   googleId?: Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrder
+  tenantId?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   invitedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -786,10 +876,6 @@ export type UserUncheckedCreateNestedManyWithoutInvitedByInput = {
   connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
 export type EnumRoleFieldUpdateOperationsInput = {
   set?: $Enums.Role
 }
@@ -798,16 +884,8 @@ export type EnumAccountStatusFieldUpdateOperationsInput = {
   set?: $Enums.AccountStatus
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 export type UserUpdateOneWithoutInviteesNestedInput = {
@@ -876,6 +954,174 @@ export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
 }
 
+export type UserCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTenantInput, Prisma.UserUncheckedCreateWithoutTenantInput> | Prisma.UserCreateWithoutTenantInput[] | Prisma.UserUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTenantInput | Prisma.UserCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.UserCreateManyTenantInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTenantInput, Prisma.UserUncheckedCreateWithoutTenantInput> | Prisma.UserCreateWithoutTenantInput[] | Prisma.UserUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTenantInput | Prisma.UserCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.UserCreateManyTenantInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTenantInput, Prisma.UserUncheckedCreateWithoutTenantInput> | Prisma.UserCreateWithoutTenantInput[] | Prisma.UserUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTenantInput | Prisma.UserCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutTenantInput | Prisma.UserUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.UserCreateManyTenantInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutTenantInput | Prisma.UserUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutTenantInput | Prisma.UserUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTenantInput, Prisma.UserUncheckedCreateWithoutTenantInput> | Prisma.UserCreateWithoutTenantInput[] | Prisma.UserUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTenantInput | Prisma.UserCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutTenantInput | Prisma.UserUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.UserCreateManyTenantInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutTenantInput | Prisma.UserUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutTenantInput | Prisma.UserUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserCreateNestedManyWithoutSiteInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSiteInput, Prisma.UserUncheckedCreateWithoutSiteInput> | Prisma.UserCreateWithoutSiteInput[] | Prisma.UserUncheckedCreateWithoutSiteInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSiteInput | Prisma.UserCreateOrConnectWithoutSiteInput[]
+  createMany?: Prisma.UserCreateManySiteInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutSiteInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSiteInput, Prisma.UserUncheckedCreateWithoutSiteInput> | Prisma.UserCreateWithoutSiteInput[] | Prisma.UserUncheckedCreateWithoutSiteInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSiteInput | Prisma.UserCreateOrConnectWithoutSiteInput[]
+  createMany?: Prisma.UserCreateManySiteInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateManyWithoutSiteNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSiteInput, Prisma.UserUncheckedCreateWithoutSiteInput> | Prisma.UserCreateWithoutSiteInput[] | Prisma.UserUncheckedCreateWithoutSiteInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSiteInput | Prisma.UserCreateOrConnectWithoutSiteInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutSiteInput | Prisma.UserUpsertWithWhereUniqueWithoutSiteInput[]
+  createMany?: Prisma.UserCreateManySiteInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutSiteInput | Prisma.UserUpdateWithWhereUniqueWithoutSiteInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutSiteInput | Prisma.UserUpdateManyWithWhereWithoutSiteInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutSiteNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSiteInput, Prisma.UserUncheckedCreateWithoutSiteInput> | Prisma.UserCreateWithoutSiteInput[] | Prisma.UserUncheckedCreateWithoutSiteInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSiteInput | Prisma.UserCreateOrConnectWithoutSiteInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutSiteInput | Prisma.UserUpsertWithWhereUniqueWithoutSiteInput[]
+  createMany?: Prisma.UserCreateManySiteInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutSiteInput | Prisma.UserUpdateWithWhereUniqueWithoutSiteInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutSiteInput | Prisma.UserUpdateManyWithWhereWithoutSiteInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserCreateNestedOneWithoutVisitorsLoggedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVisitorsLoggedInput, Prisma.UserUncheckedCreateWithoutVisitorsLoggedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVisitorsLoggedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutVisitorsLoggedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVisitorsLoggedInput, Prisma.UserUncheckedCreateWithoutVisitorsLoggedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVisitorsLoggedInput
+  upsert?: Prisma.UserUpsertWithoutVisitorsLoggedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutVisitorsLoggedInput, Prisma.UserUpdateWithoutVisitorsLoggedInput>, Prisma.UserUncheckedUpdateWithoutVisitorsLoggedInput>
+}
+
+export type UserCreateNestedOneWithoutIncidentsReportedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutIncidentsReportedInput, Prisma.UserUncheckedCreateWithoutIncidentsReportedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutIncidentsReportedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutIncidentsReportedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutIncidentsReportedInput, Prisma.UserUncheckedCreateWithoutIncidentsReportedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutIncidentsReportedInput
+  upsert?: Prisma.UserUpsertWithoutIncidentsReportedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutIncidentsReportedInput, Prisma.UserUpdateWithoutIncidentsReportedInput>, Prisma.UserUncheckedUpdateWithoutIncidentsReportedInput>
+}
+
+export type UserCreateNestedOneWithoutShiftsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutShiftsInput, Prisma.UserUncheckedCreateWithoutShiftsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutShiftsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutShiftsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutShiftsInput, Prisma.UserUncheckedCreateWithoutShiftsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutShiftsInput
+  upsert?: Prisma.UserUpsertWithoutShiftsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutShiftsInput, Prisma.UserUpdateWithoutShiftsInput>, Prisma.UserUncheckedUpdateWithoutShiftsInput>
+}
+
+export type UserCreateNestedOneWithoutPatrolLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPatrolLogsInput, Prisma.UserUncheckedCreateWithoutPatrolLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPatrolLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPatrolLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPatrolLogsInput, Prisma.UserUncheckedCreateWithoutPatrolLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPatrolLogsInput
+  upsert?: Prisma.UserUpsertWithoutPatrolLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPatrolLogsInput, Prisma.UserUpdateWithoutPatrolLogsInput>, Prisma.UserUncheckedUpdateWithoutPatrolLogsInput>
+}
+
+export type UserCreateNestedOneWithoutTicketsCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTicketsCreatedInput, Prisma.UserUncheckedCreateWithoutTicketsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTicketsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTicketsCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTicketsCreatedInput, Prisma.UserUncheckedCreateWithoutTicketsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTicketsCreatedInput
+  upsert?: Prisma.UserUpsertWithoutTicketsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTicketsCreatedInput, Prisma.UserUpdateWithoutTicketsCreatedInput>, Prisma.UserUncheckedUpdateWithoutTicketsCreatedInput>
+}
+
+export type UserCreateNestedOneWithoutTicketMessagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTicketMessagesInput, Prisma.UserUncheckedCreateWithoutTicketMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTicketMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTicketMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTicketMessagesInput, Prisma.UserUncheckedCreateWithoutTicketMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTicketMessagesInput
+  upsert?: Prisma.UserUpsertWithoutTicketMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTicketMessagesInput, Prisma.UserUpdateWithoutTicketMessagesInput>, Prisma.UserUncheckedUpdateWithoutTicketMessagesInput>
+}
+
 export type UserCreateWithoutInviteesInput = {
   id?: string
   email: string
@@ -900,9 +1146,17 @@ export type UserCreateWithoutInviteesInput = {
   googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutInviteesInput = {
@@ -927,11 +1181,19 @@ export type UserUncheckedCreateWithoutInviteesInput = {
   dateOfBirth?: Date | string | null
   googleId?: string | null
   googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutInviteesInput = {
@@ -963,9 +1225,17 @@ export type UserCreateWithoutInvitedByInput = {
   googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutInvitedByInput = {
@@ -990,11 +1260,19 @@ export type UserUncheckedCreateWithoutInvitedByInput = {
   dateOfBirth?: Date | string | null
   googleId?: string | null
   googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutInvitedByInput = {
@@ -1042,9 +1320,17 @@ export type UserUpdateWithoutInviteesInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInviteesInput = {
@@ -1069,11 +1355,19 @@ export type UserUncheckedUpdateWithoutInviteesInput = {
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutInvitedByInput = {
@@ -1117,6 +1411,8 @@ export type UserScalarWhereInput = {
   dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   googleId?: Prisma.StringNullableFilter<"User"> | string | null
   googleRefreshToken?: Prisma.StringNullableFilter<"User"> | string | null
+  tenantId?: Prisma.StringNullableFilter<"User"> | string | null
+  siteId?: Prisma.StringNullableFilter<"User"> | string | null
   invitedById?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -1146,9 +1442,17 @@ export type UserCreateWithoutAuditLogsInput = {
   googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -1173,11 +1477,19 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   dateOfBirth?: Date | string | null
   googleId?: string | null
   googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -1220,9 +1532,17 @@ export type UserUpdateWithoutAuditLogsInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1247,11 +1567,19 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -1278,9 +1606,17 @@ export type UserCreateWithoutNotificationsInput = {
   googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1305,11 +1641,19 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   dateOfBirth?: Date | string | null
   googleId?: string | null
   googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1352,9 +1696,17 @@ export type UserUpdateWithoutNotificationsInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1379,11 +1731,1203 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutTenantInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutTenantInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutTenantInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTenantInput, Prisma.UserUncheckedCreateWithoutTenantInput>
+}
+
+export type UserCreateManyTenantInputEnvelope = {
+  data: Prisma.UserCreateManyTenantInput | Prisma.UserCreateManyTenantInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTenantInput, Prisma.UserUncheckedUpdateWithoutTenantInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTenantInput, Prisma.UserUncheckedCreateWithoutTenantInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTenantInput, Prisma.UserUncheckedUpdateWithoutTenantInput>
+}
+
+export type UserUpdateManyWithWhereWithoutTenantInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutTenantInput>
+}
+
+export type UserCreateWithoutSiteInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutSiteInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutSiteInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSiteInput, Prisma.UserUncheckedCreateWithoutSiteInput>
+}
+
+export type UserCreateManySiteInputEnvelope = {
+  data: Prisma.UserCreateManySiteInput | Prisma.UserCreateManySiteInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithWhereUniqueWithoutSiteInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSiteInput, Prisma.UserUncheckedUpdateWithoutSiteInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSiteInput, Prisma.UserUncheckedCreateWithoutSiteInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutSiteInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSiteInput, Prisma.UserUncheckedUpdateWithoutSiteInput>
+}
+
+export type UserUpdateManyWithWhereWithoutSiteInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutSiteInput>
+}
+
+export type UserCreateWithoutVisitorsLoggedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutVisitorsLoggedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutVisitorsLoggedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutVisitorsLoggedInput, Prisma.UserUncheckedCreateWithoutVisitorsLoggedInput>
+}
+
+export type UserUpsertWithoutVisitorsLoggedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutVisitorsLoggedInput, Prisma.UserUncheckedUpdateWithoutVisitorsLoggedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutVisitorsLoggedInput, Prisma.UserUncheckedCreateWithoutVisitorsLoggedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutVisitorsLoggedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutVisitorsLoggedInput, Prisma.UserUncheckedUpdateWithoutVisitorsLoggedInput>
+}
+
+export type UserUpdateWithoutVisitorsLoggedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutVisitorsLoggedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutIncidentsReportedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutIncidentsReportedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutIncidentsReportedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutIncidentsReportedInput, Prisma.UserUncheckedCreateWithoutIncidentsReportedInput>
+}
+
+export type UserUpsertWithoutIncidentsReportedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutIncidentsReportedInput, Prisma.UserUncheckedUpdateWithoutIncidentsReportedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutIncidentsReportedInput, Prisma.UserUncheckedCreateWithoutIncidentsReportedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutIncidentsReportedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutIncidentsReportedInput, Prisma.UserUncheckedUpdateWithoutIncidentsReportedInput>
+}
+
+export type UserUpdateWithoutIncidentsReportedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutIncidentsReportedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutShiftsInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutShiftsInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutShiftsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutShiftsInput, Prisma.UserUncheckedCreateWithoutShiftsInput>
+}
+
+export type UserUpsertWithoutShiftsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutShiftsInput, Prisma.UserUncheckedUpdateWithoutShiftsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutShiftsInput, Prisma.UserUncheckedCreateWithoutShiftsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutShiftsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutShiftsInput, Prisma.UserUncheckedUpdateWithoutShiftsInput>
+}
+
+export type UserUpdateWithoutShiftsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutShiftsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutPatrolLogsInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutPatrolLogsInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutPatrolLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPatrolLogsInput, Prisma.UserUncheckedCreateWithoutPatrolLogsInput>
+}
+
+export type UserUpsertWithoutPatrolLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPatrolLogsInput, Prisma.UserUncheckedUpdateWithoutPatrolLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPatrolLogsInput, Prisma.UserUncheckedCreateWithoutPatrolLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPatrolLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPatrolLogsInput, Prisma.UserUncheckedUpdateWithoutPatrolLogsInput>
+}
+
+export type UserUpdateWithoutPatrolLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPatrolLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutTicketsCreatedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutTicketsCreatedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutTicketsCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTicketsCreatedInput, Prisma.UserUncheckedCreateWithoutTicketsCreatedInput>
+}
+
+export type UserUpsertWithoutTicketsCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTicketsCreatedInput, Prisma.UserUncheckedUpdateWithoutTicketsCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTicketsCreatedInput, Prisma.UserUncheckedCreateWithoutTicketsCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTicketsCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTicketsCreatedInput, Prisma.UserUncheckedUpdateWithoutTicketsCreatedInput>
+}
+
+export type UserUpdateWithoutTicketsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTicketsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutTicketMessagesInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutTicketMessagesInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutTicketMessagesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTicketMessagesInput, Prisma.UserUncheckedCreateWithoutTicketMessagesInput>
+}
+
+export type UserUpsertWithoutTicketMessagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTicketMessagesInput, Prisma.UserUncheckedUpdateWithoutTicketMessagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTicketMessagesInput, Prisma.UserUncheckedCreateWithoutTicketMessagesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTicketMessagesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTicketMessagesInput, Prisma.UserUncheckedUpdateWithoutTicketMessagesInput>
+}
+
+export type UserUpdateWithoutTicketMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTicketMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateManyInvitedByInput = {
@@ -1408,6 +2952,8 @@ export type UserCreateManyInvitedByInput = {
   dateOfBirth?: Date | string | null
   googleId?: string | null
   googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1436,9 +2982,17 @@ export type UserUpdateWithoutInvitedByInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvitedByInput = {
@@ -1463,11 +3017,19 @@ export type UserUncheckedUpdateWithoutInvitedByInput = {
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutInvitedByInput = {
@@ -1492,6 +3054,268 @@ export type UserUncheckedUpdateManyWithoutInvitedByInput = {
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type UserCreateManyTenantInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type UserUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type UserCreateManySiteInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type UserUpdateWithoutSiteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSiteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutSiteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1505,12 +3329,24 @@ export type UserCountOutputType = {
   invitees: number
   auditLogs: number
   notifications: number
+  shifts: number
+  visitorsLogged: number
+  incidentsReported: number
+  patrolLogs: number
+  ticketsCreated: number
+  ticketMessages: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   invitees?: boolean | UserCountOutputTypeCountInviteesArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+  shifts?: boolean | UserCountOutputTypeCountShiftsArgs
+  visitorsLogged?: boolean | UserCountOutputTypeCountVisitorsLoggedArgs
+  incidentsReported?: boolean | UserCountOutputTypeCountIncidentsReportedArgs
+  patrolLogs?: boolean | UserCountOutputTypeCountPatrolLogsArgs
+  ticketsCreated?: boolean | UserCountOutputTypeCountTicketsCreatedArgs
+  ticketMessages?: boolean | UserCountOutputTypeCountTicketMessagesArgs
 }
 
 /**
@@ -1544,6 +3380,48 @@ export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.NotificationWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountShiftsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ShiftWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountVisitorsLoggedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VisitorWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountIncidentsReportedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.IncidentWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPatrolLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PatrolLogWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTicketsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SupportTicketWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTicketMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TicketMessageWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1567,13 +3445,23 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   dateOfBirth?: boolean
   googleId?: boolean
   googleRefreshToken?: boolean
+  tenantId?: boolean
+  siteId?: boolean
   invitedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
+  site?: boolean | Prisma.User$siteArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
   invitees?: boolean | Prisma.User$inviteesArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  shifts?: boolean | Prisma.User$shiftsArgs<ExtArgs>
+  visitorsLogged?: boolean | Prisma.User$visitorsLoggedArgs<ExtArgs>
+  incidentsReported?: boolean | Prisma.User$incidentsReportedArgs<ExtArgs>
+  patrolLogs?: boolean | Prisma.User$patrolLogsArgs<ExtArgs>
+  ticketsCreated?: boolean | Prisma.User$ticketsCreatedArgs<ExtArgs>
+  ticketMessages?: boolean | Prisma.User$ticketMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1599,9 +3487,13 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   dateOfBirth?: boolean
   googleId?: boolean
   googleRefreshToken?: boolean
+  tenantId?: boolean
+  siteId?: boolean
   invitedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
+  site?: boolean | Prisma.User$siteArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1627,9 +3519,13 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   dateOfBirth?: boolean
   googleId?: boolean
   googleRefreshToken?: boolean
+  tenantId?: boolean
+  siteId?: boolean
   invitedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
+  site?: boolean | Prisma.User$siteArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1655,33 +3551,55 @@ export type UserSelectScalar = {
   dateOfBirth?: boolean
   googleId?: boolean
   googleRefreshToken?: boolean
+  tenantId?: boolean
+  siteId?: boolean
   invitedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "role" | "accountStatus" | "firstName" | "lastName" | "displayName" | "avatarUrl" | "phone" | "verificationCode" | "verificationExpires" | "passwordResetToken" | "passwordResetExpires" | "lastActiveAt" | "city" | "country" | "language" | "dateOfBirth" | "googleId" | "googleRefreshToken" | "invitedById" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "role" | "accountStatus" | "firstName" | "lastName" | "displayName" | "avatarUrl" | "phone" | "verificationCode" | "verificationExpires" | "passwordResetToken" | "passwordResetExpires" | "lastActiveAt" | "city" | "country" | "language" | "dateOfBirth" | "googleId" | "googleRefreshToken" | "tenantId" | "siteId" | "invitedById" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
+  site?: boolean | Prisma.User$siteArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
   invitees?: boolean | Prisma.User$inviteesArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  shifts?: boolean | Prisma.User$shiftsArgs<ExtArgs>
+  visitorsLogged?: boolean | Prisma.User$visitorsLoggedArgs<ExtArgs>
+  incidentsReported?: boolean | Prisma.User$incidentsReportedArgs<ExtArgs>
+  patrolLogs?: boolean | Prisma.User$patrolLogsArgs<ExtArgs>
+  ticketsCreated?: boolean | Prisma.User$ticketsCreatedArgs<ExtArgs>
+  ticketMessages?: boolean | Prisma.User$ticketMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
+  site?: boolean | Prisma.User$siteArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
 }
 export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
+  site?: boolean | Prisma.User$siteArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
 }
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
+    tenant: Prisma.$TenantPayload<ExtArgs> | null
+    site: Prisma.$SitePayload<ExtArgs> | null
     invitedBy: Prisma.$UserPayload<ExtArgs> | null
     invitees: Prisma.$UserPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    shifts: Prisma.$ShiftPayload<ExtArgs>[]
+    visitorsLogged: Prisma.$VisitorPayload<ExtArgs>[]
+    incidentsReported: Prisma.$IncidentPayload<ExtArgs>[]
+    patrolLogs: Prisma.$PatrolLogPayload<ExtArgs>[]
+    ticketsCreated: Prisma.$SupportTicketPayload<ExtArgs>[]
+    ticketMessages: Prisma.$TicketMessagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1705,6 +3623,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     dateOfBirth: Date | null
     googleId: string | null
     googleRefreshToken: string | null
+    tenantId: string | null
+    siteId: string | null
     invitedById: string | null
     createdAt: Date
     updatedAt: Date
@@ -2102,10 +4022,18 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  tenant<T extends Prisma.User$tenantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tenantArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  site<T extends Prisma.User$siteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$siteArgs<ExtArgs>>): Prisma.Prisma__SiteClient<runtime.Types.Result.GetResult<Prisma.$SitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   invitedBy<T extends Prisma.User$invitedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$invitedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   invitees<T extends Prisma.User$inviteesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$inviteesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  shifts<T extends Prisma.User$shiftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  visitorsLogged<T extends Prisma.User$visitorsLoggedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$visitorsLoggedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VisitorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  incidentsReported<T extends Prisma.User$incidentsReportedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$incidentsReportedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncidentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  patrolLogs<T extends Prisma.User$patrolLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$patrolLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ticketsCreated<T extends Prisma.User$ticketsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ticketsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ticketMessages<T extends Prisma.User$ticketMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ticketMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TicketMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2156,6 +4084,8 @@ export interface UserFieldRefs {
   readonly dateOfBirth: Prisma.FieldRef<"User", 'DateTime'>
   readonly googleId: Prisma.FieldRef<"User", 'String'>
   readonly googleRefreshToken: Prisma.FieldRef<"User", 'String'>
+  readonly tenantId: Prisma.FieldRef<"User", 'String'>
+  readonly siteId: Prisma.FieldRef<"User", 'String'>
   readonly invitedById: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -2560,6 +4490,44 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
+ * User.tenant
+ */
+export type User$tenantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tenant
+   */
+  select?: Prisma.TenantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tenant
+   */
+  omit?: Prisma.TenantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TenantInclude<ExtArgs> | null
+  where?: Prisma.TenantWhereInput
+}
+
+/**
+ * User.site
+ */
+export type User$siteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Site
+   */
+  select?: Prisma.SiteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Site
+   */
+  omit?: Prisma.SiteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SiteInclude<ExtArgs> | null
+  where?: Prisma.SiteWhereInput
+}
+
+/**
  * User.invitedBy
  */
 export type User$invitedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2648,6 +4616,150 @@ export type User$notificationsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * User.shifts
+ */
+export type User$shiftsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Shift
+   */
+  select?: Prisma.ShiftSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Shift
+   */
+  omit?: Prisma.ShiftOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShiftInclude<ExtArgs> | null
+  where?: Prisma.ShiftWhereInput
+  orderBy?: Prisma.ShiftOrderByWithRelationInput | Prisma.ShiftOrderByWithRelationInput[]
+  cursor?: Prisma.ShiftWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ShiftScalarFieldEnum | Prisma.ShiftScalarFieldEnum[]
+}
+
+/**
+ * User.visitorsLogged
+ */
+export type User$visitorsLoggedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Visitor
+   */
+  select?: Prisma.VisitorSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Visitor
+   */
+  omit?: Prisma.VisitorOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VisitorInclude<ExtArgs> | null
+  where?: Prisma.VisitorWhereInput
+  orderBy?: Prisma.VisitorOrderByWithRelationInput | Prisma.VisitorOrderByWithRelationInput[]
+  cursor?: Prisma.VisitorWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VisitorScalarFieldEnum | Prisma.VisitorScalarFieldEnum[]
+}
+
+/**
+ * User.incidentsReported
+ */
+export type User$incidentsReportedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Incident
+   */
+  select?: Prisma.IncidentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Incident
+   */
+  omit?: Prisma.IncidentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.IncidentInclude<ExtArgs> | null
+  where?: Prisma.IncidentWhereInput
+  orderBy?: Prisma.IncidentOrderByWithRelationInput | Prisma.IncidentOrderByWithRelationInput[]
+  cursor?: Prisma.IncidentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.IncidentScalarFieldEnum | Prisma.IncidentScalarFieldEnum[]
+}
+
+/**
+ * User.patrolLogs
+ */
+export type User$patrolLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PatrolLog
+   */
+  select?: Prisma.PatrolLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PatrolLog
+   */
+  omit?: Prisma.PatrolLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PatrolLogInclude<ExtArgs> | null
+  where?: Prisma.PatrolLogWhereInput
+  orderBy?: Prisma.PatrolLogOrderByWithRelationInput | Prisma.PatrolLogOrderByWithRelationInput[]
+  cursor?: Prisma.PatrolLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PatrolLogScalarFieldEnum | Prisma.PatrolLogScalarFieldEnum[]
+}
+
+/**
+ * User.ticketsCreated
+ */
+export type User$ticketsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SupportTicket
+   */
+  select?: Prisma.SupportTicketSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SupportTicket
+   */
+  omit?: Prisma.SupportTicketOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SupportTicketInclude<ExtArgs> | null
+  where?: Prisma.SupportTicketWhereInput
+  orderBy?: Prisma.SupportTicketOrderByWithRelationInput | Prisma.SupportTicketOrderByWithRelationInput[]
+  cursor?: Prisma.SupportTicketWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SupportTicketScalarFieldEnum | Prisma.SupportTicketScalarFieldEnum[]
+}
+
+/**
+ * User.ticketMessages
+ */
+export type User$ticketMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TicketMessage
+   */
+  select?: Prisma.TicketMessageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TicketMessage
+   */
+  omit?: Prisma.TicketMessageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TicketMessageInclude<ExtArgs> | null
+  where?: Prisma.TicketMessageWhereInput
+  orderBy?: Prisma.TicketMessageOrderByWithRelationInput | Prisma.TicketMessageOrderByWithRelationInput[]
+  cursor?: Prisma.TicketMessageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TicketMessageScalarFieldEnum | Prisma.TicketMessageScalarFieldEnum[]
 }
 
 /**

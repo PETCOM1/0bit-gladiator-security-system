@@ -71,4 +71,9 @@ export const authService = {
     const { data } = await apiClient.post(endpoints.auth.logout);
     return data;
   },
+
+  async inviteGuard(email: string, firstName?: string, lastName?: string) {
+    const { data } = await apiClient.post("/users/invite", { email, firstName, lastName });
+    return data;
+  },
 };

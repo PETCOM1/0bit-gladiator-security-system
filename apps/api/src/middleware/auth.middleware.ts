@@ -31,7 +31,10 @@ export const protect = async (
 
     const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
 
-    const currentUser = await prisma.user.findUnique({ where: { id: decoded.userId } });
+    const currentUser = await prisma.user.findUnique({ 
+      where: { id: decoded.userId },
+      include: { tenant: true }
+    });
 
     if (!currentUser) {
       res.clearCookie("token", {
@@ -47,6 +50,10 @@ export const protect = async (
       return res.status(HttpStatus.FORBIDDEN).json({ message: "Your account has been suspended" });
     }
 
+    if (currentUser.tenant && currentUser.tenant.subscriptionStatus === "SUSPENDED") {
+      return res.status(HttpStatus.FORBIDDEN).json({ message: "Your organization's account has been suspended" });
+    }
+
     if (currentUser.accountStatus === AccountStatus.DELETED) {
       return res.status(HttpStatus.UNAUTHORIZED).json({ message: "User no longer exists" });
     }
@@ -55,6 +62,8 @@ export const protect = async (
       userId: currentUser.id,
       role:   currentUser.role as Role,
       email:  currentUser.email,
+      tenantId: currentUser.tenantId || undefined,
+      siteId: currentUser.siteId || undefined,
     };
 
     next();

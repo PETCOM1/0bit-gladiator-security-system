@@ -35,8 +35,15 @@ export async function runMigrationsAndSeed(): Promise<void> {
     // ── Enums ────────────────────────────────────────────────────────────────
     await client.query(`
       DO $$ BEGIN
-        CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'MANAGER', 'USER');
+        CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'MANAGER', 'SITE_MANAGER', 'USER');
       EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+
+    // Add SITE_MANAGER to existing ENUM if it was created previously
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'SITE_MANAGER';
+      EXCEPTION WHEN undefined_object THEN null; WHEN duplicate_object THEN null; END $$;
     `);
 
     await client.query(`
@@ -48,6 +55,12 @@ export async function runMigrationsAndSeed(): Promise<void> {
     await client.query(`
       DO $$ BEGIN
         CREATE TYPE "RegistrationMode" AS ENUM ('INVITE_ONLY', 'SELF_REGISTER', 'SELF_REGISTER_AUTO');
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+
+    await client.query(`
+      DO $$ BEGIN
+        CREATE TYPE "PaymentStatus" AS ENUM ('PAID', 'PENDING', 'FAILED');
       EXCEPTION WHEN duplicate_object THEN null; END $$;
     `);
 
@@ -119,12 +132,81 @@ export async function runMigrationsAndSeed(): Promise<void> {
       );
     `);
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS "Payment" (
+        "id"            TEXT NOT NULL,
+        "tenantId"      TEXT NOT NULL,
+        "amount"        DOUBLE PRECISION NOT NULL,
+        "currency"      TEXT NOT NULL DEFAULT 'USD',
+        "status"        "PaymentStatus" NOT NULL DEFAULT 'PAID',
+        "invoiceNumber" TEXT,
+        "billingPeriod" TEXT,
+        "createdAt"     TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "Payment_pkey" PRIMARY KEY ("id")
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS "SubscriptionTier" (
+        "id"        TEXT NOT NULL,
+        "name"      TEXT NOT NULL UNIQUE,
+        "price"     DOUBLE PRECISION NOT NULL,
+        "maxUsers"  INTEGER NOT NULL DEFAULT 50,
+        "maxSites"  INTEGER NOT NULL DEFAULT 1,
+        "features"  JSONB,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "SubscriptionTier_pkey" PRIMARY KEY ("id")
+      );
+    `);
+
+    // ── Enums (PostgreSQL needs these created first) ──────────────────────────
+    // Note: To make this idempotent, we check if the type exists.
+    await client.query(`
+      DO $$ BEGIN
+        CREATE TYPE "TicketStatus" AS ENUM ('OPEN', 'IN_PROGRESS', 'WAITING_ON_CUSTOMER', 'RESOLVED', 'CLOSED');
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+
+    await client.query(`
+      DO $$ BEGIN
+        CREATE TYPE "TicketPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT');
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS "SupportTicket" (
+        "id"          TEXT NOT NULL,
+        "tenantId"    TEXT NOT NULL,
+        "createdById" TEXT NOT NULL,
+        "subject"     TEXT NOT NULL,
+        "description" TEXT NOT NULL,
+        "status"      "TicketStatus" NOT NULL DEFAULT 'OPEN',
+        "priority"    "TicketPriority" NOT NULL DEFAULT 'MEDIUM',
+        "createdAt"   TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt"   TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "SupportTicket_pkey" PRIMARY KEY ("id")
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS "TicketMessage" (
+        "id"        TEXT NOT NULL,
+        "ticketId"  TEXT NOT NULL,
+        "senderId"  TEXT NOT NULL,
+        "content"   TEXT NOT NULL,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "TicketMessage_pkey" PRIMARY KEY ("id")
+      );
+    `);
+
     // ── Idempotent column additions (for databases created before these fields) ─
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "city"        TEXT;`);
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "country"     TEXT;`);
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "language"    TEXT;`);
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "dateOfBirth" TIMESTAMP(3);`);
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phone"       TEXT;`);
+    await client.query(`ALTER TABLE "Tenant" ADD COLUMN IF NOT EXISTS "subscriptionTierId" TEXT;`);
 
     // ── Indexes ──────────────────────────────────────────────────────────────
     await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key"    ON "User"("email");`);
@@ -137,6 +219,11 @@ export async function runMigrationsAndSeed(): Promise<void> {
     await client.query(`CREATE INDEX        IF NOT EXISTS "Notification_userId_idx" ON "Notification"("userId");`);
     await client.query(`CREATE INDEX        IF NOT EXISTS "Notification_userId_read_idx" ON "Notification"("userId", "read");`);
     await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS "SystemSetting_key_key" ON "SystemSetting"("key");`);
+    await client.query(`CREATE INDEX        IF NOT EXISTS "Payment_tenantId_idx" ON "Payment"("tenantId");`);
+    await client.query(`CREATE INDEX        IF NOT EXISTS "SupportTicket_tenantId_idx" ON "SupportTicket"("tenantId");`);
+    await client.query(`CREATE INDEX        IF NOT EXISTS "SupportTicket_status_idx" ON "SupportTicket"("status");`);
+    await client.query(`CREATE INDEX        IF NOT EXISTS "TicketMessage_ticketId_idx" ON "TicketMessage"("ticketId");`);
+    await client.query(`CREATE INDEX        IF NOT EXISTS "Tenant_subscriptionTierId_idx" ON "Tenant"("subscriptionTierId");`);
 
     // ── Foreign keys (safe to re-run — DO block catches duplicate) ───────────
     await client.query(`
@@ -157,6 +244,42 @@ export async function runMigrationsAndSeed(): Promise<void> {
           FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
       EXCEPTION WHEN duplicate_object THEN null; END $$;
     `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE "Payment" ADD CONSTRAINT "Payment_tenantId_fkey"
+          FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE "SupportTicket" ADD CONSTRAINT "SupportTicket_tenantId_fkey"
+          FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE "SupportTicket" ADD CONSTRAINT "SupportTicket_createdById_fkey"
+          FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE "TicketMessage" ADD CONSTRAINT "TicketMessage_ticketId_fkey"
+          FOREIGN KEY ("ticketId") REFERENCES "SupportTicket"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE "TicketMessage" ADD CONSTRAINT "TicketMessage_senderId_fkey"
+          FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_subscriptionTierId_fkey"
+          FOREIGN KEY ("subscriptionTierId") REFERENCES "SubscriptionTier"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
 
     console.log("✅ [MIGRATE] Schema ready");
 
@@ -170,6 +293,23 @@ export async function runMigrationsAndSeed(): Promise<void> {
       INSERT INTO "SystemSetting" ("id", "key", "value", "createdAt", "updatedAt")
       VALUES (gen_random_uuid()::text, 'app_name', 'My App', NOW(), NOW())
       ON CONFLICT ("key") DO NOTHING;
+    `);
+
+    // ── Seed Subscription Tiers ───────────────────────────────────────────────
+    await client.query(`
+      INSERT INTO "SubscriptionTier" ("id", "name", "price", "maxUsers", "maxSites", "createdAt", "updatedAt")
+      VALUES 
+        ('tier-basic', 'BASIC', 99, 50, 1, NOW(), NOW()),
+        ('tier-pro', 'PRO', 299, 500, 5, NOW(), NOW()),
+        ('tier-enterprise', 'ENTERPRISE', 999, 9999, 999, NOW(), NOW())
+      ON CONFLICT ("name") DO NOTHING;
+    `);
+
+    // Migrate old tenants to 'BASIC'
+    await client.query(`
+      UPDATE "Tenant" 
+      SET "subscriptionTierId" = 'tier-basic'
+      WHERE "subscriptionTierId" IS NULL;
     `);
 
     // ── Seed super admin (only if no super admin exists) ─────────────────────
@@ -190,6 +330,53 @@ export async function runMigrationsAndSeed(): Promise<void> {
     } else {
       console.log("🌱 [MIGRATE] Super admin already exists — skipping seed");
     }
+
+    // ── Seed mock accounts ───────────────────────────────────────────────────
+    const defaultPassword = await bcrypt.hash("Password123!", 12);
+
+    // Platform Admin
+    await client.query(`
+      INSERT INTO "User" ("id", "email", "password", "role", "accountStatus", "firstName", "lastName", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid()::text, 'admin@example.com', $1, 'ADMIN', 'ACTIVE', 'Platform', 'Admin', NOW(), NOW())
+      ON CONFLICT ("email") DO NOTHING;
+    `, [defaultPassword]);
+
+    // Mock Tenant
+    const tenantId = 'mock-tenant-id';
+    await client.query(`
+      INSERT INTO "Tenant" ("id", "name", "subscriptionStatus", "createdAt", "updatedAt")
+      VALUES ($1, 'SecureGuard Solutions', 'ACTIVE', NOW(), NOW())
+      ON CONFLICT ("id") DO NOTHING;
+    `, [tenantId]);
+
+    // Mock Site
+    const siteId = 'mock-site-id';
+    await client.query(`
+      INSERT INTO "Site" ("id", "tenantId", "name", "address", "createdAt", "updatedAt")
+      VALUES ($1, $2, 'Main Office Complex', '123 Business Rd', NOW(), NOW())
+      ON CONFLICT ("id") DO NOTHING;
+    `, [siteId, tenantId]);
+
+    // Tenant Manager
+    await client.query(`
+      INSERT INTO "User" ("id", "email", "password", "role", "accountStatus", "firstName", "lastName", "tenantId", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid()::text, 'manager@example.com', $1, 'MANAGER', 'ACTIVE', 'Tenant', 'Manager', $2, NOW(), NOW())
+      ON CONFLICT ("email") DO NOTHING;
+    `, [defaultPassword, tenantId]);
+
+    // Site Manager
+    await client.query(`
+      INSERT INTO "User" ("id", "email", "password", "role", "accountStatus", "firstName", "lastName", "tenantId", "siteId", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid()::text, 'sitemanager@example.com', $1, 'SITE_MANAGER', 'ACTIVE', 'Site', 'Supervisor', $2, $3, NOW(), NOW())
+      ON CONFLICT ("email") DO NOTHING;
+    `, [defaultPassword, tenantId, siteId]);
+
+    // Security Guard (User)
+    await client.query(`
+      INSERT INTO "User" ("id", "email", "password", "role", "accountStatus", "firstName", "lastName", "tenantId", "siteId", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid()::text, 'guard@example.com', $1, 'USER', 'ACTIVE', 'Security', 'Guard', $2, $3, NOW(), NOW())
+      ON CONFLICT ("email") DO NOTHING;
+    `, [defaultPassword, tenantId, siteId]);
 
   } catch (err: any) {
     console.error("❌ [MIGRATE] Migration failed:", err.message);

@@ -73,3 +73,114 @@ export const changePassword = catchAsync(async (req: Request, res: Response) => 
 
   return res.status(HttpStatus.OK).json({ status: "success", message: "Password changed successfully" });
 });
+
+// ── Invite user ───────────────────────────────────────────────────────────────
+
+import { sendInviteEmail } from "../../services/mail.service.js";
+
+export const inviteUser = catchAsync(async (req: Request, res: Response) => {
+  const { email, firstName, lastName, siteId, role } = req.body;
+  if (!email) throw new AppError("Email is required", HttpStatus.BAD_REQUEST);
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) throw new AppError("User already exists", HttpStatus.CONFLICT);
+
+  const tenantId = req.user!.tenantId;
+  if (!tenantId) throw new AppError("No tenant context", HttpStatus.FORBIDDEN);
+
+  const targetSiteId = req.user!.role === "SITE_MANAGER" ? req.user!.siteId : (siteId || req.user!.siteId);
+
+  // Prevent creating ADMIN or SUPER_ADMIN
+  const targetRole = role === "SITE_MANAGER" ? "SITE_MANAGER" : "USER";
+
+  const code    = Math.random().toString(36).slice(2, 10).toUpperCase();
+  const expires = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
+  const user = await prisma.user.create({
+    data: {
+      email,
+      password:            "",
+      role:                targetRole,
+      accountStatus:       "PENDING",
+      firstName:           firstName ?? null,
+      lastName:            lastName  ?? null,
+      invitedById:         req.user!.userId,
+      verificationCode:    code,
+      verificationExpires: expires,
+      tenantId:            tenantId,
+      siteId:              targetSiteId || null,
+    },
+  });
+
+  const inviteLink = `${process.env.FRONTEND_URL}/set-password?token=${code}&email=${encodeURIComponent(email)}`;
+  await sendInviteEmail(email, inviteLink, firstName ?? "User");
+
+  await prisma.auditLog.create({
+    data: { userId: req.user!.userId, action: "USER_INVITED", meta: { email, siteId: targetSiteId, role: targetRole } },
+  });
+  req.auditLogged = true;
+
+  return res.status(HttpStatus.CREATED).json({
+    status:  "success",
+    message: "User invited successfully",
+    data:    { id: user.id, email: user.email },
+  });
+});
+
+export const getTenantUsers = catchAsync(async (req: Request, res: Response) => {
+  const tenantId = req.user!.tenantId;
+  if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
+
+  const users = await prisma.user.findMany({
+    where: { tenantId, role: { in: ["SITE_MANAGER", "USER"] }, accountStatus: { not: "DELETED" } },
+    select: { ...PROFILE_SELECT, site: { select: { id: true, name: true } } },
+    orderBy: { createdAt: "desc" }
+  });
+  
+  res.status(HttpStatus.OK).json({ status: "success", data: { users } });
+});
+
+export const updateUserRole = catchAsync(async (req: Request, res: Response) => {
+  const tenantId = req.user!.tenantId;
+  const { id } = req.params;
+  const { role } = req.body;
+
+  if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
+  if (!["SITE_MANAGER", "USER"].includes(role)) return res.status(HttpStatus.BAD_REQUEST).json({ message: "Invalid role" });
+
+  const user = await prisma.user.findFirst({ where: { id, tenantId } });
+  if (!user) return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
+
+  await prisma.user.update({ where: { id }, data: { role } });
+
+  res.status(HttpStatus.OK).json({ status: "success", message: "User role updated" });
+});
+
+export const assignToSite = catchAsync(async (req: Request, res: Response) => {
+  const tenantId = req.user!.tenantId;
+  const { id } = req.params;
+  const { siteId } = req.body;
+
+  if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
+
+  const user = await prisma.user.findFirst({ where: { id, tenantId } });
+  if (!user) return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
+
+  await prisma.user.update({ where: { id }, data: { siteId } });
+
+  res.status(HttpStatus.OK).json({ status: "success", message: "User site updated" });
+});
+
+export const disableUser = catchAsync(async (req: Request, res: Response) => {
+  const tenantId = req.user!.tenantId;
+  const { id } = req.params;
+
+  if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
+
+  const user = await prisma.user.findFirst({ where: { id, tenantId } });
+  if (!user) return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
+
+  await prisma.user.update({ where: { id }, data: { accountStatus: "SUSPENDED" } });
+
+  res.status(HttpStatus.OK).json({ status: "success", message: "User access disabled" });
+});

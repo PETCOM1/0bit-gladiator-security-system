@@ -1,64 +1,91 @@
-import * as dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
-import pkg from "bcryptjs";
-const { hash } = pkg;
-import { PrismaClient } from "../generated/client.js";
-import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
-
-dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+import { prisma } from "@repo/database";
+import bcrypt from "bcryptjs";
 
 async function main() {
-  if (!process.env.DATABASE_URL) throw new Error("❌ DATABASE_URL missing from .env");
+  console.log("🌱 Seeding mock users...");
 
-  const pool    = new pg.Pool({ connectionString: process.env.DIRECT_URL || process.env.DATABASE_URL });
-  const adapter = new PrismaPg(pool);
-  const prisma  = new PrismaClient({ adapter } as any);
+  const passwordHash = await bcrypt.hash("Password123!", 12);
 
-  try {
-    console.log("🌱 Seeding database...");
+  // 1. Create a Platform Admin
+  await prisma.user.upsert({
+    where: { email: "admin@example.com" },
+    update: {},
+    create: {
+      email: "admin@example.com",
+      password: passwordHash,
+      role: "ADMIN",
+      accountStatus: "ACTIVE",
+      firstName: "Platform",
+      lastName: "Admin",
+      displayName: "Platform Admin",
+    },
+  });
+  console.log("✅ Platform Admin created: admin@example.com / Password123!");
 
-    await prisma.systemSetting.upsert({
-      where:  { key: "registration_mode" },
-      update: {},
-      create: { key: "registration_mode", value: "INVITE_ONLY" },
-    });
+  // 2. Create a Mock Tenant and Site
+  const tenant = await prisma.tenant.upsert({
+    where: { id: "mock-tenant-id" },
+    update: {},
+    create: {
+      id: "mock-tenant-id",
+      name: "SecureGuard Solutions",
+    },
+  });
 
-    await prisma.systemSetting.upsert({
-      where:  { key: "app_name" },
-      update: {},
-      create: { key: "app_name", value: "My App" },
-    });
+  const site = await prisma.site.upsert({
+    where: { id: "mock-site-id" },
+    update: {},
+    create: {
+      id: "mock-site-id",
+      tenantId: tenant.id,
+      name: "Main Office Complex",
+      address: "123 Business Rd",
+    },
+  });
 
-    const password   = await hash("SuperAdmin123!", 12);
-    const superAdmin = await prisma.user.upsert({
-      where:  { email: "superadmin@example.com" },
-      update: {},
-      create: {
-        email:         "superadmin@example.com",
-        password,
-        role:          "SUPER_ADMIN",
-        accountStatus: "ACTIVE",
-        firstName:     "Super",
-        lastName:      "Admin",
-        displayName:   "Super Admin",
-      },
-    });
+  // 3. Create a Manager (Tenant Owner)
+  await prisma.user.upsert({
+    where: { email: "manager@example.com" },
+    update: {},
+    create: {
+      email: "manager@example.com",
+      password: passwordHash,
+      role: "MANAGER",
+      accountStatus: "ACTIVE",
+      firstName: "Tenant",
+      lastName: "Manager",
+      displayName: "Tenant Manager",
+      tenantId: tenant.id,
+    },
+  });
+  console.log("✅ Tenant Manager created: manager@example.com / Password123!");
 
-    console.log(`✅ Super admin: ${superAdmin.email}`);
-    console.log(`   Password: SuperAdmin123!`);
-    console.log(`\n⚠️  Change this password immediately after first login!`);
-  } catch (error: any) {
-    console.error("❌ Seed error:", error.message);
-    process.exit(1);
-  } finally {
-    await prisma.$disconnect();
-    await pool.end();
-  }
+  // 4. Create a Guard (User)
+  await prisma.user.upsert({
+    where: { email: "guard@example.com" },
+    update: {},
+    create: {
+      email: "guard@example.com",
+      password: passwordHash,
+      role: "USER",
+      accountStatus: "ACTIVE",
+      firstName: "Security",
+      lastName: "Guard",
+      displayName: "Security Guard",
+      tenantId: tenant.id,
+      siteId: site.id,
+    },
+  });
+  console.log("✅ Security Guard created: guard@example.com / Password123!");
+
+  console.log("🎉 Seeding complete!");
 }
 
-main();
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

@@ -9,6 +9,10 @@ export const globalErrorHandler = (
   const statusCode = err.statusCode || 500;
   const message    = err.isOperational ? err.message : "An unexpected error occurred";
 
+  if (!err.isOperational || statusCode >= 500) {
+    console.error("🔥 ERROR:", err);
+  }
+
   res.status(statusCode).json({
     status:  statusCode >= 500 ? "error" : "fail",
     message,

@@ -115,7 +115,7 @@ export const inviteUser = catchAsync(async (req: Request, res: Response) => {
   if (existing) throw new AppError("User already exists", HttpStatus.CONFLICT);
 
   const code    = Math.random().toString(36).slice(2, 10).toUpperCase();
-  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  const expires = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
   const user = await prisma.user.create({
     data: {
@@ -156,7 +156,7 @@ export const inviteManager = catchAsync(async (req: Request, res: Response) => {
   if (existing) throw new AppError("User already exists", HttpStatus.CONFLICT);
 
   const code    = Math.random().toString(36).slice(2, 10).toUpperCase();
-  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  const expires = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
   const manager = await prisma.user.create({
     data: {

@@ -16,21 +16,53 @@ async function send(payload: Parameters<typeof resend.emails.send>[0]) {
 // ── Invite email ───────────────────────────────────────────────────────────────
 
 export async function sendInviteEmail(
-  to: string, inviteLink: string, name: string
+  to: string,
+  inviteLink: string,
+  name: string,
+  context?: {
+    invitedBy?: string;
+    role?: string;
+    assignedSite?: string;
+  }
 ) {
+  const invitedByText = context?.invitedBy ? `<strong>Invited by:</strong> ${context.invitedBy}<br>` : "";
+  const roleText = context?.role ? `<strong>Role:</strong> ${context.role}<br>` : "";
+  const assignedSiteText = context?.assignedSite ? `<strong>Assigned Site:</strong> ${context.assignedSite}<br>` : "";
+  
   await send({
     from:    FROM,
     to,
-    subject: `You've been invited to ${APP}`,
+    subject: `YOU'VE BEEN INVITED - Gladiator Pro`,
     html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
-        <h2>Welcome to ${APP}</h2>
-        <p>Hi ${name},</p>
-        <p>You've been invited to join ${APP}. Click the button below to set your password and activate your account.</p>
-        <a href="${inviteLink}" style="display:inline-block;padding:12px 24px;background:#84cc16;color:#0f172a;border-radius:8px;text-decoration:none;font-weight:700;margin:16px 0">
-          Accept Invitation
-        </a>
-        <p style="color:#666;font-size:13px">This link expires in 7 days. If you didn't expect this email, you can ignore it.</p>
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:0;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+        <div style="background:#1e293b;padding:24px;text-align:center;color:#ffffff;">
+          <h1 style="margin:0;font-size:20px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Gladiator Pro Security System</h1>
+        </div>
+        <div style="padding:32px;">
+          <h2 style="margin-top:0;color:#0f172a;font-size:24px;font-weight:800;letter-spacing:0.5px;">YOU'VE BEEN INVITED</h2>
+          <p style="color:#334155;font-size:16px;line-height:1.5;">Hi ${name},</p>
+          <p style="color:#334155;font-size:16px;line-height:1.5;">You have been invited to join Gladiator Pro as part of a security operations team.</p>
+          
+          <div style="margin:24px 0;padding:16px;background:#f8fafc;border-radius:8px;color:#334155;font-size:15px;line-height:1.6;">
+            ${invitedByText || "<strong>Role:</strong> Invited User<br>"}
+            ${roleText}
+            ${assignedSiteText}
+          </div>
+
+          <p style="color:#334155;font-size:16px;line-height:1.5;">To activate your account, click the button below:</p>
+          
+          <div style="text-align:center;margin:32px 0;">
+            <a href="${inviteLink}" style="display:inline-block;padding:16px 32px;background:#F57C00;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;letter-spacing:1px;">
+              ACCEPT INVITATION
+            </a>
+          </div>
+
+          <p style="color:#ef4444;font-size:14px;font-weight:600;margin-bottom:8px;">⚠️ This invitation will expire in 48 hours.</p>
+          <p style="color:#64748b;font-size:13px;line-height:1.5;margin-bottom:24px;">Security warning: Do not share this link with anyone. If you did not expect this invitation, you can safely ignore this email.</p>
+          
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;" />
+          <p style="color:#94a3b8;font-size:12px;text-align:center;margin:0;">This is an automated system notification from Gladiator Pro.</p>
+        </div>
       </div>
     `,
   });

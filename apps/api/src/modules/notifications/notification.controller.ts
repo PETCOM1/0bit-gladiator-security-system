@@ -66,3 +66,45 @@ export const deleteNotification = catchAsync(async (req: Request, res: Response)
 
   return res.status(HttpStatus.OK).json({ status: "success" });
 });
+
+// ── Broadcast notification ───────────────────────────────────────────────────────
+
+export const broadcastNotification = catchAsync(async (req: Request, res: Response) => {
+  const { title, message } = req.body;
+  if (!title || !message) {
+    throw new AppError("Title and message are required", HttpStatus.BAD_REQUEST);
+  }
+
+  // Get all active tenant managers
+  const managers = await prisma.user.findMany({
+    where: { role: "MANAGER", accountStatus: "ACTIVE" },
+    select: { id: true }
+  });
+
+  if (managers.length > 0) {
+    const notifications = managers.map(m => ({
+      userId: m.id,
+      title,
+      message,
+      type: "SYSTEM_ALERT"
+    }));
+
+    await prisma.notification.createMany({
+      data: notifications
+    });
+  }
+
+  await prisma.auditLog.create({
+    data: {
+      userId: req.user!.userId,
+      action: "BROADCAST_NOTIFICATION_SENT",
+      meta: { title, count: managers.length }
+    }
+  });
+  req.auditLogged = true;
+
+  return res.status(HttpStatus.OK).json({ 
+    status: "success", 
+    message: `Broadcast sent to ${managers.length} managers.` 
+  });
+});

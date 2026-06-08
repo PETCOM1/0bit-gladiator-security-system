@@ -31,8 +31,8 @@ export * from "./enums.js"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Payments
+ * const payments = await prisma.payment.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -41,6 +41,11 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
 /**
  * Model User
  * 
@@ -61,3 +66,58 @@ export type Notification = Prisma.NotificationModel
  * 
  */
 export type SystemSetting = Prisma.SystemSettingModel
+/**
+ * Model SubscriptionTier
+ * 
+ */
+export type SubscriptionTier = Prisma.SubscriptionTierModel
+/**
+ * Model Tenant
+ * 
+ */
+export type Tenant = Prisma.TenantModel
+/**
+ * Model Site
+ * 
+ */
+export type Site = Prisma.SiteModel
+/**
+ * Model Visitor
+ * 
+ */
+export type Visitor = Prisma.VisitorModel
+/**
+ * Model Incident
+ * 
+ */
+export type Incident = Prisma.IncidentModel
+/**
+ * Model Shift
+ * 
+ */
+export type Shift = Prisma.ShiftModel
+/**
+ * Model PatrolRoute
+ * 
+ */
+export type PatrolRoute = Prisma.PatrolRouteModel
+/**
+ * Model PatrolCheckpoint
+ * 
+ */
+export type PatrolCheckpoint = Prisma.PatrolCheckpointModel
+/**
+ * Model PatrolLog
+ * 
+ */
+export type PatrolLog = Prisma.PatrolLogModel
+/**
+ * Model SupportTicket
+ * 
+ */
+export type SupportTicket = Prisma.SupportTicketModel
+/**
+ * Model TicketMessage
+ * 
+ */
+export type TicketMessage = Prisma.TicketMessageModel

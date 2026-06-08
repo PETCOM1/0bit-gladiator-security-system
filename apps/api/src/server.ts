@@ -23,6 +23,15 @@ import userRoutes         from "./modules/users/user.routes.js";
 import adminRoutes        from "./modules/admin/admin.routes.js";
 import superAdminRoutes   from "./modules/super-admin/super-admin.routes.js";
 import notificationRoutes from "./modules/notifications/notification.routes.js";
+import tenantRoutes       from "./modules/tenants/tenant.routes.js";
+import siteRoutes         from "./modules/sites/site.routes.js";
+import visitorRoutes      from "./modules/visitors/visitor.routes.js";
+import incidentRoutes     from "./modules/incidents/incident.routes.js";
+import shiftRoutes        from "./modules/shifts/shift.routes.js";
+import ticketRoutes       from "./modules/tickets/ticket.routes.js";
+import planRoutes         from "./modules/plans/plan.routes.js";
+
+import managerRoutes      from "./modules/manager/manager.routes.js";
 
 const app: Express = express();
 const isProduction = process.env.NODE_ENV === "production";
@@ -74,7 +83,15 @@ app.use(`${API}/auth`,          authRateLimiter, authRoutes);
 app.use(`${API}/users`,         userRoutes);
 app.use(`${API}/admin`,         adminRoutes);
 app.use(`${API}/super-admin`,   superAdminRoutes);
+app.use(`${API}/manager`,       managerRoutes);
 app.use(`${API}/notifications`, notificationRoutes);
+app.use(`${API}/tenants`,       tenantRoutes);
+app.use(`${API}/sites`,         siteRoutes);
+app.use(`${API}/visitors`,      visitorRoutes);
+app.use(`${API}/incidents`,     incidentRoutes);
+app.use(`${API}/shifts`,        shiftRoutes);
+app.use(`${API}/tickets`,       ticketRoutes);
+app.use(`${API}/plans`,         planRoutes);
 
 // ── 6. 404 ────────────────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {

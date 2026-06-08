@@ -1,0 +1,31 @@
+import { Request, Response } from "express";
+import { prisma } from "@repo/database";
+import { HttpStatus } from "@repo/types";
+import { catchAsync } from "../../utils/catchAsync.js";
+
+export const checkInVisitor = catchAsync(async (req: Request, res: Response) => {
+  const { name, idNumber, vehicleReg, purpose } = req.body;
+  const tenantId = req.user!.tenantId;
+  const siteId = req.user!.siteId;
+  
+  if (!tenantId || !siteId) return res.status(403).json({ message: "No tenant/site context" });
+
+  const visitor = await prisma.visitor.create({
+    data: { tenantId, siteId, loggedById: req.user!.userId, name, idNumber, vehicleReg, purpose }
+  });
+  res.status(HttpStatus.CREATED).json({ status: "success", data: { visitor } });
+});
+
+export const getVisitors = catchAsync(async (req: Request, res: Response) => {
+  const tenantId = req.user!.tenantId;
+  const siteId = req.user!.role === "MANAGER" ? null : req.user!.siteId; // Manager sees all sites
+  if (!tenantId) return res.status(403).json({ message: "No tenant context" });
+
+  const visitors = await prisma.visitor.findMany({ 
+    where: { tenantId, ...(siteId && { siteId }) },
+    orderBy: { checkInTime: 'desc' },
+    take: 50,
+    include: { loggedBy: { select: { firstName: true, lastName: true } }, site: { select: { name: true } } }
+  });
+  res.status(HttpStatus.OK).json({ status: "success", data: { visitors } });
+});

@@ -18,6 +18,11 @@ export { Prisma }
 export * as $Enums from './enums.js'
 export * from './enums.js';
 /**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
  * Model User
  * 
  */
@@ -37,3 +42,58 @@ export type Notification = Prisma.NotificationModel
  * 
  */
 export type SystemSetting = Prisma.SystemSettingModel
+/**
+ * Model SubscriptionTier
+ * 
+ */
+export type SubscriptionTier = Prisma.SubscriptionTierModel
+/**
+ * Model Tenant
+ * 
+ */
+export type Tenant = Prisma.TenantModel
+/**
+ * Model Site
+ * 
+ */
+export type Site = Prisma.SiteModel
+/**
+ * Model Visitor
+ * 
+ */
+export type Visitor = Prisma.VisitorModel
+/**
+ * Model Incident
+ * 
+ */
+export type Incident = Prisma.IncidentModel
+/**
+ * Model Shift
+ * 
+ */
+export type Shift = Prisma.ShiftModel
+/**
+ * Model PatrolRoute
+ * 
+ */
+export type PatrolRoute = Prisma.PatrolRouteModel
+/**
+ * Model PatrolCheckpoint
+ * 
+ */
+export type PatrolCheckpoint = Prisma.PatrolCheckpointModel
+/**
+ * Model PatrolLog
+ * 
+ */
+export type PatrolLog = Prisma.PatrolLogModel
+/**
+ * Model SupportTicket
+ * 
+ */
+export type SupportTicket = Prisma.SupportTicketModel
+/**
+ * Model TicketMessage
+ * 
+ */
+export type TicketMessage = Prisma.TicketMessageModel

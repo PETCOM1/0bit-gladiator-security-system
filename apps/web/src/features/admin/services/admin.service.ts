@@ -49,4 +49,8 @@ export const adminService = {
     const { data } = await apiClient.patch(endpoints.admin.userRole(id), { role });
     return data;
   },
+
+  getVisitors: () => apiClient.get("/visitors"),
+  getIncidents: () => apiClient.get("/incidents"),
+  getSites: () => apiClient.get("/sites"),
 };
