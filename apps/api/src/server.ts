@@ -54,7 +54,8 @@ app.use(
       if (!origin) return callback(null, true);
       const isAllowed = allowedOrigins.some((allowed) =>
         origin.startsWith(allowed)
-      );
+      ) || origin.endsWith('.vercel.app') || origin.endsWith('.vercel.live');
+      
       if (isAllowed) {
         callback(null, true);
       } else {
