@@ -144,13 +144,13 @@ export default function DataTable<T>({
       {(searchKeys.length > 0 || filterOptions.length > 0) && (
         <div style={{
           padding: "16px 20px",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+          borderBottom: "1px solid var(--color-border)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
           gap: "16px",
-          background: "rgba(10, 25, 47, 0.2)",
+          background: "var(--color-bg-subtle)",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
             {filterOptions.length > 0 && (
@@ -167,8 +167,8 @@ export default function DataTable<T>({
                   onChange={(e) => handleFilterChange(filter.label, e.target.value)}
                   style={{
                     padding: "7px 28px 7px 12px",
-                    background: "rgba(10, 25, 47, 0.6)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "var(--color-card-bg)",
+                    border: "1px solid var(--color-border)",
                     borderRadius: "var(--radius-md)",
                     fontSize: "13px",
                     color: "var(--color-text-primary)",
@@ -179,9 +179,9 @@ export default function DataTable<T>({
                   }}
                   className="glass-select"
                 >
-                  <option value="" style={{ background: "#0a192f" }}>All {filter.label}s</option>
+                  <option value="" style={{ background: "var(--color-card-bg)", color: "var(--color-text-primary)" }}>All {filter.label}s</option>
                   {filter.options.map((opt) => (
-                    <option key={opt.value} value={opt.value} style={{ background: "#0a192f" }}>
+                    <option key={opt.value} value={opt.value} style={{ background: "var(--color-card-bg)", color: "var(--color-text-primary)" }}>
                       {opt.label}
                     </option>
                   ))}
@@ -218,8 +218,8 @@ export default function DataTable<T>({
                 style={{
                   width: "240px",
                   padding: "7px 12px 7px 32px",
-                  background: "rgba(10, 25, 47, 0.6)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  background: "var(--color-card-bg)",
+                  border: "1px solid var(--color-border)",
                   borderRadius: "var(--radius-md)",
                   fontSize: "13px",
                   color: "var(--color-text-primary)",
@@ -237,7 +237,7 @@ export default function DataTable<T>({
       <div style={{ overflowX: "auto", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "auto" }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
+            <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
               {columns.map((col, index) => (
                 <th
                   key={index}
@@ -249,8 +249,8 @@ export default function DataTable<T>({
                     color: "var(--color-text-muted)",
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
-                    background: "rgba(10, 25, 47, 0.3)",
-                    fontFamily: "var(--font-heading)",
+                    background: "var(--color-bg-subtle)",
+                    
                     ...col.headerStyle,
                   }}
                 >
@@ -268,7 +268,7 @@ export default function DataTable<T>({
                       width: "18px",
                       height: "18px",
                       borderRadius: "50%",
-                      border: "2px solid rgba(255,255,255,0.1)",
+                      border: "2px solid var(--color-border)",
                       borderTopColor: "var(--color-accent)",
                       animation: "datatable-spin 0.7s linear infinite",
                     }} />
@@ -297,7 +297,7 @@ export default function DataTable<T>({
                 <tr
                   key={rIndex}
                   style={{
-                    borderBottom: rIndex < paginatedData.length - 1 ? "1px solid rgba(255, 255, 255, 0.04)" : "none",
+                    borderBottom: rIndex < paginatedData.length - 1 ? "1px solid var(--color-border)" : "none",
                     transition: "background-color var(--transition-fast)",
                   }}
                   className="table-row-hover"
@@ -330,11 +330,11 @@ export default function DataTable<T>({
       {!loading && totalLength > 0 && (
         <div style={{
           padding: "14px 20px",
-          borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+          borderTop: "1px solid var(--color-border)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          background: "rgba(10, 25, 47, 0.1)",
+          background: "var(--color-bg-subtle)",
           flexWrap: "wrap",
           gap: "12px",
         }}>
@@ -358,8 +358,8 @@ export default function DataTable<T>({
                   width: "28px",
                   height: "28px",
                   borderRadius: "var(--radius-md)",
-                  background: activePage === 1 ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: activePage === 1 ? "var(--color-card-bg)" : "var(--color-card-bg)",
+                  border: "1px solid var(--color-card-bg)",
                   color: activePage === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)",
                   cursor: activePage === 1 ? "not-allowed" : "pointer",
                   transition: "background var(--transition-fast)",
@@ -384,12 +384,12 @@ export default function DataTable<T>({
                       fontSize: "13px",
                       fontWeight: isCurrent ? 600 : 400,
                       background: isCurrent
-                        ? "linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))"
-                        : "rgba(255,255,255,0.05)",
+                        ? "var(--color-accent)"
+                        : "var(--color-card-bg)",
                       border: isCurrent
-                        ? "1px solid rgba(255,255,255,0.15)"
-                        : "1px solid rgba(255,255,255,0.05)",
-                      color: isCurrent ? "var(--color-accent-text)" : "var(--color-text-primary)",
+                        ? "1px solid var(--color-border)"
+                        : "1px solid var(--color-card-bg)",
+                      color: isCurrent ? "#fff" : "var(--color-text-primary)",
                       cursor: "pointer",
                       boxShadow: isCurrent ? "0 0 8px rgba(245, 158, 11, 0.3)" : "none",
                       transition: "background var(--transition-fast), color var(--transition-fast)",
@@ -411,8 +411,8 @@ export default function DataTable<T>({
                   width: "28px",
                   height: "28px",
                   borderRadius: "var(--radius-md)",
-                  background: activePage === totalPagesCount ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: activePage === totalPagesCount ? "var(--color-card-bg)" : "var(--color-card-bg)",
+                  border: "1px solid var(--color-card-bg)",
                   color: activePage === totalPagesCount ? "var(--color-text-muted)" : "var(--color-text-primary)",
                   cursor: activePage === totalPagesCount ? "not-allowed" : "pointer",
                   transition: "background var(--transition-fast)",
