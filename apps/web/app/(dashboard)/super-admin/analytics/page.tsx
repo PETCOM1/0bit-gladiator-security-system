@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { BarChart, Download, Building2, Users, AlertTriangle, ShieldCheck, TrendingUp, Cpu } from "lucide-react";
-import { exportToPDF } from "@/shared/utils/pdf";
+import { exportSuperAdminReport } from "@/shared/utils/pdf";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
+import { useAuth } from "@/shared/context/AuthContext";
 
 // Feature / Device illustrative averages based on active DAU
 const DEVICE_USAGE = [
@@ -20,6 +21,7 @@ const FEATURE_USAGE = [
 ];
 
 export default function SuperAdminAnalyticsPage() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [tenants, setTenants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,48 +70,52 @@ export default function SuperAdminAnalyticsPage() {
     }));
   }, [tenants]);
 
-  // Export current active view to PDF
+  // Export structured multi-page PDF Report
   const handleDownloadPDF = () => {
-    if (activeTab === "companies") {
-      const headers = ["Security Company", "Total Sites", "Total Guards", "Incidents Logged", "Performance Score"];
-      const rows = filteredCompanies.map(c => {
-        const incidents = c._count?.incidents || 0;
-        const score = Math.max(60, 100 - incidents * 5);
-        return [
-          c.name,
-          (c._count?.sites || 0).toString(),
-          (c._count?.users || 0).toString(),
-          incidents.toString(),
-          `${score}%`
-        ];
-      });
-      exportToPDF("Platform Company Performance Analytics", headers, rows, "super_admin_company_analytics.pdf");
-    } else if (activeTab === "usage") {
-      const headers = ["Feature / Device Category", "Usage Rate / Share"];
-      const rows = [
-        ...FEATURE_USAGE.map(f => [f.feature, `${f.rate}%`]),
-        ...DEVICE_USAGE.map(d => [d.device, `${d.percentage}%`])
-      ];
-      exportToPDF("Platform Usage & Feature Adoption Analytics", headers, rows, "super_admin_usage_analytics.pdf");
-    } else if (activeTab === "incidents") {
-      const headers = ["Incident Metric", "Value"];
-      const rows = [
-        ["Total Incidents Logged", (stats?.totalIncidents || 0).toString()],
-        ["Open Security Issues", (stats?.pendingUsers || 0).toString()],
-        ["Incident Resolution Rate", stats?.totalIncidents > 0 ? `${((1 - (stats.pendingUsers / stats.totalIncidents)) * 100).toFixed(1)}%` : "100%"],
-        ["Critical Breach Attempts", Math.round((stats?.totalIncidents || 0) * 0.1).toString()],
-        ["Patrol NFC Miss Rate", "3.8%"]
-      ];
-      exportToPDF("Platform System-wide Incident Analytics", headers, rows, "super_admin_incident_analytics.pdf");
-    } else {
-      const headers = ["Subscription Tier", "Subscribed Tenants", "MRR Impact"];
-      const rows = tierStats.map(tier => [
-        tier.name,
-        tier.count.toString(),
-        `R${tier.mrr.toLocaleString()}`
-      ]);
-      exportToPDF("SaaS Revenue & MRR Analytics", headers, rows, "super_admin_revenue_analytics.pdf");
-    }
+    const formattedPeriod = "June 2026";
+    const formattedGenerated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+    const formattedTenants = tenants.map(c => {
+      const incidents = c._count?.incidents || 0;
+      const score = Math.max(60, 100 - incidents * 5);
+      return {
+        name: c.name,
+        sites: c._count?.sites || 0,
+        guards: c._count?.users || 0,
+        incidents,
+        score
+      };
+    });
+
+    exportSuperAdminReport({
+      managerName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Super Admin",
+      reportPeriod: formattedPeriod,
+      generatedDate: formattedGenerated,
+      summary: {
+        tenantsCount: tenants.length,
+        sitesCount: stats?.totalSites || 0,
+        guardsCount: stats?.totalGuards || 0,
+        mrr: stats?.mrr || 0
+      },
+      kpis: {
+        totalTenants: tenants.length,
+        totalSites: stats?.totalSites || 0,
+        totalGuards: stats?.totalGuards || 0,
+        activeUsers: stats?.totalUsers || 0,
+        totalIncidents: stats?.totalIncidents || 0,
+        openIncidents: stats?.pendingUsers || 0,
+        mrr: stats?.mrr || 0
+      },
+      tenants: formattedTenants,
+      features: FEATURE_USAGE,
+      devices: DEVICE_USAGE,
+      tiers: tierStats.map(t => ({
+        name: t.name,
+        price: t.price,
+        count: t.count,
+        mrr: t.mrr
+      }))
+    });
   };
 
   if (loading) {

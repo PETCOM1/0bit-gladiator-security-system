@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { BarChart, Download, Building2, UserCheck, Award, Calendar } from "lucide-react";
-import { exportToPDF } from "@/shared/utils/pdf";
+import { exportPlatformAdminReport } from "@/shared/utils/pdf";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
+import { useAuth } from "@/shared/context/AuthContext";
 
 export default function AdminAnalyticsPage() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [tenants, setTenants] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
@@ -81,43 +83,66 @@ export default function AdminAnalyticsPage() {
     return { total, pending, active, totalSites, totalGuards };
   }, [tenants]);
 
+  // Export structured multi-page PDF Report
   const handleDownloadPDF = () => {
-    if (activeTab === "tenants") {
-      const headers = ["Company Name", "Status", "Sites Registered", "Guards Onboarded", "Incidents Logged"];
-      const rows = filteredTenants.map(c => [
-        c.name, 
-        c.subscriptionStatus || "ACTIVE", 
-        (c._count?.sites || 0).toString(), 
-        (c._count?.users || 0).toString(), 
-        (c._count?.incidents || 0).toString()
-      ]);
-      exportToPDF("Onboarded Security Tenants Audit Log", headers, rows, "platform_admin_tenants_audit.pdf");
-    } else if (activeTab === "adoption") {
-      const headers = ["Security Company", "Mobile App Login Adoption", "Patrol Route Completion"];
-      const rows = filteredTenants.map(c => {
-        // Compute dynamic adoption rates based on size/incidents
-        const incidents = c._count?.incidents || 0;
-        const appAdoption = Math.min(100, Math.max(65, 95 - incidents * 2));
-        const patrolRate = Math.min(100, Math.max(70, 98 - incidents));
-        return [
-          c.name,
-          `${appAdoption}%`,
-          `${patrolRate}%`
-        ];
-      });
-      exportToPDF("Security Officer Application Adoption Reports", headers, rows, "platform_admin_adoption_metrics.pdf");
-    } else {
-      const headers = ["Ticket ID", "Tenant Company", "Issue Subject", "Priority", "Status", "Date Opened"];
-      const rows = filteredTickets.map(t => [
-        t.id.substring(0, 8).toUpperCase(),
-        t.tenant?.name || "N/A",
-        t.subject,
-        t.priority,
-        t.status,
-        new Date(t.createdAt).toLocaleDateString()
-      ]);
-      exportToPDF("Customer Support & Tickets Dashboard", headers, rows, "platform_admin_support_analytics.pdf");
-    }
+    const formattedPeriod = startDate && endDate 
+      ? `${new Date(startDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} to ${new Date(endDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+      : new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+    
+    const formattedGenerated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+    const formattedTenants = filteredTenants.map(c => {
+      const ticketsCount = tickets.filter(t => t.tenantId === c.id && t.status !== "RESOLVED" && t.status !== "CLOSED").length;
+      return {
+        name: c.name,
+        status: c.subscriptionStatus || "ACTIVE",
+        sites: c._count?.sites || 0,
+        guards: c._count?.users || 0,
+        tickets: ticketsCount
+      };
+    });
+
+    const adoptions = filteredTenants.map(c => {
+      const incidents = c._count?.incidents || 0;
+      const appAdoption = Math.min(100, Math.max(65, 95 - incidents * 2));
+      const patrolRate = Math.min(100, Math.max(70, 98 - incidents));
+      return {
+        name: c.name,
+        appAdoption,
+        patrolRate
+      };
+    });
+
+    const formattedTickets = filteredTickets.map(t => ({
+      id: t.id.substring(0, 8).toUpperCase(),
+      tenantName: t.tenant?.name || "N/A",
+      subject: t.subject,
+      priority: t.priority,
+      status: t.status,
+      date: new Date(t.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    }));
+
+    exportPlatformAdminReport({
+      managerName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Platform Admin",
+      reportPeriod: formattedPeriod,
+      generatedDate: formattedGenerated,
+      summary: {
+        tenantsCount: filteredTenants.length,
+        pendingCount: kpis.pending,
+        sitesCount: kpis.totalSites,
+        guardsCount: kpis.totalGuards
+      },
+      kpis: {
+        totalTenants: kpis.total,
+        pendingCount: kpis.pending,
+        activeCount: kpis.active,
+        totalSites: kpis.totalSites,
+        totalGuards: kpis.totalGuards
+      },
+      tenants: formattedTenants,
+      adoptions,
+      tickets: formattedTickets
+    });
   };
 
   if (loading) {
