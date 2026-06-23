@@ -1,12 +1,5 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { PlaceholderPage } from "@/shared/components/ui/PlaceholderPage";
-
-export default function PatrolsPage() {
-  return (
-    <PlaceholderPage 
-      title="Patrol Management" 
-      description="Monitor patrol activities for your site. This feature is currently in development."
-    />
-  );
+export default function Page() {
+  redirect("/site-manager/operations?tab=patrols");
 }

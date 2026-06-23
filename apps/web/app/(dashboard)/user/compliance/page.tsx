@@ -1,11 +1,66 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { CheckCircle2, Plus, X, AlertTriangle, ShieldAlert, Image as ImageIcon, ZoomIn, Eye } from "lucide-react";
+import React, { useEffect, useState, Suspense } from "react";
+import { CheckCircle2, Plus, X, ShieldAlert, Image as ImageIcon, Eye, Search, Filter, Calendar } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
 import { useAuth } from "@/shared/context/AuthContext";
 
-export default function SecurityCompliancePage() {
+const inputStyle = {
+  padding: "10px 14px",
+  background: "var(--color-bg-subtle)",
+  border: "1px solid var(--color-border)",
+  borderRadius: "var(--radius-md)",
+  fontSize: "14px",
+  color: "var(--color-text-primary)",
+  outline: "none",
+  transition: "border var(--transition-fast)",
+  width: "100%",
+  boxSizing: "border-box" as const
+};
+
+const selectStyle = {
+  ...inputStyle,
+  appearance: "none" as const,
+  cursor: "pointer"
+};
+
+const labelStyle = {
+  display: "block",
+  fontSize: "12px",
+  fontWeight: 600,
+  color: "var(--color-text-secondary)",
+  marginBottom: "6px",
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.05em"
+};
+
+const filterByDuration = (createdAtString: string, duration: string) => {
+  if (duration === "ALL") return true;
+  const date = new Date(createdAtString);
+  const now = new Date();
+  
+  // Reset hours to start of day for comparison
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  if (duration === "TODAY") {
+    return date >= todayStart;
+  }
+  if (duration === "WEEK") {
+    const weekStart = new Date(todayStart.getTime() - todayStart.getDay() * 24 * 60 * 60 * 1000);
+    return date >= weekStart;
+  }
+  if (duration === "MONTH") {
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    return date >= monthStart;
+  }
+  if (duration === "YEAR") {
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    return date >= yearStart;
+  }
+  return true;
+};
+
+function SecurityComplianceContent() {
   const { user } = useAuth();
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +75,13 @@ export default function SecurityCompliancePage() {
   const [image, setImage] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Filters and Pagination State
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("ALL");
+  const [filterDuration, setFilterDuration] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   // Zoom Modal State
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
@@ -27,7 +89,6 @@ export default function SecurityCompliancePage() {
     setLoading(true);
     try {
       const res = await managerService.getOccurrences();
-      // Filter occurrences logged by this guard user
       const myEntries = (res.data.data.entries || []).filter((e: any) => e.userId === user?.id);
       setEntries(myEntries);
     } catch (err) {
@@ -78,7 +139,6 @@ export default function SecurityCompliancePage() {
       });
       
       setShowForm(false);
-      // Reset form states
       setCategory("ROUTINE");
       setEntryText("");
       setAllClear(true);
@@ -94,6 +154,23 @@ export default function SecurityCompliancePage() {
       setIsSubmitting(false);
     }
   };
+
+  // Filtered and Paginated Entries
+  const filteredEntries = entries.filter(entry => {
+    const matchesSearch = 
+      entry.entryText.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (entry.location && entry.location.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCategory = filterCategory === "ALL" || entry.category === filterCategory;
+    const matchesDuration = filterByDuration(entry.createdAt, filterDuration);
+    return matchesSearch && matchesCategory && matchesDuration;
+  });
+
+  const totalPages = Math.ceil(filteredEntries.length / itemsPerPage) || 1;
+  const paginatedEntries = filteredEntries.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterCategory, filterDuration]);
 
   const getSeverityColor = (sev: string) => {
     switch (sev?.toUpperCase()) {
@@ -111,29 +188,6 @@ export default function SecurityCompliancePage() {
       case "HANDOVER": return { bg: "var(--color-info-subtle)", text: "var(--color-info)" };
       default: return { bg: "var(--color-bg-subtle)", text: "var(--color-text-secondary)" };
     }
-  };
-
-  const inputStyle = {
-    padding: "10px 14px",
-    background: "var(--color-bg-subtle)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "var(--radius-md)",
-    fontSize: "14px",
-    color: "var(--color-text-primary)",
-    outline: "none",
-    transition: "border var(--transition-fast)",
-    width: "100%",
-    boxSizing: "border-box" as const
-  };
-
-  const labelStyle = {
-    display: "block",
-    fontSize: "12px",
-    fontWeight: 600,
-    color: "var(--color-text-secondary)",
-    marginBottom: "6px",
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.05em"
   };
 
   return (
@@ -175,7 +229,6 @@ export default function SecurityCompliancePage() {
           <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>New Occurrence Entry</h3>
           
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
-            {/* Category selection */}
             <div>
               <label style={labelStyle}>Entry Type / Category *</label>
               <select value={category} onChange={e => { setCategory(e.target.value); setEntryText(""); }} style={inputStyle}>
@@ -187,7 +240,6 @@ export default function SecurityCompliancePage() {
               </select>
             </div>
 
-            {/* Severity selection (only for Incident & Emergency) */}
             {(category === "INCIDENT" || category === "EMERGENCY") && (
               <div>
                 <label style={labelStyle}>Severity level *</label>
@@ -200,14 +252,12 @@ export default function SecurityCompliancePage() {
               </div>
             )}
 
-            {/* Location (optional for all but useful for incident) */}
             <div>
               <label style={labelStyle}>Location / Zone</label>
               <input type="text" value={location} onChange={e => setLocation(e.target.value)} placeholder="E.g. Warehouse B, South Gate" style={inputStyle} />
             </div>
           </div>
 
-          {/* All Clear Toggle for Routine checks */}
           {(category === "ROUTINE" || category === "HANDOVER") && (
             <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "var(--color-success-subtle)", padding: "12px 16px", borderRadius: "var(--radius-md)", border: "1px solid rgba(16,185,129,0.15)" }}>
               <input 
@@ -223,7 +273,6 @@ export default function SecurityCompliancePage() {
             </div>
           )}
 
-          {/* Detailed report text area (shown always unless All Clear is checked) */}
           {(!allClear || (category !== "ROUTINE" && category !== "HANDOVER")) && (
             <div>
               <label style={labelStyle}>
@@ -239,7 +288,6 @@ export default function SecurityCompliancePage() {
             </div>
           )}
 
-          {/* Picture Attachment (Optional) */}
           <div>
             <label style={labelStyle}>Attach Picture (Optional)</label>
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -288,6 +336,61 @@ export default function SecurityCompliancePage() {
 
       {/* Log Book Display */}
       <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
+        
+        {/* Table Filters Header */}
+        <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Filter size={18} color="var(--color-accent)" />
+            <h2 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Filter Log Entries</h2>
+          </div>
+          
+          <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+            {/* Search */}
+            <div style={{ position: "relative" }}>
+              <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
+              <input 
+                type="text" 
+                placeholder="Search details..." 
+                value={searchTerm} 
+                onChange={e => setSearchTerm(e.target.value)}
+                style={{ ...inputStyle, paddingLeft: "32px", width: "200px", padding: "8px 12px 8px 32px" }} 
+              />
+            </div>
+            
+            {/* Category Filter */}
+            <div style={{ position: "relative" }}>
+              <select 
+                value={filterCategory} 
+                onChange={e => setFilterCategory(e.target.value)} 
+                style={{ ...selectStyle, width: "160px", padding: "8px 12px 8px 14px" }}
+              >
+                <option value="ALL">All Categories</option>
+                <option value="ROUTINE">Routine Checks</option>
+                <option value="HANDOVER">Handovers</option>
+                <option value="INCIDENT">Incident Reports</option>
+                <option value="EMERGENCY">Emergencies</option>
+                <option value="OTHER">Other Logs</option>
+              </select>
+            </div>
+
+            {/* Duration Filter */}
+            <div style={{ position: "relative" }}>
+              <select 
+                value={filterDuration} 
+                onChange={e => setFilterDuration(e.target.value)} 
+                style={{ ...selectStyle, width: "150px", padding: "8px 12px 8px 14px" }}
+              >
+                <option value="ALL">All Time</option>
+                <option value="TODAY">Today</option>
+                <option value="WEEK">This Week</option>
+                <option value="MONTH">This Month</option>
+                <option value="YEAR">This Year</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Table View */}
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
@@ -302,9 +405,9 @@ export default function SecurityCompliancePage() {
             <tbody>
               {loading ? (
                 <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading occurrences...</td></tr>
-              ) : entries.length === 0 ? (
-                <tr><td colSpan={5} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No occurrence book entries recorded. All clear!</td></tr>
-              ) : entries.map((entry, i) => {
+              ) : paginatedEntries.length === 0 ? (
+                <tr><td colSpan={5} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No log entries match the filters.</td></tr>
+              ) : paginatedEntries.map((entry, i) => {
                 const isIncident = entry.category === "INCIDENT" || entry.category === "EMERGENCY";
                 const sevColor = getSeverityColor(entry.severity);
                 const catColor = getCategoryColor(entry.category);
@@ -312,16 +415,14 @@ export default function SecurityCompliancePage() {
                 return (
                   <tr 
                     key={entry.id} 
-                    style={{ borderBottom: i < entries.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                    style={{ borderBottom: i < paginatedEntries.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
                     onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
                     onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
                   >
-                    {/* Timestamp */}
                     <td style={{ padding: "16px 24px", fontWeight: 600, color: "var(--color-text-primary)", fontSize: "13px" }}>
                       {new Date(entry.createdAt).toLocaleString()}
                     </td>
                     
-                    {/* Category badge */}
                     <td style={{ padding: "16px 24px" }}>
                       <span style={{ 
                         display: "inline-flex", 
@@ -338,7 +439,6 @@ export default function SecurityCompliancePage() {
                       </span>
                     </td>
 
-                    {/* Entry Details */}
                     <td style={{ padding: "16px 24px" }}>
                       <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
                         {isIncident && <ShieldAlert size={16} color="var(--color-danger)" style={{ marginTop: "2px", flexShrink: 0 }} />}
@@ -353,7 +453,6 @@ export default function SecurityCompliancePage() {
                       </div>
                     </td>
 
-                    {/* Severity (Incident only) */}
                     <td style={{ padding: "16px 24px" }}>
                       {isIncident ? (
                         <span style={{ 
@@ -372,13 +471,12 @@ export default function SecurityCompliancePage() {
                       )}
                     </td>
 
-                    {/* Image Attachment preview */}
                     <td style={{ padding: "16px 24px" }}>
                       {entry.image ? (
                         <div 
                           onClick={() => setZoomImage(entry.image)}
                           style={{ position: "relative", width: "40px", height: "40px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--color-border)", cursor: "zoom-in" }}
-                          title="Click to view image"
+                          title="Click to zoom image"
                         >
                           <img src={entry.image} alt="Log Attachment" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0, transition: "opacity var(--transition-fast)" }} onMouseEnter={e => { e.currentTarget.style.opacity = "1"; }} onMouseLeave={e => { e.currentTarget.style.opacity = "0"; }}>
@@ -389,16 +487,38 @@ export default function SecurityCompliancePage() {
                         <span style={{ color: "var(--color-text-muted)", fontSize: "13px" }}>None</span>
                       )}
                     </td>
-
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
+
+        {/* Table Pagination */}
+        <div style={{ padding: "16px 24px", borderTop: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--color-bg-subtle)" }}>
+          <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+            Showing {filteredEntries.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredEntries.length)} of {filteredEntries.length} log entries
+          </span>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button 
+              disabled={currentPage === 1} 
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              style={{ padding: "6px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: currentPage === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)", cursor: currentPage === 1 ? "not-allowed" : "pointer" }}
+            >
+              Previous
+            </button>
+            <button 
+              disabled={currentPage === totalPages} 
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              style={{ padding: "6px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: currentPage === totalPages ? "var(--color-text-muted)" : "var(--color-text-primary)", cursor: currentPage === totalPages ? "not-allowed" : "pointer" }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Lightbox / Zoom Modal */}
+      {/* Zoom Modal */}
       {zoomImage && (
         <div 
           onClick={() => setZoomImage(null)}
@@ -415,7 +535,19 @@ export default function SecurityCompliancePage() {
           </div>
         </div>
       )}
-
     </div>
+  );
+}
+
+export default function SecurityCompliancePage() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", gap: "12px", padding: "80px", color: "var(--color-text-muted)" }}>
+        <div style={{ width: "16px", height: "16px", border: "2px solid var(--color-border)", borderTopColor: "var(--color-accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <span style={{ fontSize: "14px" }}>Loading logs...</span>
+      </div>
+    }>
+      <SecurityComplianceContent />
+    </Suspense>
   );
 }
