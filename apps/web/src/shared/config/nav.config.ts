@@ -38,9 +38,8 @@ export const NAV_CONFIG: Record<string, NavItem[]> = {
     { href: "/site-manager/officers",  label: "Personnel",   icon: "Users"           },
     { href: "/site-manager/shifts",    label: "Shifts",      icon: "Calendar"        },
     { href: "/site-manager/visitors",  label: "Visitors",    icon: "Contact"         },
-    { href: "/site-manager/incidents", label: "Incidents",   icon: "ShieldAlert"     },
     { href: "/site-manager/attendance",label: "Attendance",  icon: "ClipboardCheck"  },
-    { href: "/site-manager/compliance",label: "Compliance",  icon: "CheckCircle2"    },
+    { href: "/site-manager/compliance",label: "Occurrence Book",  icon: "CheckCircle2" },
     { href: "/site-manager/patrols",   label: "Patrols",     icon: "MapPin"          },
     { href: "/site-manager/analytics", label: "Analytics",   icon: "BarChart"        },
     { href: "/site-manager/support",   label: "Support",     icon: "LifeBuoy"        },
@@ -51,6 +50,5 @@ export const NAV_CONFIG: Record<string, NavItem[]> = {
     { href: "/user/shifts", label: "My Shifts", icon: "Calendar" },
     { href: "/user/visitors", label: "Visitors", icon: "Contact" },
     { href: "/user/compliance", label: "Occurrence Book", icon: "CheckCircle2" },
-    { href: "/user/incidents", label: "Incidents", icon: "ShieldAlert" },
   ],
 };

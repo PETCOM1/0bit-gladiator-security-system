@@ -41,7 +41,7 @@ export const managerService = {
 
   // Occurrences
   getOccurrences: (siteId?: string) => apiClient.get("/occurrences", { params: { siteId } }),
-  createOccurrence: (data: { entryText: string; category?: string; siteId?: string }) => apiClient.post("/occurrences", data),
+  createOccurrence: (data: { entryText: string; category?: string; siteId?: string; location?: string; severity?: string; image?: string }) => apiClient.post("/occurrences", data),
 
   // Profile & Settings
   updateTenantProfile: (data: { name: string }) => apiClient.patch("/manager/profile", data),
