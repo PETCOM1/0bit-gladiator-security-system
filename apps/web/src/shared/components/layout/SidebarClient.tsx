@@ -29,8 +29,8 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  const tenantName = user?.tenant?.name || BRAND.name;
-  const logoMark = user?.tenant?.name ? user.tenant.name.charAt(0).toUpperCase() : BRAND.logoMark;
+  const tenantName = (user?.role === "SUPER_ADMIN" || user?.role === "ADMIN") ? BRAND.name : (user?.tenant?.name || BRAND.name);
+  const logoMark = (user?.role === "SUPER_ADMIN" || user?.role === "ADMIN") ? BRAND.logoMark : (user?.tenant?.name ? user.tenant.name.charAt(0).toUpperCase() : BRAND.logoMark);
 
   const role     = (user?.role ?? "") as keyof typeof NAV_CONFIG;
   const navItems = NAV_CONFIG[role] ?? [];

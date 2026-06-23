@@ -27,7 +27,15 @@ export default function PlanManagerPage() {
 
   const handleEdit = (plan: any) => {
     setIsEditing(plan.id);
-    setEditForm({ ...plan, features: (plan.features || []).join("\n") });
+    let featuresStr = "";
+    if (Array.isArray(plan.features)) {
+      featuresStr = plan.features.join("\n");
+    } else if (plan.features && typeof plan.features === "object") {
+      featuresStr = plan.features.description || JSON.stringify(plan.features);
+    } else if (typeof plan.features === "string") {
+      featuresStr = plan.features;
+    }
+    setEditForm({ ...plan, features: featuresStr });
   };
 
   const handleSave = async (id: string) => {
@@ -156,11 +164,26 @@ export default function PlanManagerPage() {
                       <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)", verticalAlign: "top" }}>{plan.maxSites || "Unlimited"}</td>
                       <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)", verticalAlign: "top" }}>
                         <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
-                          {(plan.features || []).map((f: string, i: number) => (
-                            <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "6px" }}>
-                              <CheckCircle2 size={14} color="var(--color-success)" style={{ flexShrink: 0, marginTop: "2px" }} /> {f}
-                            </li>
-                          ))}
+                          {(() => {
+                            const rawFeatures = plan.features;
+                            let featuresArray: string[] = [];
+                            if (Array.isArray(rawFeatures)) {
+                              featuresArray = rawFeatures;
+                            } else if (rawFeatures && typeof rawFeatures === "object") {
+                              if (rawFeatures.description) {
+                                featuresArray = [rawFeatures.description];
+                              } else {
+                                featuresArray = Object.entries(rawFeatures).map(([k, v]) => `${k}: ${v}`);
+                              }
+                            } else if (typeof rawFeatures === "string") {
+                              featuresArray = [rawFeatures];
+                            }
+                            return featuresArray.map((f: string, i: number) => (
+                              <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "6px" }}>
+                                <CheckCircle2 size={14} color="var(--color-success)" style={{ flexShrink: 0, marginTop: "2px" }} /> {f}
+                              </li>
+                            ));
+                          })()}
                         </ul>
                       </td>
                       <td style={{ padding: "16px 24px", verticalAlign: "top" }}>

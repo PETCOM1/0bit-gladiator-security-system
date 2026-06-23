@@ -78,6 +78,21 @@ async function main() {
   });
   console.log("✅ Security Guard created: guard@example.com / Password123!");
 
+
+  // 5. Create Pilot plan
+  await prisma.subscriptionTier.upsert({
+    where: { name: 'Pilot' },
+    update: {},
+    create: {
+      name: 'Pilot',
+      price: 0,
+      maxUsers: 10,
+      maxSites: 1,
+      features: { trial: true, description: 'Pilot plan for testing' },
+    },
+  });
+  console.log('✅ Pilot plan created (free trial plan)');
+
   console.log("🎉 Seeding complete!");
 }
 
