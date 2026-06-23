@@ -14,6 +14,12 @@ export function exportToPDF(title: string, headers: string[], rows: any[][], fil
   doc.setTextColor(100, 116, 139); // slate-500 (muted text)
   doc.text(`Generated on ${new Date().toLocaleString()}`, 14, 29);
   
+  // Confidential stamp
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(239, 68, 68); // Red
+  doc.text("CONFIDENTIAL", 196 - doc.getTextWidth("CONFIDENTIAL"), 29);
+  
   // Draw header separator line
   doc.setDrawColor(226, 232, 240); // slate-200
   doc.setLineWidth(0.5);
@@ -125,6 +131,11 @@ export function exportMultiPageReport(data: MultiPageReportData, filename: strin
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text("GLADIATOR PRO", 14, 15);
     
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(239, 68, 68); // Red-500
+    doc.text("CONFIDENTIAL", 95, 15);
+    
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
@@ -146,6 +157,11 @@ export function exportMultiPageReport(data: MultiPageReportData, filename: strin
   doc.rect(40, 0, 5, 297, "F");
 
   // Cover Page Title Block
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(239, 68, 68); // Red
+  doc.text("STRICTLY CONFIDENTIAL - INTERNAL USE ONLY", 60, 40);
+
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(28);
