@@ -6,14 +6,16 @@ export interface NavItem {
 
 export const NAV_CONFIG: Record<string, NavItem[]> = {
   SUPER_ADMIN: [
-    { href: "/super-admin",        label: "Overview", icon: "LayoutDashboard" },
-    { href: "/super-admin/admins", label: "Admins",   icon: "Users"           },
-    { href: "/super-admin/audit",  label: "Audit Log", icon: "ScrollText"     },
-    { href: "/super-admin/system", label: "System",   icon: "Settings"        },
+    { href: "/super-admin",        label: "Overview",  icon: "LayoutDashboard" },
+    { href: "/super-admin/admins", label: "Admins",    icon: "Users"           },
+    { href: "/super-admin/analytics", label: "Analytics", icon: "BarChart"     },
+    { href: "/super-admin/audit",  label: "Audit Log", icon: "ScrollText"      },
+    { href: "/super-admin/system", label: "System",    icon: "Settings"        },
   ],
   ADMIN: [
     { href: "/admin",           label: "Overview",  icon: "LayoutDashboard" },
-    { href: "/admin/activity",  label: "Activity Log",  icon: "Activity"        },
+    { href: "/admin/analytics", label: "Analytics", icon: "BarChart"        },
+    { href: "/admin/activity",  label: "Activity Log",  icon: "Activity"    },
     { href: "/admin/plans",     label: "Plans",     icon: "ScrollText"      },
     { href: "/admin/support",   label: "Helpdesk",  icon: "UserCircle"      },
     { href: "/admin/settings",  label: "Settings",  icon: "Settings"        },
@@ -25,7 +27,7 @@ export const NAV_CONFIG: Record<string, NavItem[]> = {
     { href: "/manager/shifts",    label: "Shifts",     icon: "Calendar"        },
     { href: "/manager/visitors",  label: "Visitors",   icon: "Contact"         },
     { href: "/manager/incidents", label: "Incidents",  icon: "ShieldAlert"     },
-    { href: "/manager/reports",   label: "Reports",    icon: "BarChart"        },
+    { href: "/manager/analytics", label: "Analytics",  icon: "BarChart"        },
     { href: "/manager/audit",     label: "Audit Log",  icon: "ScrollText"      },
     { href: "/manager/settings",  label: "Settings",   icon: "Settings"        },
     { href: "/manager/support",   label: "Support",    icon: "UserCircle"      },
@@ -39,7 +41,7 @@ export const NAV_CONFIG: Record<string, NavItem[]> = {
     { href: "/site-manager/attendance",label: "Attendance",  icon: "ClipboardCheck"  },
     { href: "/site-manager/compliance",label: "Compliance",  icon: "CheckCircle2"    },
     { href: "/site-manager/patrols",   label: "Patrols",     icon: "MapPin"          },
-    { href: "/site-manager/reports",   label: "Reports",     icon: "BarChart"        },
+    { href: "/site-manager/analytics", label: "Analytics",   icon: "BarChart"        },
     { href: "/site-manager/support",   label: "Support",     icon: "LifeBuoy"        },
   ],
   USER: [

@@ -14,6 +14,7 @@
     "@repo/ui": "workspace:*",
     "axios": "^1.15.0",
     "clsx": "^2.1.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.14.0",
     "marked": "^18.0.3",
     "next": "16.1.5",
