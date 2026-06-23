@@ -72,56 +72,6 @@
   --transition-slow: 0.30s ease;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   DESIGN TOKENS — DARK THEME
-   ═══════════════════════════════════════════════════════════════════════════ */
-:root.dark {
-  /* ── Accent ────────────────────────────────────────────────────────────── */
-  --color-accent:         #f59e0b;
-  --color-accent-hover:   #fbbf24;
-  --color-accent-text:    #0f172a;
-  --color-accent-subtle:  rgba(245, 158, 11, 0.15);
-  --color-accent-border:  rgba(245, 158, 11, 0.30);
-
-  /* ── Page backgrounds ──────────────────────────────────────────────────── */
-  --color-bg:             #0b0f19;
-  --color-bg-secondary:   #0a192f;
-
-  /* ── Cards ─────────────────────────────────────────────────────────────── */
-  --color-card-bg:        #0a192f;
-  --color-card-border:    #1e40af;
-  --color-card-shadow:    0 1px 3px rgba(0,0,0,0.40);
-
-  /* ── Text ──────────────────────────────────────────────────────────────── */
-  --color-text-primary:   #f8fafc;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted:     #6b7280;
-
-  /* ── Borders & dividers ────────────────────────────────────────────────── */
-  --color-border:         #1e40af;
-
-  /* ── Subtle surface ────────────────────────────────────────────────────── */
-  --color-bg-subtle:      #0a192f;
-
-  /* ── Top nav ───────────────────────────────────────────────────────────── */
-  --color-topnav-bg:      #0b0f19;
-  --color-topnav-border:  #1e40af;
-
-  /* ── Sidebar (dark theme) ───────────────────────────────────────────────── */
-  --color-sidebar-bg:               #0a192f;
-  --color-sidebar-border:           #1e40af;
-  --color-sidebar-text:             #94a3b8;
-  --color-sidebar-text-hover:       #ffffff;
-  --color-sidebar-text-active:      #ffffff;
-  --color-sidebar-item-hover:       rgba(30,64,175,0.4);
-  --color-sidebar-item-active-bg:   rgba(245, 158, 11, 0.18);
-
-  /* ── Status ────────────────────────────────────────────────────────────── */
-  --color-success-subtle: rgba(16,185,129,0.12);
-  --color-warning-subtle: rgba(245,158,11,0.12);
-  --color-danger-subtle:  rgba(239,68,68,0.12);
-  --color-info-subtle:    rgba(59,130,246,0.12);
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    RESET & BASE
@@ -198,24 +148,12 @@ input, textarea, select { font-family: inherit; }
    PREMIUM COMMAND CENTER DESIGNS & GLASSMORPHISM
    ═══════════════════════════════════════════════════════════════════════════ */
 .glass-panel {
-  background: rgba(10, 25, 47, 0.4) !important;
+  background: rgba(255, 255, 255, 0.45) !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
-  transition: border var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
-}
-
-.dark .glass-panel {
-  background: rgba(10, 25, 47, 0.3) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-/* Glass panel light theme variant */
-:root:not(.dark) .glass-panel {
-  background: rgba(255, 255, 255, 0.45) !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+  transition: border var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
 }
 
 .glass-panel-hover:hover {
@@ -226,20 +164,9 @@ input, textarea, select { font-family: inherit; }
 
 /* Dedicated Glass Navbar styling */
 .glass-navbar {
-  background: rgba(10, 25, 47, 0.35) !important;
+  background: rgba(255, 255, 255, 0.45) !important;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
-}
-
-.dark .glass-navbar {
-  background: rgba(10, 25, 47, 0.25) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-:root:not(.dark) .glass-navbar {
-  background: rgba(255, 255, 255, 0.45) !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   box-shadow: 0 4px 30px rgba(31, 38, 135, 0.03);
 }
@@ -249,17 +176,9 @@ input, textarea, select { font-family: inherit; }
   border-radius: var(--radius-xl);
   overflow: hidden;
   margin: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
-}
-
-.dark .floating-shell {
-  background: rgba(10, 25, 47, 0.3);
-}
-
-:root:not(.dark) .floating-shell {
   background: rgba(255, 255, 255, 0.4);
   border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
 }
 
 /* Animations */

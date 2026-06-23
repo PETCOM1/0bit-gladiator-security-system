@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
 
 type Theme = "light" | "dark";
 
@@ -12,32 +12,15 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const theme: Theme = "light";
 
-  // Load saved theme on mount
+  // Load light theme only
   useEffect(() => {
-    const saved = localStorage.getItem("obit-theme") as Theme | null;
-    const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-    const initial = saved ?? preferred;
-    setTheme(initial);
-    applyTheme(initial);
+    document.documentElement.classList.remove("dark");
   }, []);
 
-  const applyTheme = (t: Theme) => {
-    if (t === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
-
   const toggle = () => {
-    const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    applyTheme(next);
-    localStorage.setItem("obit-theme", next);
+    // No-op since dark mode is removed
   };
 
   return (

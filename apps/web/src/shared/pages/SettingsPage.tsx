@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/shared/context/AuthContext";
-import { useTheme } from "@/shared/context/ThemeContext";
+
 import apiClient from "@/api/client";
 import { endpoints } from "@/api/endpoints";
 
@@ -74,7 +74,7 @@ function Divider() {
 // ─── SETTINGS PAGE ────────────────────────────────────────────────────────────
 export function SettingsPage() {
   const { user, logout } = useAuth();
-  const { theme, toggle } = useTheme();
+
 
   // Password change state
   const [pwForm, setPwForm]     = useState({ current: "", next: "", confirm: "" });
@@ -132,15 +132,7 @@ export function SettingsPage() {
         </p>
       </div>
 
-      {/* Appearance */}
-      <Card title="Appearance" subtitle="Customise how the platform looks for you">
-        <Toggle
-          checked={theme === "dark"}
-          onChange={toggle}
-          label="Dark mode"
-          description="Switch between light and dark interface"
-        />
-      </Card>
+
 
       {/* Notifications */}
       <Card title="Notifications" subtitle="Choose what emails you receive">

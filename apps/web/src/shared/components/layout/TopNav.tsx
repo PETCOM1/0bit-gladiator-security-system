@@ -4,8 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/shared/context/AuthContext";
-import { useTheme } from "@/shared/context/ThemeContext";
-import { Bell, ChevronDown, User, Settings, LogOut, Sun, Moon, Check } from "lucide-react";
+import { Bell, ChevronDown, User, Settings, LogOut, Check } from "lucide-react";
 import NotificationBell from "./NotificationBell";
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
@@ -96,7 +95,6 @@ function Divider() {
 // ─── TOP NAV ──────────────────────────────────────────────────────────────────
 export default function TopNav() {
   const { user, logout } = useAuth();
-  const { theme, toggle } = useTheme();
   const router = useRouter();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -254,30 +252,7 @@ export default function TopNav() {
               onClick={() => setDropdownOpen(false)}
             />
 
-            <Divider />
 
-            {/* Theme toggle */}
-            <DropdownItem
-              icon={theme === "dark" ? Sun : Moon}
-              label={theme === "dark" ? "Light mode" : "Dark mode"}
-              onClick={() => { toggle(); setDropdownOpen(false); }}
-              extra={
-                <span style={{
-                  fontSize:    "10px",
-                  fontWeight:  600,
-                  color:       "var(--color-accent)",
-                  background:  "var(--color-accent-subtle)",
-                  padding:     "2px 6px",
-                  borderRadius: "6px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}>
-                  {theme === "dark" ? "light" : "dark"}
-                </span>
-              }
-            />
-
-            <Divider />
 
             <DropdownItem
               icon={LogOut}
