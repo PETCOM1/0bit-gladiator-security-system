@@ -92,6 +92,7 @@ app.use(`${API}/tenants`,       tenantRoutes);
 app.use(`${API}/sites`,         siteRoutes);
 app.use(`${API}/posts`,         postRoutes);
 app.use(`${API}/occurrences`,   occurrenceRoutes);
+app.use(`${API}/ob-entries`,    occurrenceRoutes);
 app.use(`${API}/visitors`,      visitorRoutes);
 app.use(`${API}/incidents`,     incidentRoutes);
 app.use(`${API}/shifts`,        shiftRoutes);

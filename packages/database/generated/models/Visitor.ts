@@ -35,6 +35,8 @@ export type VisitorMinAggregateOutputType = {
   personVisiting: string | null
   vehicleReg: string | null
   purpose: string | null
+  cellNumber: string | null
+  townVillage: string | null
   status: $Enums.VisitorStatus | null
   checkInTime: Date | null
   checkOutTime: Date | null
@@ -51,6 +53,8 @@ export type VisitorMaxAggregateOutputType = {
   personVisiting: string | null
   vehicleReg: string | null
   purpose: string | null
+  cellNumber: string | null
+  townVillage: string | null
   status: $Enums.VisitorStatus | null
   checkInTime: Date | null
   checkOutTime: Date | null
@@ -67,6 +71,8 @@ export type VisitorCountAggregateOutputType = {
   personVisiting: number
   vehicleReg: number
   purpose: number
+  cellNumber: number
+  townVillage: number
   status: number
   checkInTime: number
   checkOutTime: number
@@ -85,6 +91,8 @@ export type VisitorMinAggregateInputType = {
   personVisiting?: true
   vehicleReg?: true
   purpose?: true
+  cellNumber?: true
+  townVillage?: true
   status?: true
   checkInTime?: true
   checkOutTime?: true
@@ -101,6 +109,8 @@ export type VisitorMaxAggregateInputType = {
   personVisiting?: true
   vehicleReg?: true
   purpose?: true
+  cellNumber?: true
+  townVillage?: true
   status?: true
   checkInTime?: true
   checkOutTime?: true
@@ -117,6 +127,8 @@ export type VisitorCountAggregateInputType = {
   personVisiting?: true
   vehicleReg?: true
   purpose?: true
+  cellNumber?: true
+  townVillage?: true
   status?: true
   checkInTime?: true
   checkOutTime?: true
@@ -206,6 +218,8 @@ export type VisitorGroupByOutputType = {
   personVisiting: string | null
   vehicleReg: string | null
   purpose: string | null
+  cellNumber: string | null
+  townVillage: string | null
   status: $Enums.VisitorStatus
   checkInTime: Date
   checkOutTime: Date | null
@@ -243,6 +257,8 @@ export type VisitorWhereInput = {
   personVisiting?: Prisma.StringNullableFilter<"Visitor"> | string | null
   vehicleReg?: Prisma.StringNullableFilter<"Visitor"> | string | null
   purpose?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  cellNumber?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  townVillage?: Prisma.StringNullableFilter<"Visitor"> | string | null
   status?: Prisma.EnumVisitorStatusFilter<"Visitor"> | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFilter<"Visitor"> | Date | string
   checkOutTime?: Prisma.DateTimeNullableFilter<"Visitor"> | Date | string | null
@@ -262,6 +278,8 @@ export type VisitorOrderByWithRelationInput = {
   personVisiting?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleReg?: Prisma.SortOrderInput | Prisma.SortOrder
   purpose?: Prisma.SortOrderInput | Prisma.SortOrder
+  cellNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  townVillage?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   checkInTime?: Prisma.SortOrder
   checkOutTime?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -284,6 +302,8 @@ export type VisitorWhereUniqueInput = Prisma.AtLeast<{
   personVisiting?: Prisma.StringNullableFilter<"Visitor"> | string | null
   vehicleReg?: Prisma.StringNullableFilter<"Visitor"> | string | null
   purpose?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  cellNumber?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  townVillage?: Prisma.StringNullableFilter<"Visitor"> | string | null
   status?: Prisma.EnumVisitorStatusFilter<"Visitor"> | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFilter<"Visitor"> | Date | string
   checkOutTime?: Prisma.DateTimeNullableFilter<"Visitor"> | Date | string | null
@@ -303,6 +323,8 @@ export type VisitorOrderByWithAggregationInput = {
   personVisiting?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleReg?: Prisma.SortOrderInput | Prisma.SortOrder
   purpose?: Prisma.SortOrderInput | Prisma.SortOrder
+  cellNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  townVillage?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   checkInTime?: Prisma.SortOrder
   checkOutTime?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -325,6 +347,8 @@ export type VisitorScalarWhereWithAggregatesInput = {
   personVisiting?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
   vehicleReg?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
   purpose?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
+  cellNumber?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
+  townVillage?: Prisma.StringNullableWithAggregatesFilter<"Visitor"> | string | null
   status?: Prisma.EnumVisitorStatusWithAggregatesFilter<"Visitor"> | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeWithAggregatesFilter<"Visitor"> | Date | string
   checkOutTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Visitor"> | Date | string | null
@@ -338,6 +362,8 @@ export type VisitorCreateInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -357,6 +383,8 @@ export type VisitorUncheckedCreateInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -370,6 +398,8 @@ export type VisitorUpdateInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -389,6 +419,8 @@ export type VisitorUncheckedUpdateInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -405,6 +437,8 @@ export type VisitorCreateManyInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -418,6 +452,8 @@ export type VisitorUpdateManyMutationInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -434,6 +470,8 @@ export type VisitorUncheckedUpdateManyInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -460,6 +498,8 @@ export type VisitorCountOrderByAggregateInput = {
   personVisiting?: Prisma.SortOrder
   vehicleReg?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
+  cellNumber?: Prisma.SortOrder
+  townVillage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   checkInTime?: Prisma.SortOrder
   checkOutTime?: Prisma.SortOrder
@@ -476,6 +516,8 @@ export type VisitorMaxOrderByAggregateInput = {
   personVisiting?: Prisma.SortOrder
   vehicleReg?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
+  cellNumber?: Prisma.SortOrder
+  townVillage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   checkInTime?: Prisma.SortOrder
   checkOutTime?: Prisma.SortOrder
@@ -492,6 +534,8 @@ export type VisitorMinOrderByAggregateInput = {
   personVisiting?: Prisma.SortOrder
   vehicleReg?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
+  cellNumber?: Prisma.SortOrder
+  townVillage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   checkInTime?: Prisma.SortOrder
   checkOutTime?: Prisma.SortOrder
@@ -635,6 +679,8 @@ export type VisitorCreateWithoutLoggedByInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -652,6 +698,8 @@ export type VisitorUncheckedCreateWithoutLoggedByInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -697,6 +745,8 @@ export type VisitorScalarWhereInput = {
   personVisiting?: Prisma.StringNullableFilter<"Visitor"> | string | null
   vehicleReg?: Prisma.StringNullableFilter<"Visitor"> | string | null
   purpose?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  cellNumber?: Prisma.StringNullableFilter<"Visitor"> | string | null
+  townVillage?: Prisma.StringNullableFilter<"Visitor"> | string | null
   status?: Prisma.EnumVisitorStatusFilter<"Visitor"> | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFilter<"Visitor"> | Date | string
   checkOutTime?: Prisma.DateTimeNullableFilter<"Visitor"> | Date | string | null
@@ -710,6 +760,8 @@ export type VisitorCreateWithoutTenantInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -727,6 +779,8 @@ export type VisitorUncheckedCreateWithoutTenantInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -766,6 +820,8 @@ export type VisitorCreateWithoutSiteInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -783,6 +839,8 @@ export type VisitorUncheckedCreateWithoutSiteInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -824,6 +882,8 @@ export type VisitorCreateManyLoggedByInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -837,6 +897,8 @@ export type VisitorUpdateWithoutLoggedByInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -854,6 +916,8 @@ export type VisitorUncheckedUpdateWithoutLoggedByInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -869,6 +933,8 @@ export type VisitorUncheckedUpdateManyWithoutLoggedByInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -884,6 +950,8 @@ export type VisitorCreateManyTenantInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -897,6 +965,8 @@ export type VisitorUpdateWithoutTenantInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -914,6 +984,8 @@ export type VisitorUncheckedUpdateWithoutTenantInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -929,6 +1001,8 @@ export type VisitorUncheckedUpdateManyWithoutTenantInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -944,6 +1018,8 @@ export type VisitorCreateManySiteInput = {
   personVisiting?: string | null
   vehicleReg?: string | null
   purpose?: string | null
+  cellNumber?: string | null
+  townVillage?: string | null
   status?: $Enums.VisitorStatus
   checkInTime?: Date | string
   checkOutTime?: Date | string | null
@@ -957,6 +1033,8 @@ export type VisitorUpdateWithoutSiteInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -974,6 +1052,8 @@ export type VisitorUncheckedUpdateWithoutSiteInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -989,6 +1069,8 @@ export type VisitorUncheckedUpdateManyWithoutSiteInput = {
   personVisiting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleReg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cellNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  townVillage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumVisitorStatusFieldUpdateOperationsInput | $Enums.VisitorStatus
   checkInTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkOutTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1007,6 +1089,8 @@ export type VisitorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   personVisiting?: boolean
   vehicleReg?: boolean
   purpose?: boolean
+  cellNumber?: boolean
+  townVillage?: boolean
   status?: boolean
   checkInTime?: boolean
   checkOutTime?: boolean
@@ -1026,6 +1110,8 @@ export type VisitorSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   personVisiting?: boolean
   vehicleReg?: boolean
   purpose?: boolean
+  cellNumber?: boolean
+  townVillage?: boolean
   status?: boolean
   checkInTime?: boolean
   checkOutTime?: boolean
@@ -1045,6 +1131,8 @@ export type VisitorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   personVisiting?: boolean
   vehicleReg?: boolean
   purpose?: boolean
+  cellNumber?: boolean
+  townVillage?: boolean
   status?: boolean
   checkInTime?: boolean
   checkOutTime?: boolean
@@ -1064,12 +1152,14 @@ export type VisitorSelectScalar = {
   personVisiting?: boolean
   vehicleReg?: boolean
   purpose?: boolean
+  cellNumber?: boolean
+  townVillage?: boolean
   status?: boolean
   checkInTime?: boolean
   checkOutTime?: boolean
 }
 
-export type VisitorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "siteId" | "loggedById" | "name" | "idNumber" | "company" | "personVisiting" | "vehicleReg" | "purpose" | "status" | "checkInTime" | "checkOutTime", ExtArgs["result"]["visitor"]>
+export type VisitorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "siteId" | "loggedById" | "name" | "idNumber" | "company" | "personVisiting" | "vehicleReg" | "purpose" | "cellNumber" | "townVillage" | "status" | "checkInTime" | "checkOutTime", ExtArgs["result"]["visitor"]>
 export type VisitorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
@@ -1104,6 +1194,8 @@ export type $VisitorPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     personVisiting: string | null
     vehicleReg: string | null
     purpose: string | null
+    cellNumber: string | null
+    townVillage: string | null
     status: $Enums.VisitorStatus
     checkInTime: Date
     checkOutTime: Date | null
@@ -1543,6 +1635,8 @@ export interface VisitorFieldRefs {
   readonly personVisiting: Prisma.FieldRef<"Visitor", 'String'>
   readonly vehicleReg: Prisma.FieldRef<"Visitor", 'String'>
   readonly purpose: Prisma.FieldRef<"Visitor", 'String'>
+  readonly cellNumber: Prisma.FieldRef<"Visitor", 'String'>
+  readonly townVillage: Prisma.FieldRef<"Visitor", 'String'>
   readonly status: Prisma.FieldRef<"Visitor", 'VisitorStatus'>
   readonly checkInTime: Prisma.FieldRef<"Visitor", 'DateTime'>
   readonly checkOutTime: Prisma.FieldRef<"Visitor", 'DateTime'>

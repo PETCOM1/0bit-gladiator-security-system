@@ -21,7 +21,13 @@ export const getEntries = catchAsync(async (req: Request, res: Response) => {
     }
   });
 
-  res.status(HttpStatus.OK).json({ status: "success", data: { entries } });
+  const mappedEntries = entries.map(entry => ({
+    ...entry,
+    description: entry.entryText,
+    incidentType: entry.category
+  }));
+
+  res.status(HttpStatus.OK).json({ status: "success", data: { entries: mappedEntries } });
 });
 
 export const createEntry = catchAsync(async (req: Request, res: Response) => {
@@ -30,17 +36,36 @@ export const createEntry = catchAsync(async (req: Request, res: Response) => {
   
   if (!tenantId || !siteId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant/site context" });
 
-  const { entryText, category } = req.body;
+  const { entryText, category, description, incidentType, location, severity, image } = req.body;
+
+  const finalEntryText = entryText || description;
+  const finalCategory = category || incidentType || "ROUTINE";
+
+  if (!finalEntryText) {
+    return res.status(HttpStatus.BAD_REQUEST).json({ message: "Description/entry text is required" });
+  }
 
   const entry = await prisma.occurrenceBookEntry.create({
     data: { 
       tenantId, 
       siteId, 
       userId: req.user!.userId,
-      entryText, 
-      category: category || "ROUTINE"
+      entryText: finalEntryText, 
+      category: finalCategory,
+      location: location || null,
+      severity: severity || "low",
+      image: image || null
     }
   });
 
-  res.status(HttpStatus.CREATED).json({ status: "success", data: { entry } });
+  res.status(HttpStatus.CREATED).json({
+    status: "success",
+    data: {
+      entry: {
+        ...entry,
+        description: entry.entryText,
+        incidentType: entry.category
+      }
+    }
+  });
 });

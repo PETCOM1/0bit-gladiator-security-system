@@ -10,5 +10,6 @@ router.route("/")
   .post(visitorController.checkInVisitor);
 
 router.patch("/:id/checkout", visitorController.checkOutVisitor);
+router.get("/search/:idNumber", visitorController.searchVisitor);
 
 export default router;

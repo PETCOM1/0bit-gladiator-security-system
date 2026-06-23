@@ -29,6 +29,9 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
   const pathname = usePathname();
   const { user } = useAuth();
 
+  const tenantName = user?.tenant?.name || BRAND.name;
+  const logoMark = user?.tenant?.name ? user.tenant.name.charAt(0).toUpperCase() : BRAND.logoMark;
+
   const role     = (user?.role ?? "") as keyof typeof NAV_CONFIG;
   const navItems = NAV_CONFIG[role] ?? [];
 
@@ -39,8 +42,10 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
       width:           w,
       minWidth:        w,
       height:          "100vh",
-      backgroundColor: "var(--color-sidebar-bg)",
-      borderRight:     "1px solid var(--color-sidebar-border)",
+      backgroundColor: "rgba(10, 25, 47, 0.85)",
+      backdropFilter:  "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      borderRight:     "1px solid rgba(255, 255, 255, 0.06)",
       display:         "flex",
       flexDirection:   "column",
       flexShrink:      0,
@@ -57,7 +62,7 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
         alignItems:     "center",
         gap:            "10px",
         padding:        "0 14px",
-        borderBottom:   "1px solid var(--color-sidebar-border)",
+        borderBottom:   "1px solid rgba(255, 255, 255, 0.06)",
         flexShrink:     0,
         overflow:       "hidden",
         justifyContent: isOpen ? "flex-start" : "center",
@@ -75,8 +80,10 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
           color:          "#fff",
           flexShrink:     0,
           letterSpacing:  "-0.02em",
+          boxShadow:      "0 0 12px rgba(245, 158, 11, 0.4)",
+          border:         "1px solid rgba(255,255,255,0.15)",
         }}>
-          {BRAND.logoMark}
+          {logoMark}
         </div>
 
         {isOpen && (
@@ -85,9 +92,11 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
             fontWeight:    700,
             color:         "var(--color-sidebar-text-active)",
             whiteSpace:    "nowrap",
+            overflow:      "hidden",
+            textOverflow:  "ellipsis",
             letterSpacing: "-0.02em",
-          }}>
-            {BRAND.name}
+          }} title={tenantName}>
+            {tenantName}
           </span>
         )}
       </div>
@@ -125,14 +134,18 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
                   ? "var(--color-sidebar-text-active)"
                   : "var(--color-sidebar-text)",
                 background:     isActive
-                  ? "var(--color-sidebar-item-active-bg)"
+                  ? "linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.03) 100%)"
                   : "transparent",
+                boxShadow: isActive
+                  ? "inset 0 0 8px rgba(245, 158, 11, 0.08), 0 2px 4px rgba(0, 0, 0, 0.2)"
+                  : "none",
                 textDecoration: "none",
                 whiteSpace:     "nowrap",
                 overflow:       "hidden",
                 justifyContent: isOpen ? "flex-start" : "center",
                 position:       "relative",
                 transition:     "background var(--transition-fast), color var(--transition-fast)",
+                border: isActive ? "1px solid rgba(245, 158, 11, 0.15)" : "1px solid transparent",
               }}
               className={`sidebar-nav-link${isActive ? " active" : ""}`}
             >
@@ -146,6 +159,7 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
                   width:        "3px",
                   borderRadius: "0 3px 3px 0",
                   background:   "var(--color-sidebar-indicator)",
+                  boxShadow:    "0 0 8px var(--color-sidebar-indicator)",
                 }} />
               )}
               {Icon && (
@@ -163,7 +177,7 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
       {/* ── Toggle button ────────────────────────────────────────────────────── */}
       <div style={{
         padding:     "12px 8px",
-        borderTop:   "1px solid var(--color-sidebar-border)",
+        borderTop:   "1px solid rgba(255, 255, 255, 0.06)",
         flexShrink:  0,
       }}>
         <button

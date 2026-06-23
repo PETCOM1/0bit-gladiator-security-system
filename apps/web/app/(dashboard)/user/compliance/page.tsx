@@ -44,41 +44,66 @@ export default function SecurityCompliancePage() {
     }
   };
 
+  const inputStyle = {
+    padding: "10px 14px",
+    background: "var(--color-bg-subtle)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    fontSize: "14px",
+    color: "var(--color-text-primary)",
+    outline: "none",
+    transition: "border var(--transition-fast)",
+    width: "100%",
+    boxSizing: "border-box" as const
+  };
+
+  const labelStyle = {
+    display: "block",
+    fontSize: "12px",
+    fontWeight: 600,
+    color: "var(--color-text-secondary)",
+    marginBottom: "6px",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.05em"
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
-          <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-            <CheckCircle2 size={28} color="var(--color-accent)" /> Occurrence Book
+          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
+            <CheckCircle2 size={24} color="var(--color-accent)" /> Occurrence Book
           </h1>
-          <p style={{ fontSize: "15px", color: "var(--color-text-muted)", marginTop: "6px" }}>
+          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
             Log daily occurrences, routine checks, and handovers.
           </p>
         </div>
         <button 
           onClick={() => setShowForm(!showForm)}
-          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", background: "var(--color-accent)", color: "#fff", border: "none", borderRadius: "8px", fontWeight: 600, cursor: "pointer" }}
+          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", transition: "opacity var(--transition-fast)" }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
         >
           <Plus size={18} /> New OB Entry
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", display: "flex", gap: "16px", alignItems: "flex-end", flexWrap: "wrap" }}>
+        <form onSubmit={handleCreate} style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", display: "flex", gap: "16px", alignItems: "flex-end", flexWrap: "wrap" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 2, minWidth: "300px" }}>
-            <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)" }}>Entry Text</label>
-            <input type="text" required value={entryText} onChange={e => setEntryText(e.target.value)} placeholder="Describe the occurrence..." style={{ padding: "10px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }} />
+            <label style={labelStyle}>Entry Text</label>
+            <input type="text" required value={entryText} onChange={e => setEntryText(e.target.value)} placeholder="Describe the occurrence..." style={inputStyle} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "150px" }}>
-            <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)" }}>Category</label>
-            <select value={category} onChange={e => setCategory(e.target.value)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}>
+            <label style={labelStyle}>Category</label>
+            <select value={category} onChange={e => setCategory(e.target.value)} style={inputStyle}>
               <option value="ROUTINE">Routine</option>
               <option value="HANDOVER">Handover</option>
               <option value="EMERGENCY">Emergency</option>
               <option value="INCIDENT">Incident</option>
             </select>
           </div>
-          <button type="submit" style={{ padding: "10px 24px", background: "var(--color-text-primary)", color: "var(--color-bg-primary)", border: "none", borderRadius: "8px", fontWeight: 600, cursor: "pointer", height: "42px" }}>Save Entry</button>
+          <button type="submit" style={{ padding: "10px 24px", background: "var(--color-text-primary)", color: "var(--color-bg-primary)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", height: "42px", transition: "opacity var(--transition-fast)" }} onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; }} onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>Save Entry</button>
         </form>
       )}
 
@@ -87,10 +112,10 @@ export default function SecurityCompliancePage() {
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Time</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Personnel</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Category</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Entry details</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Time</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Personnel</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Category</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Entry details</th>
               </tr>
             </thead>
             <tbody>
@@ -99,7 +124,12 @@ export default function SecurityCompliancePage() {
               ) : entries.length === 0 ? (
                 <tr><td colSpan={4} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No occurrence book entries recorded.</td></tr>
               ) : entries.map((entry, i) => (
-                <tr key={entry.id} style={{ borderBottom: i < entries.length - 1 ? "1px solid var(--color-border)" : "none" }}>
+                <tr 
+                  key={entry.id} 
+                  style={{ borderBottom: i < entries.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                >
                   <td style={{ padding: "16px 24px", fontWeight: 600, color: "var(--color-text-primary)", fontSize: "13px" }}>
                     {new Date(entry.createdAt).toLocaleString()}
                   </td>

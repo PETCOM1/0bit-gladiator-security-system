@@ -12,10 +12,13 @@ const authService = new AuthService();
 // ── Login ──────────────────────────────────────────────────────────────────────
 
 export const login = catchAsync(async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, clientType } = req.body;
   if (!email || !password) throw new AppError("Email and password are required", HttpStatus.BAD_REQUEST);
 
-  const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+  const user = await prisma.user.findUnique({
+    where: { email: email.trim().toLowerCase() },
+    include: { tenant: { select: { name: true } } }
+  });
   if (!user) throw new AppError("Invalid credentials", HttpStatus.UNAUTHORIZED);
 
   if (user.accountStatus === "SUSPENDED")
@@ -27,6 +30,10 @@ export const login = catchAsync(async (req: Request, res: Response) => {
 
   const match = await authService.verifyPassword(password, user.password);
   if (!match) throw new AppError("Invalid credentials", HttpStatus.UNAUTHORIZED);
+
+  if (clientType === "mobile" && user.role !== Role.USER) {
+    throw new AppError("Only security guards are allowed to log into the mobile app", HttpStatus.FORBIDDEN);
+  }
 
   await prisma.user.update({ where: { id: user.id }, data: { lastActiveAt: new Date() } });
 
@@ -53,6 +60,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
         accountStatus: user.accountStatus,
         siteId:      user.siteId,
         tenantId:    user.tenantId,
+        tenant:      user.tenant ? { name: user.tenant.name } : null,
       },
     },
   });
@@ -69,6 +77,7 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
       avatarUrl: true, phone: true,
       siteId: true, tenantId: true,
       lastActiveAt: true, createdAt: true,
+      tenant: { select: { name: true } },
     },
   });
   if (!user) throw new AppError("User not found", HttpStatus.NOT_FOUND);

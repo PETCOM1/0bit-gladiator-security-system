@@ -7,7 +7,7 @@ import * as shiftController from "./shift.controller.js";
 const router = Router();
 router.use(protect);
 
-router.get("/tenant", authorize([Role.MANAGER, Role.SITE_MANAGER]), shiftController.getTenantShifts);
+router.get("/tenant", authorize([Role.MANAGER, Role.SITE_MANAGER, Role.USER]), shiftController.getTenantShifts);
 
 router.post("/", authorize([Role.MANAGER, Role.SITE_MANAGER]), shiftController.createShift);
 router.post("/start", shiftController.startShift);

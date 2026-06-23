@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import apiClient from "@/api/client";
 import { endpoints } from "@/api/endpoints";
+import DataTable, { Column } from "@/shared/components/ui/DataTable";
 
 interface AuditEntry {
   id:        string;
@@ -81,9 +82,73 @@ export default function AuditLogPage() {
   const displayName = (u: AuditEntry["user"]) =>
     u?.displayName || [u?.firstName, u?.lastName].filter(Boolean).join(" ") || u?.email || "—";
 
+  const columns: Column<AuditEntry>[] = [
+    {
+      header: "Event",
+      render: (log) => {
+        const type  = actionType(log.action);
+        const style = ACTION_COLORS[type];
+        return (
+          <span style={{
+            fontSize:      "12px",
+            fontWeight:    600,
+            background:    style.bg,
+            color:         style.color,
+            padding:       "3px 10px",
+            borderRadius:  "var(--radius-pill)",
+            display:       "inline-block",
+            whiteSpace:    "nowrap",
+            textTransform: "capitalize",
+          }}>
+            {actionLabel(log.action)}
+          </span>
+        );
+      },
+    },
+    {
+      header: "User",
+      render: (log) => (
+        <>
+          <div style={{ fontSize: "13.5px", fontWeight: 500, color: "var(--color-text-primary)" }}>
+            {displayName(log.user)}
+          </div>
+          <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "2px" }}>
+            {log.user?.email ?? "—"}
+          </div>
+        </>
+      ),
+    },
+    {
+      header: "Role",
+      render: (log) => log.user?.role && (
+        <span style={{
+          fontSize:      "11px",
+          fontWeight:    600,
+          background:    "var(--color-accent-subtle)",
+          color:         "var(--color-accent)",
+          padding:       "2px 8px",
+          borderRadius:  "var(--radius-pill)",
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
+        }}>
+          {log.user.role.replace(/_/g, " ")}
+        </span>
+      ),
+    },
+    {
+      header: "IP",
+      render: (log) => log.ip || "—",
+      style: { fontFamily: "monospace", fontSize: "12px" },
+    },
+    {
+      header: "When",
+      render: (log) => timeAgo(log.createdAt),
+      style: { whiteSpace: "nowrap" },
+    },
+  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-
       {/* Header */}
       <div>
         <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
@@ -102,131 +167,44 @@ export default function AuditLogPage() {
         boxShadow:    "var(--color-card-shadow)",
         overflow:     "hidden",
       }}>
-        {isLoading ? (
-          <div style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "14px" }}>
-            Loading…
-          </div>
-        ) : error ? (
+        {error ? (
           <div style={{ padding: "60px", textAlign: "center" }}>
             <p style={{ fontSize: "14px", color: "var(--color-danger)" }}>{error}</p>
           </div>
-        ) : logs.length === 0 ? (
+        ) : logs.length === 0 && !isLoading ? (
           <div style={{ padding: "60px", textAlign: "center" }}>
             <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "6px" }}>No events yet</p>
             <p style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>Events will appear here as users take actions</p>
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
-                {["Event", "User", "Role", "IP", "When"].map((h) => (
-                  <th key={h} style={{
-                    padding:       "12px 20px",
-                    textAlign:     "left",
-                    fontSize:      "11px",
-                    fontWeight:    700,
-                    color:         "var(--color-text-muted)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    background:    "var(--color-bg-subtle)",
-                  }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((log, i) => {
-                const type  = actionType(log.action);
-                const style = ACTION_COLORS[type];
-                return (
-                  <tr
-                    key={log.id}
-                    style={{ borderBottom: i < logs.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "var(--color-bg-subtle)"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "transparent"; }}
-                  >
-                    <td style={{ padding: "13px 20px" }}>
-                      <span style={{
-                        fontSize:      "12px",
-                        fontWeight:    600,
-                        background:    style.bg,
-                        color:         style.color,
-                        padding:       "3px 10px",
-                        borderRadius:  "var(--radius-pill)",
-                        display:       "inline-block",
-                        whiteSpace:    "nowrap",
-                        textTransform: "capitalize",
-                      }}>
-                        {actionLabel(log.action)}
-                      </span>
-                    </td>
-                    <td style={{ padding: "13px 20px" }}>
-                      <div style={{ fontSize: "13.5px", fontWeight: 500, color: "var(--color-text-primary)" }}>
-                        {displayName(log.user)}
-                      </div>
-                      <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "2px" }}>
-                        {log.user?.email ?? "—"}
-                      </div>
-                    </td>
-                    <td style={{ padding: "13px 20px" }}>
-                      {log.user?.role && (
-                        <span style={{
-                          fontSize:      "11px",
-                          fontWeight:    600,
-                          background:    "var(--color-accent-subtle)",
-                          color:         "var(--color-accent)",
-                          padding:       "2px 8px",
-                          borderRadius:  "var(--radius-pill)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.04em",
-                        }}>
-                          {log.user.role.replace(/_/g, " ")}
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ padding: "13px 20px", fontSize: "12px", color: "var(--color-text-muted)", fontFamily: "monospace" }}>
-                      {log.ip ?? "—"}
-                    </td>
-                    <td style={{ padding: "13px 20px", fontSize: "12px", color: "var(--color-text-muted)", whiteSpace: "nowrap" }}>
-                      {timeAgo(log.createdAt)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <DataTable
+            data={logs}
+            columns={columns}
+            loading={isLoading}
+            searchPlaceholder="Search logs..."
+            searchKeys={["action", "user.email", "user.displayName"]}
+            externalPagination={{
+              currentPage: page,
+              totalPages: pages,
+              onPageChange: (p) => setPage(p),
+              totalEntries: total,
+            }}
+            filterOptions={[
+              {
+                label: "Role",
+                key: (item) => item.user?.role ?? "",
+                options: [
+                  { label: "Super Admin", value: "SUPER_ADMIN" },
+                  { label: "Admin", value: "ADMIN" },
+                  { label: "Manager", value: "MANAGER" },
+                  { label: "Site Manager", value: "SITE_MANAGER" },
+                  { label: "User / Guard", value: "USER" },
+                ],
+              },
+            ]}
+          />
         )}
       </div>
-
-      {/* Pagination */}
-      {pages > 1 && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <p style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>
-            Page {page} of {pages}
-          </p>
-          <div style={{ display: "flex", gap: "8px" }}>
-            {[
-              { label: "← Prev", disabled: page === 1,     action: () => setPage((p) => Math.max(1, p - 1))     },
-              { label: "Next →", disabled: page === pages, action: () => setPage((p) => Math.min(pages, p + 1)) },
-            ].map(({ label, disabled, action }) => (
-              <button key={label} onClick={action} disabled={disabled} style={{
-                padding:      "7px 16px",
-                fontSize:     "13px",
-                fontWeight:   500,
-                background:   "var(--color-card-bg)",
-                border:       "1px solid var(--color-border)",
-                borderRadius: "var(--radius-md)",
-                color:        "var(--color-text-secondary)",
-                cursor:       disabled ? "not-allowed" : "pointer",
-                opacity:      disabled ? 0.4 : 1,
-              }}>
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

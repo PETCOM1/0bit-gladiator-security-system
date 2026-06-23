@@ -7,7 +7,7 @@ interface CardProps {
 
 export function Card({ children, className }: CardProps) {
   return (
-    <div className={cn("rounded-lg border bg-white p-6 shadow-sm", className)}>
+    <div className={cn("glass-panel glass-panel-hover rounded-xl p-6 transition-all duration-300", className)}>
       {children}
     </div>
   );
@@ -18,7 +18,7 @@ export function CardHeader({ children, className }: CardProps) {
 }
 
 export function CardTitle({ children, className }: CardProps) {
-  return <h3 className={cn("text-xl font-semibold", className)}>{children}</h3>;
+  return <h3 className={cn("text-lg font-bold tracking-tight font-heading text-[var(--color-text-primary)]", className)}>{children}</h3>;
 }
 
 export function CardContent({ children, className }: CardProps) {

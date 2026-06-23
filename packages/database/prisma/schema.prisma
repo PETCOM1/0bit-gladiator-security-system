@@ -278,6 +278,8 @@ model Visitor {
   personVisiting String?
   vehicleReg     String?
   purpose        String?
+  cellNumber     String?
+  townVillage    String?
   status         VisitorStatus @default(CHECKED_IN)
 
   checkInTime  DateTime  @default(now())
@@ -370,6 +372,9 @@ model OccurrenceBookEntry {
 
   entryText String
   category  String   @default("ROUTINE") // e.g. ROUTINE, HANDOVER, EMERGENCY
+  location  String?
+  severity  String?   @default("low")
+  image     String?
   createdAt DateTime @default(now())
 
   @@index([tenantId])

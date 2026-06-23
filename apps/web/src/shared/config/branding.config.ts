@@ -1,6 +1,6 @@
 export const BRAND = {
-  name:     "YourApp",
-  tagline:  "Your product tagline goes here.",
-  logoMark: "Y",
+  name:     "Gladiator Pro",
+  tagline:  "The ultimate security management platform.",
+  logoMark: "G",
   year:     new Date().getFullYear(),
 } as const;

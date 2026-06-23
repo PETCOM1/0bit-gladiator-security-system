@@ -91,8 +91,10 @@ export default function LoginPage() {
             display: "flex", alignItems: "center", justifyContent: "center",
             margin: "0 auto 16px", fontSize: "22px", fontWeight: 900,
             color: "var(--color-accent-text)",
+            boxShadow: "0 0 16px rgba(245, 158, 11, 0.35)",
+            border: "1px solid rgba(255,255,255,0.15)",
           }}>
-            O
+            {BRAND.logoMark}
           </div>
           <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#fff", marginBottom: "6px" }}>
             Welcome back
@@ -103,10 +105,9 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div style={{
-          background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.08)",
+        <div className="glass-panel" style={{
           borderRadius: "16px", padding: "32px",
+          boxShadow: "0 24px 64px rgba(0, 0, 0, 0.4)",
         }}>
           {/* Google OAuth */}
           <button

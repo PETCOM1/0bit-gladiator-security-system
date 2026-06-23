@@ -59,50 +59,75 @@ export default function ShiftsManagerPage() {
     }
   };
 
+  const inputStyle = {
+    padding: "10px 14px",
+    background: "var(--color-bg-subtle)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    fontSize: "14px",
+    color: "var(--color-text-primary)",
+    outline: "none",
+    transition: "border var(--transition-fast)",
+    width: "100%",
+    boxSizing: "border-box" as const
+  };
+
+  const labelStyle = {
+    display: "block",
+    fontSize: "12px",
+    fontWeight: 600,
+    color: "var(--color-text-secondary)",
+    marginBottom: "6px",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.05em"
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
-          <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-            <Calendar size={28} color="var(--color-accent)" /> Shift Scheduling
+          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
+            <Calendar size={24} color="var(--color-accent)" /> Shift Scheduling
           </h1>
-          <p style={{ fontSize: "15px", color: "var(--color-text-muted)", marginTop: "6px" }}>
+          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
             Create and manage guard shifts and post assignments.
           </p>
         </div>
         <button 
           onClick={() => setShowForm(!showForm)}
-          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", background: "var(--color-accent)", color: "#fff", border: "none", borderRadius: "8px", fontWeight: 600, cursor: "pointer" }}
+          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", transition: "opacity var(--transition-fast)" }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
         >
           <Plus size={18} /> Schedule Shift
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSchedule} style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", display: "flex", gap: "16px", alignItems: "flex-end", flexWrap: "wrap" }}>
+        <form onSubmit={handleSchedule} style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", display: "flex", gap: "16px", alignItems: "flex-end", flexWrap: "wrap" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "200px" }}>
-            <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)" }}>Guard</label>
-            <select required value={userId} onChange={e => setUserId(e.target.value)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}>
+            <label style={labelStyle}>Guard</label>
+            <select required value={userId} onChange={e => setUserId(e.target.value)} style={inputStyle}>
               <option value="">Select a guard...</option>
               {users.map(u => <option key={u.id} value={u.id}>{u.firstName} {u.lastName}</option>)}
             </select>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "150px" }}>
-            <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)" }}>Post (Optional)</label>
-            <select value={postId} onChange={e => setPostId(e.target.value)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}>
+            <label style={labelStyle}>Post (Optional)</label>
+            <select value={postId} onChange={e => setPostId(e.target.value)} style={inputStyle}>
               <option value="">No specific post</option>
               {posts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "180px" }}>
-            <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)" }}>Start Time</label>
-            <input type="datetime-local" required value={startTime} onChange={e => setStartTime(e.target.value)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }} />
+            <label style={labelStyle}>Start Time</label>
+            <input type="datetime-local" required value={startTime} onChange={e => setStartTime(e.target.value)} style={inputStyle} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "180px" }}>
-            <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)" }}>End Time</label>
-            <input type="datetime-local" required value={endTime} onChange={e => setEndTime(e.target.value)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }} />
+            <label style={labelStyle}>End Time</label>
+            <input type="datetime-local" required value={endTime} onChange={e => setEndTime(e.target.value)} style={inputStyle} />
           </div>
-          <button type="submit" style={{ padding: "10px 24px", background: "var(--color-text-primary)", color: "var(--color-bg-primary)", border: "none", borderRadius: "8px", fontWeight: 600, cursor: "pointer", height: "42px" }}>Save</button>
+          <button type="submit" style={{ padding: "10px 24px", background: "var(--color-text-primary)", color: "var(--color-bg-primary)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", height: "42px", transition: "opacity var(--transition-fast)" }} onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; }} onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>Save</button>
         </form>
       )}
 
@@ -111,11 +136,11 @@ export default function ShiftsManagerPage() {
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Date</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Personnel</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Post</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Scheduled</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Status</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Date</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Personnel</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Post</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Scheduled</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -126,9 +151,14 @@ export default function ShiftsManagerPage() {
               ) : shifts.map((s, i) => {
                 const style = getStatusStyle(s.status);
                 return (
-                  <tr key={s.id} style={{ borderBottom: i < shifts.length - 1 ? "1px solid var(--color-border)" : "none" }}>
+                  <tr 
+                    key={s.id} 
+                    style={{ borderBottom: i < shifts.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                  >
                     <td style={{ padding: "16px 24px", fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px" }}>
-                      {new Date(s.startTime).toLocaleDateString()}
+                       {new Date(s.startTime).toLocaleDateString()}
                     </td>
                     <td style={{ padding: "16px 24px" }}>
                       <div style={{ fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>

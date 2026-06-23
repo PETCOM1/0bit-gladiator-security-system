@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PlusCircle, ShieldAlert, LogIn, LogOut, Clock, Search, X } from "lucide-react";
+import { PlusCircle, ShieldAlert, LogIn, LogOut, Clock, X } from "lucide-react";
 import { guardService } from "@/features/guard/services/guard.service";
 
 export default function GuardDashboard() {
@@ -82,94 +82,253 @@ export default function GuardDashboard() {
     }
   };
 
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "10px 12px",
+    background: "var(--color-bg-subtle)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    fontSize: "14px",
+    color: "var(--color-text-primary)",
+    outline: "none",
+    boxSizing: "border-box",
+    transition: "border-color var(--transition-fast)",
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: "12px",
+    fontWeight: 600,
+    color: "var(--color-text-secondary)",
+    marginBottom: "6px",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", gap: "12px", padding: "80px", color: "var(--color-text-muted)" }}>
+        <div style={{ width: "16px", height: "16px", border: "2px solid var(--color-border)", borderTopColor: "var(--color-accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <span style={{ fontSize: "14px" }}>Loading guard dashboard...</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-6 p-8 w-full">
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       {/* Header */}
-      <header className="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <header style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        background: "var(--color-card-bg)", 
+        padding: "24px", 
+        borderRadius: "var(--radius-xl)", 
+        border: "1px solid var(--color-card-border)",
+        boxShadow: "var(--color-card-shadow)"
+      }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Guard Duty Operations</h1>
-          <p className="text-slate-500 mt-1 flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${shiftActive ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
-            {shiftActive ? "Active: Main Gate" : "Currently Off Duty"}
+          <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
+            Guard Duty Operations
+          </h1>
+          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <span 
+              style={{ width: "10px", height: "10px", borderRadius: "50%" }} 
+              className={shiftActive ? "bg-green-500 animate-pulse" : "bg-red-500"} 
+            />
+            {shiftActive ? "Active Patrol Duty: Main Gate" : "Currently Off Duty"}
           </p>
         </div>
         <div>
           {shiftActive ? (
             <button 
               onClick={handleEndShift}
-              className="flex items-center gap-2 bg-red-50 text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-red-100 transition border border-red-100"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 18px",
+                background: "rgba(239, 68, 68, 0.1)",
+                border: "1px solid rgba(239, 68, 68, 0.2)",
+                borderRadius: "var(--radius-md)",
+                fontSize: "13.5px",
+                fontWeight: 600,
+                color: "#ef4444",
+                cursor: "pointer",
+                transition: "all var(--transition-fast)"
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239, 68, 68, 0.18)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"; }}
             >
-              <LogOut size={20} /> End Shift
+              <LogOut size={16} /> End Shift
             </button>
           ) : (
             <button 
               onClick={handleStartShift}
-              className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 18px",
+                background: "var(--color-success)",
+                border: "none",
+                borderRadius: "var(--radius-md)",
+                fontSize: "13.5px",
+                fontWeight: 600,
+                color: "#fff",
+                cursor: "pointer",
+                transition: "opacity var(--transition-fast)"
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
             >
-              <LogIn size={20} /> Start Shift
+              <LogIn size={16} /> Start Shift
             </button>
           )}
         </div>
       </header>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }} className="guard-grid">
         
         {/* Actions (Left Column) */}
-        <div className="xl:col-span-2 flex flex-col gap-6">
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }} className="action-buttons-grid">
             <button 
               disabled={!shiftActive}
               onClick={() => setVisitorModalOpen(true)}
-              className={`flex items-start gap-4 bg-white p-6 rounded-xl shadow-sm border border-slate-200 transition group text-left ${shiftActive ? "hover:border-[#F57C00] hover:shadow-md cursor-pointer" : "opacity-60 cursor-not-allowed"}`}
+              style={{
+                display: "flex",
+                alignItems: "start",
+                gap: "16px",
+                background: "var(--color-card-bg)",
+                padding: "24px",
+                borderRadius: "var(--radius-xl)",
+                border: "1px solid var(--color-card-border)",
+                boxShadow: "var(--color-card-shadow)",
+                textAlign: "left",
+                cursor: shiftActive ? "pointer" : "not-allowed",
+                opacity: shiftActive ? 1 : 0.6,
+                transition: "all var(--transition-base)",
+              }}
+              onMouseEnter={(e) => { 
+                if (shiftActive) {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.borderColor = "var(--color-accent)";
+                }
+              }}
+              onMouseLeave={(e) => { 
+                if (shiftActive) {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.borderColor = "var(--color-card-border)";
+                }
+              }}
             >
-              <div className={`p-4 rounded-xl transition ${shiftActive ? "bg-orange-50 text-[#F57C00] group-hover:bg-[#F57C00] group-hover:text-white" : "bg-slate-100 text-slate-400"}`}>
-                <PlusCircle size={28} />
+              <div style={{ 
+                padding: "12px", 
+                borderRadius: "var(--radius-md)", 
+                background: shiftActive ? "var(--color-accent-subtle)" : "var(--color-bg-subtle)", 
+                color: shiftActive ? "var(--color-accent)" : "var(--color-text-muted)", 
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0
+              }}>
+                <PlusCircle size={24} />
               </div>
               <div>
-                <h3 className={`font-bold text-lg ${shiftActive ? "text-slate-800" : "text-slate-500"}`}>Log Visitor</h3>
-                <p className="text-sm text-slate-500 mt-1">Register a new visitor check-in or check-out.</p>
+                <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Log Visitor</h3>
+                <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "4px" }}>Register a new visitor check-in or check-out.</p>
               </div>
             </button>
             
             <button 
               disabled={!shiftActive}
               onClick={() => setIncidentModalOpen(true)}
-              className={`flex items-start gap-4 bg-white p-6 rounded-xl shadow-sm border border-slate-200 transition group text-left ${shiftActive ? "hover:border-red-500 hover:shadow-md cursor-pointer" : "opacity-60 cursor-not-allowed"}`}
+              style={{
+                display: "flex",
+                alignItems: "start",
+                gap: "16px",
+                background: "var(--color-card-bg)",
+                padding: "24px",
+                borderRadius: "var(--radius-xl)",
+                border: "1px solid var(--color-card-border)",
+                boxShadow: "var(--color-card-shadow)",
+                textAlign: "left",
+                cursor: shiftActive ? "pointer" : "not-allowed",
+                opacity: shiftActive ? 1 : 0.6,
+                transition: "all var(--transition-base)",
+              }}
+              onMouseEnter={(e) => { 
+                if (shiftActive) {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.borderColor = "#ef4444";
+                }
+              }}
+              onMouseLeave={(e) => { 
+                if (shiftActive) {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.borderColor = "var(--color-card-border)";
+                }
+              }}
             >
-              <div className={`p-4 rounded-xl transition ${shiftActive ? "bg-red-50 text-red-500 group-hover:bg-red-500 group-hover:text-white" : "bg-slate-100 text-slate-400"}`}>
-                <ShieldAlert size={28} />
+              <div style={{ 
+                padding: "12px", 
+                borderRadius: "var(--radius-md)", 
+                background: shiftActive ? "rgba(239, 68, 68, 0.1)" : "var(--color-bg-subtle)", 
+                color: shiftActive ? "#ef4444" : "var(--color-text-muted)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0
+              }}>
+                <ShieldAlert size={24} />
               </div>
               <div>
-                <h3 className={`font-bold text-lg ${shiftActive ? "text-slate-800" : "text-slate-500"}`}>Report Incident</h3>
-                <p className="text-sm text-slate-500 mt-1">Log a security incident in the occurrence book.</p>
+                <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Report Incident</h3>
+                <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "4px" }}>Log a security incident in the occurrence book.</p>
               </div>
             </button>
           </section>
 
           {/* Active Visitors Table */}
-          <section className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="p-6 border-b border-slate-200 flex justify-between items-center">
-              <h2 className="text-lg font-bold text-slate-800">Active Visitors On-Site</h2>
+          <section style={{
+            background: "var(--color-card-bg)",
+            border: "1px solid var(--color-card-border)",
+            borderRadius: "var(--radius-xl)",
+            boxShadow: "var(--color-card-shadow)",
+            overflow: "hidden"
+          }}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)" }}>
+              <h2 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Active Visitors On-Site</h2>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                  <tr>
-                    <th className="px-6 py-4">Name</th>
-                    <th className="px-6 py-4">Vehicle Reg</th>
-                    <th className="px-6 py-4">Time In</th>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
+                    {["Name", "Vehicle Reg", "Time In"].map((h) => (
+                      <th key={h} style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+                    ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody>
                   {visitors.length === 0 ? (
-                    <tr><td colSpan={3} className="px-6 py-8 text-center text-slate-500">No active visitors.</td></tr>
+                    <tr>
+                      <td colSpan={3} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13.5px" }}>
+                        No active visitors.
+                      </td>
+                    </tr>
                   ) : (
-                    visitors.map((v) => (
-                      <tr key={v.id} className="hover:bg-slate-50 transition">
-                        <td className="px-6 py-4 font-medium">{v.name}</td>
-                        <td className="px-6 py-4">{v.vehicleReg || "-"}</td>
-                        <td className="px-6 py-4">{new Date(v.checkInTime).toLocaleTimeString()}</td>
+                    visitors.map((v, i) => (
+                      <tr 
+                        key={v.id} 
+                        style={{ borderBottom: i < visitors.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                      >
+                        <td style={{ padding: "14px 24px", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }}>{v.name}</td>
+                        <td style={{ padding: "14px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>{v.vehicleReg || "—"}</td>
+                        <td style={{ padding: "14px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>{new Date(v.checkInTime).toLocaleTimeString()}</td>
                       </tr>
                     ))
                   )}
@@ -179,24 +338,42 @@ export default function GuardDashboard() {
           </section>
         </div>
 
-        {/* Recent Activity (Right Column) */}
-        <div className="flex flex-col gap-6">
-          <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-full">
-            <div className="flex items-center gap-2 mb-6 text-slate-800">
-              <Clock size={20} className="text-[#F57C00]" />
-              <h2 className="text-lg font-bold">Recent Incidents</h2>
+        {/* Recent Incidents (Right Column) */}
+        <div>
+          <section style={{ 
+            background: "var(--color-card-bg)", 
+            padding: "24px", 
+            borderRadius: "var(--radius-xl)", 
+            border: "1px solid var(--color-card-border)",
+            boxShadow: "var(--color-card-shadow)",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px", color: "var(--color-text-primary)" }}>
+              <Clock size={18} style={{ color: "var(--color-accent)" }} />
+              <h2 style={{ fontSize: "16px", fontWeight: 700 }}>Recent Incidents</h2>
             </div>
-            <div className="space-y-6">
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               {incidents.length === 0 ? (
-                <p className="text-sm text-slate-500">No recent incidents reported.</p>
+                <p style={{ fontSize: "13.5px", color: "var(--color-text-muted)" }}>No recent incidents reported.</p>
               ) : (
                 incidents.slice(0, 5).map((inc) => (
-                  <div key={inc.id} className="relative flex items-start gap-4">
-                    <div className={`bg-white border-2 w-4 h-4 rounded-full mt-1 shrink-0 ${inc.severity === "CRITICAL" ? "border-red-600" : "border-orange-500"}`}></div>
+                  <div key={inc.id} style={{ display: "flex", alignItems: "start", gap: "12px" }}>
+                    <div style={{ 
+                      width: "12px", 
+                      height: "12px", 
+                      borderRadius: "50%", 
+                      border: "2px solid var(--color-border)",
+                      background: inc.severity === "CRITICAL" ? "#ef4444" : "var(--color-accent)",
+                      boxShadow: inc.severity === "CRITICAL" ? "0 0 8px #ef4444" : "0 0 8px var(--color-accent)",
+                      marginTop: "4px", 
+                      flexShrink: 0 
+                    }} />
                     <div>
-                      <h4 className="text-sm font-bold text-slate-800">{inc.title}</h4>
-                      <p className="text-sm text-slate-500 mt-1 line-clamp-2">{inc.description}</p>
-                      <span className="text-xs font-semibold text-slate-400 mt-1 block">
+                      <h4 style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--color-text-primary)" }}>{inc.title}</h4>
+                      <p style={{ fontSize: "12.5px", color: "var(--color-text-secondary)", marginTop: "2px", lineHeight: 1.4 }}>{inc.description}</p>
+                      <span style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px", display: "block" }}>
                         {new Date(inc.createdAt).toLocaleString()}
                       </span>
                     </div>
@@ -210,30 +387,58 @@ export default function GuardDashboard() {
 
       {/* Visitor Modal */}
       {isVisitorModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="flex justify-between items-center p-6 border-b border-slate-100">
-              <h2 className="text-lg font-bold text-slate-800">Log Visitor</h2>
-              <button onClick={() => setVisitorModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+          <div 
+            style={{ position: "absolute", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
+            onClick={() => setVisitorModalOpen(false)}
+          />
+          <div 
+            className="glass-panel animate-fade-in"
+            style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "440px", borderRadius: "var(--radius-xl)", padding: "24px", boxShadow: "0 24px 64px rgba(0,0,0,0.4)" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)" }}>Log Visitor</h2>
+              <button 
+                onClick={() => setVisitorModalOpen(false)} 
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", color: "var(--color-text-muted)", fontSize: "14px", padding: "6px 10px", borderRadius: "var(--radius-sm)" }}
+              >
+                ✕
+              </button>
             </div>
-            <form onSubmit={submitVisitor} className="p-6 space-y-4">
+            <form onSubmit={submitVisitor} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
-                <input required value={visitorForm.name} onChange={(e) => setVisitorForm({...visitorForm, name: e.target.value})} className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-[#F57C00]" placeholder="John Doe" />
+                <label style={labelStyle}>Full Name</label>
+                <input required value={visitorForm.name} onChange={(e) => setVisitorForm({...visitorForm, name: e.target.value})} style={inputStyle} placeholder="John Doe" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">ID Number</label>
-                <input value={visitorForm.idNumber} onChange={(e) => setVisitorForm({...visitorForm, idNumber: e.target.value})} className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-[#F57C00]" placeholder="Optional" />
+                <label style={labelStyle}>ID Number</label>
+                <input value={visitorForm.idNumber} onChange={(e) => setVisitorForm({...visitorForm, idNumber: e.target.value})} style={inputStyle} placeholder="Optional ID" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Vehicle Registration</label>
-                <input value={visitorForm.vehicleReg} onChange={(e) => setVisitorForm({...visitorForm, vehicleReg: e.target.value})} className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-[#F57C00]" placeholder="ABC 123 GP" />
+                <label style={labelStyle}>Vehicle Registration</label>
+                <input value={visitorForm.vehicleReg} onChange={(e) => setVisitorForm({...visitorForm, vehicleReg: e.target.value})} style={inputStyle} placeholder="ABC 123 GP" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Purpose of Visit</label>
-                <input value={visitorForm.purpose} onChange={(e) => setVisitorForm({...visitorForm, purpose: e.target.value})} className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-[#F57C00]" placeholder="Meeting with Management" />
+                <label style={labelStyle}>Purpose of Visit</label>
+                <input value={visitorForm.purpose} onChange={(e) => setVisitorForm({...visitorForm, purpose: e.target.value})} style={inputStyle} placeholder="Site inspection" />
               </div>
-              <button type="submit" className="w-full bg-[#F57C00] text-white font-bold py-3 rounded-lg hover:bg-[#E65100] transition mt-4">Log Visitor IN</button>
+              <button 
+                type="submit" 
+                style={{ 
+                  width: "100%", 
+                  background: "var(--color-accent)", 
+                  color: "#0b0f19", 
+                  fontWeight: 700, 
+                  padding: "12px", 
+                  borderRadius: "var(--radius-md)", 
+                  border: "none",
+                  cursor: "pointer",
+                  marginTop: "10px",
+                  boxShadow: "0 4px 12px rgba(245, 158, 11, 0.25)"
+                }}
+              >
+                Log Visitor IN
+              </button>
             </form>
           </div>
         </div>
@@ -241,31 +446,63 @@ export default function GuardDashboard() {
 
       {/* Incident Modal */}
       {isIncidentModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="flex justify-between items-center p-6 border-b border-slate-100">
-              <h2 className="text-lg font-bold text-slate-800">Report Incident</h2>
-              <button onClick={() => setIncidentModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+          <div 
+            style={{ position: "absolute", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
+            onClick={() => setIncidentModalOpen(false)}
+          />
+          <div 
+            className="glass-panel animate-fade-in"
+            style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "440px", borderRadius: "var(--radius-xl)", padding: "24px", boxShadow: "0 24px 64px rgba(0,0,0,0.4)" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)" }}>Report Incident</h2>
+              <button 
+                onClick={() => setIncidentModalOpen(false)} 
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", color: "var(--color-text-muted)", fontSize: "14px", padding: "6px 10px", borderRadius: "var(--radius-sm)" }}
+              >
+                ✕
+              </button>
             </div>
-            <form onSubmit={submitIncident} className="p-6 space-y-4">
+            <form onSubmit={submitIncident} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Title</label>
-                <input required value={incidentForm.title} onChange={(e) => setIncidentForm({...incidentForm, title: e.target.value})} className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-[#F57C00]" placeholder="Suspicious vehicle at gate" />
+                <label style={labelStyle}>Title</label>
+                <input required value={incidentForm.title} onChange={(e) => setIncidentForm({...incidentForm, title: e.target.value})} style={inputStyle} placeholder="Suspicious movement" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Severity</label>
-                <select value={incidentForm.severity} onChange={(e) => setIncidentForm({...incidentForm, severity: e.target.value})} className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-[#F57C00]">
-                  <option value="LOW">Low - Routine</option>
-                  <option value="MEDIUM">Medium - Monitor</option>
-                  <option value="HIGH">High - Immediate Action</option>
-                  <option value="CRITICAL">Critical - Emergency</option>
+                <label style={labelStyle}>Severity</label>
+                <select 
+                  value={incidentForm.severity} 
+                  onChange={(e) => setIncidentForm({...incidentForm, severity: e.target.value})} 
+                  style={{ ...inputStyle, cursor: "pointer" }}
+                >
+                  <option value="LOW" style={{ background: "var(--color-card-bg)" }}>Low - Routine</option>
+                  <option value="MEDIUM" style={{ background: "var(--color-card-bg)" }}>Medium - Monitor</option>
+                  <option value="HIGH" style={{ background: "var(--color-card-bg)" }}>High - Immediate Action</option>
+                  <option value="CRITICAL" style={{ background: "var(--color-card-bg)" }}>Critical - Emergency</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Description</label>
-                <textarea required value={incidentForm.description} onChange={(e) => setIncidentForm({...incidentForm, description: e.target.value})} className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-[#F57C00] h-24" placeholder="Detailed description of the incident..." />
+                <label style={labelStyle}>Description</label>
+                <textarea required value={incidentForm.description} onChange={(e) => setIncidentForm({...incidentForm, description: e.target.value})} style={{ ...inputStyle, height: "96px", resize: "none" }} placeholder="Provide detailed audit remarks..." />
               </div>
-              <button type="submit" className="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition mt-4">Submit Report</button>
+              <button 
+                type="submit" 
+                style={{ 
+                  width: "100%", 
+                  background: "#ef4444", 
+                  color: "#fff", 
+                  fontWeight: 700, 
+                  padding: "12px", 
+                  borderRadius: "var(--radius-md)", 
+                  border: "none",
+                  cursor: "pointer",
+                  marginTop: "10px",
+                  boxShadow: "0 4px 12px rgba(239, 68, 68, 0.25)"
+                }}
+              >
+                Submit Report
+              </button>
             </form>
           </div>
         </div>

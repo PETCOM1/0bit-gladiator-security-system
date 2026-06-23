@@ -45,8 +45,8 @@ export default function LandingPage() {
     <main style={styles.container}>
       <div style={styles.card}>
         <header>
-          <h1 style={styles.title}>Project O-Bit pronounce O bit</h1>
-          <p style={styles.subtitle}>Full-Stack Agency Blueprint</p>
+          <h1 style={styles.title}>Gladiator Pro</h1>
+          <p style={styles.subtitle}>Security Management Platform</p>
         </header>
         
         <section style={styles.statusBox}>

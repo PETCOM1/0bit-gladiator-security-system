@@ -4,14 +4,14 @@ import { HttpStatus } from "@repo/types";
 import { catchAsync } from "../../utils/catchAsync.js";
 
 export const checkInVisitor = catchAsync(async (req: Request, res: Response) => {
-  const { name, idNumber, company, personVisiting, vehicleReg, purpose } = req.body;
+  const { name, idNumber, company, personVisiting, vehicleReg, purpose, cellNumber, townVillage } = req.body;
   const tenantId = req.user!.tenantId;
-  const siteId = req.user!.siteId;
+  const siteId = req.user!.role === "MANAGER" ? req.body.siteId : req.user!.siteId;
   
   if (!tenantId || !siteId) return res.status(403).json({ message: "No tenant/site context" });
 
   const visitor = await prisma.visitor.create({
-    data: { tenantId, siteId, loggedById: req.user!.userId, name, idNumber, company, personVisiting, vehicleReg, purpose }
+    data: { tenantId, siteId, loggedById: req.user!.userId, name, idNumber, company, personVisiting, vehicleReg, purpose, cellNumber, townVillage }
   });
   res.status(HttpStatus.CREATED).json({ status: "success", data: { visitor } });
 });
@@ -46,4 +46,28 @@ export const getVisitors = catchAsync(async (req: Request, res: Response) => {
     include: { loggedBy: { select: { firstName: true, lastName: true } }, site: { select: { name: true } } }
   });
   res.status(HttpStatus.OK).json({ status: "success", data: { visitors } });
+});
+
+export const searchVisitor = catchAsync(async (req: Request, res: Response) => {
+  const { idNumber } = req.params;
+  const tenantId = req.user!.tenantId;
+
+  if (!tenantId) return res.status(403).json({ message: "No tenant context" });
+
+  const visitor = await prisma.visitor.findFirst({
+    where: { idNumber, tenantId },
+    orderBy: { checkInTime: 'desc' }
+  });
+
+  if (!visitor) {
+    return res.status(404).json({ message: "Visitor not found" });
+  }
+
+  res.status(HttpStatus.OK).json({
+    surnameInitials: visitor.name,
+    institution: visitor.company || "",
+    townVillage: visitor.townVillage || "",
+    cellNumber: visitor.cellNumber || "",
+    vehicleReg: visitor.vehicleReg || ""
+  });
 });

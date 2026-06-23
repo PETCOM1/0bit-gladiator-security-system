@@ -291,7 +291,7 @@ export async function runMigrationsAndSeed(): Promise<void> {
     `);
     await client.query(`
       INSERT INTO "SystemSetting" ("id", "key", "value", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid()::text, 'app_name', 'My App', NOW(), NOW())
+      VALUES (gen_random_uuid()::text, 'app_name', 'Gladiator Pro', NOW(), NOW())
       ON CONFLICT ("key") DO NOTHING;
     `);
 
@@ -345,7 +345,7 @@ export async function runMigrationsAndSeed(): Promise<void> {
     const tenantId = 'mock-tenant-id';
     await client.query(`
       INSERT INTO "Tenant" ("id", "name", "subscriptionStatus", "createdAt", "updatedAt")
-      VALUES ($1, 'SecureGuard Solutions', 'ACTIVE', NOW(), NOW())
+      VALUES ($1, 'Gladiator Pro', 'ACTIVE', NOW(), NOW())
       ON CONFLICT ("id") DO NOTHING;
     `, [tenantId]);
 

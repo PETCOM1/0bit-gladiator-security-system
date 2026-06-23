@@ -133,25 +133,26 @@ export default function TopNav() {
   };
 
   return (
-    <header style={{
-      height:          "var(--topnav-height)",
-      backgroundColor: "var(--color-topnav-bg)",
-      borderBottom:    "1px solid var(--color-topnav-border)",
-      display:         "flex",
-      alignItems:      "center",
-      justifyContent:  "flex-end",
-      padding:         "0 24px",
-      gap:             "8px",
-      flexShrink:      0,
-      position:        "relative",
-      zIndex:          10,
-    }}>
+    <header 
+      className="glass-navbar"
+      style={{
+        height:          "var(--topnav-height)",
+        display:         "flex",
+        alignItems:      "center",
+        justifyContent:  "flex-end",
+        padding:         "0 24px",
+        gap:             "8px",
+        flexShrink:      0,
+        position:        "relative",
+        zIndex:          10,
+      }}
+    >
 
       {/* ── Bell ──────────────────────────────────────────────────────────── */}
       <NotificationBell />
 
       {/* ── Divider ───────────────────────────────────────────────────────── */}
-      <div style={{ width: "1px", height: "20px", background: "var(--color-border)" }} />
+      <div style={{ width: "1px", height: "20px", background: "rgba(255, 255, 255, 0.08)" }} />
 
       {/* ── Avatar + dropdown ─────────────────────────────────────────────── */}
       <div ref={dropdownRef} style={{ position: "relative" }}>
@@ -162,26 +163,27 @@ export default function TopNav() {
             display:     "flex",
             alignItems:  "center",
             gap:         "8px",
-            padding:     "4px 8px 4px 4px",
+            padding:     "5px 12px 5px 6px",
             borderRadius: "var(--radius-pill)",
-            background:  dropdownOpen ? "var(--color-accent-subtle)" : "transparent",
+            background:  dropdownOpen ? "var(--color-accent-subtle)" : "rgba(255, 255, 255, 0.03)",
             border:      dropdownOpen
               ? "1px solid var(--color-accent-border)"
-              : "1px solid transparent",
+              : "1px solid rgba(255, 255, 255, 0.05)",
             cursor:      "pointer",
-            transition:  "background var(--transition-fast), border-color var(--transition-fast)",
+            transition:  "all var(--transition-fast)",
+            boxShadow:   "0 2px 8px rgba(0, 0, 0, 0.15)",
           }}
           onMouseEnter={(e) => {
-            if (!dropdownOpen) {
-              e.currentTarget.style.background   = "var(--color-accent-subtle)";
-              e.currentTarget.style.borderColor  = "var(--color-accent-border)";
-            }
+            e.currentTarget.style.background   = "var(--color-accent-subtle)";
+            e.currentTarget.style.borderColor  = "var(--color-accent-border)";
+            e.currentTarget.style.transform    = "translateY(-1px)";
           }}
           onMouseLeave={(e) => {
             if (!dropdownOpen) {
-              e.currentTarget.style.background   = "transparent";
-              e.currentTarget.style.borderColor  = "transparent";
+              e.currentTarget.style.background   = "rgba(255, 255, 255, 0.03)";
+              e.currentTarget.style.borderColor  = "rgba(255, 255, 255, 0.05)";
             }
+            e.currentTarget.style.transform    = "translateY(0)";
           }}
         >
           <Avatar initials={initials} size={28} />
@@ -189,7 +191,7 @@ export default function TopNav() {
             fontSize:   "13.5px",
             fontWeight: 500,
             color:      "var(--color-text-primary)",
-            maxWidth:   "120px",
+            maxWidth:   "220px",
             overflow:   "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -209,18 +211,19 @@ export default function TopNav() {
 
         {/* ── Dropdown panel ──────────────────────────────────────────────── */}
         {dropdownOpen && (
-          <div style={{
-            position:    "absolute",
-            top:         "calc(100% + 8px)",
-            right:       0,
-            minWidth:    "200px",
-            background:  "var(--color-card-bg)",
-            border:      "1px solid var(--color-border)",
-            borderRadius: "var(--radius-lg)",
-            boxShadow:   "var(--color-card-shadow), 0 8px 32px rgba(0,0,0,0.12)",
-            padding:     "6px",
-            zIndex:      100,
-          }}>
+          <div 
+            className="glass-panel"
+            style={{
+              position:    "absolute",
+              top:         "calc(100% + 8px)",
+              right:       0,
+              minWidth:    "220px",
+              borderRadius: "var(--radius-xl)",
+              boxShadow:   "0 12px 40px rgba(0,0,0,0.4)",
+              padding:     "8px",
+              zIndex:      100,
+            }}
+          >
             {/* User info */}
             <div style={{
               padding:      "8px 12px 10px",

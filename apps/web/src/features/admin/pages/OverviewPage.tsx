@@ -76,7 +76,7 @@ export function AdminOverviewPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       <div>
         <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--color-text-primary)" }}>Overview</h1>
-        <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "4px" }}>Agency performance at a glance</p>
+        <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "4px" }}>Platform performance at a glance</p>
       </div>
 
       {/* Outstanding alert */}

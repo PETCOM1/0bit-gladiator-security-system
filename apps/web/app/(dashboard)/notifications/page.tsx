@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import apiClient from "@/api/client";
+import { Bell, Trash2, CheckSquare } from "lucide-react";
+import { Button } from "@/shared/components/ui/Button";
 
 interface Notification {
   id:        string;
@@ -46,9 +48,13 @@ export default function NotificationsPage() {
   useEffect(() => { fetchNotifications(); }, [fetchNotifications]);
 
   const markRead = async (id: string) => {
-    await apiClient.patch(`/notifications/${id}/read`);
-    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
-    setUnreadCount((c) => Math.max(0, c - 1));
+    try {
+      await apiClient.patch(`/notifications/${id}/read`);
+      setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+      setUnreadCount((c) => Math.max(0, c - 1));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const markAllRead = async () => {
@@ -57,125 +63,202 @@ export default function NotificationsPage() {
       await apiClient.patch("/notifications/read-all");
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
+    } catch (err) {
+      console.error(err);
     } finally {
       setMarkingAll(false);
     }
   };
 
   const deleteNotification = async (id: string) => {
-    const n = notifications.find((x) => x.id === id);
-    await apiClient.delete(`/notifications/${id}`);
-    setNotifications((prev) => prev.filter((x) => x.id !== id));
-    if (n && !n.read) setUnreadCount((c) => Math.max(0, c - 1));
+    try {
+      const n = notifications.find((x) => x.id === id);
+      await apiClient.delete(`/notifications/${id}`);
+      setNotifications((prev) => prev.filter((x) => x.id !== id));
+      if (n && !n.read) setUnreadCount((c) => Math.max(0, c - 1));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%" }}>
+    <div className="space-y-6 w-full animate-fade-in">
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px" }}>
         <div>
-          <h1 style={{ fontSize: "20px", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 4px" }}>
+          <h1 className="font-heading" style={{ fontSize: "24px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0, letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "12px" }}>
             Notifications
             {unreadCount > 0 && (
-              <span style={{
-                marginLeft: "10px", fontSize: "13px", fontWeight: 700,
-                background: "var(--color-accent)", color: "var(--color-accent-text)",
-                padding: "2px 8px", borderRadius: "999px",
+              <span className="font-heading" style={{
+                fontSize: "11px", fontWeight: 700,
+                background: "var(--color-accent)", color: "#0b0f19",
+                padding: "2px 10px", borderRadius: "var(--radius-pill)",
+                boxShadow: "0 0 10px rgba(245, 158, 11, 0.4)",
               }}>
-                {unreadCount}
+                {unreadCount} NEW
               </span>
             )}
           </h1>
-          <p style={{ fontSize: "13px", color: "var(--color-text-muted)", margin: 0 }}>
-            Your recent alerts and updates
+          <p style={{ fontSize: "13.5px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+            Review system logs, operational alerts, and threat updates
           </p>
         </div>
         {unreadCount > 0 && (
-          <button
+          <Button
             onClick={markAllRead}
             disabled={markingAll}
-            style={{
-              padding: "7px 14px", fontSize: "12px", fontWeight: 600,
-              background: "var(--color-bg-subtle)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "7px", color: "var(--color-text-secondary)",
-              cursor: markingAll ? "not-allowed" : "pointer",
-              opacity: markingAll ? 0.6 : 1,
-            }}
+            variant="outline"
+            size="sm"
           >
             {markingAll ? "Marking..." : "Mark all read"}
-          </button>
+          </Button>
         )}
       </div>
 
-      {/* List */}
-      <div style={{ background: "var(--color-card-bg)", border: "1px solid var(--color-card-border)", borderRadius: "12px", overflow: "hidden" }}>
+      {/* List container */}
+      <div className="glass-panel" style={{ borderRadius: "var(--radius-xl)", overflow: "hidden" }}>
         {isLoading ? (
-          <div style={{ padding: "48px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-            <div style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid var(--color-border)", borderTopColor: "var(--color-accent)", animation: "spin 0.7s linear infinite" }} />
+          <div style={{ padding: "64px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px" }}>
+            <div style={{ width: "24px", height: "24px", borderRadius: "50%", border: "2px solid rgba(255, 255, 255, 0.08)", borderTopColor: "var(--color-accent)", animation: "spin 0.8s linear infinite" }} />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>Loading...</span>
+            <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>Loading alerts...</span>
           </div>
         ) : notifications.length === 0 ? (
-          <div style={{ padding: "56px 0", textAlign: "center" }}>
-            <div style={{ fontSize: "32px", marginBottom: "12px" }}>🔔</div>
-            <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 4px" }}>All caught up</p>
-            <p style={{ fontSize: "13px", color: "var(--color-text-muted)", margin: 0 }}>No notifications yet</p>
+          <div style={{ padding: "64px 16px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ 
+              width: "48px", 
+              height: "48px", 
+              borderRadius: "50%", 
+              background: "rgba(255,255,255,0.02)", 
+              border: "1px solid rgba(255,255,255,0.05)",
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center",
+              marginBottom: "16px",
+              color: "var(--color-text-muted)",
+            }}>
+              <Bell size={20} />
+            </div>
+            <p className="font-heading" style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 4px" }}>All caught up</p>
+            <p style={{ fontSize: "13px", color: "var(--color-text-muted)", margin: 0 }}>No new alerts to report at this time</p>
           </div>
         ) : (
-          <div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
             {notifications.map((n, i) => (
               <div
                 key={n.id}
                 style={{
-                  display: "flex", alignItems: "flex-start", gap: "14px",
-                  padding: "16px 20px",
-                  borderBottom: i < notifications.length - 1 ? "1px solid var(--color-border)" : "none",
-                  background: n.read ? "transparent" : "var(--color-accent-subtle)",
+                  display: "flex", 
+                  alignItems: "flex-start", 
+                  gap: "16px",
+                  padding: "18px 24px",
+                  borderBottom: i < notifications.length - 1 ? "1px solid rgba(255, 255, 255, 0.04)" : "none",
+                  background: n.read 
+                    ? "transparent" 
+                    : "linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.01) 100%)",
                   position: "relative",
+                  transition: "all var(--transition-base)",
                 }}
               >
-                {/* Unread dot */}
+                {/* HUD Active left bar for unread notifications */}
                 {!n.read && (
                   <div style={{
-                    position: "absolute", left: "8px", top: "50%", transform: "translateY(-50%)",
-                    width: "6px", height: "6px", borderRadius: "50%",
+                    position: "absolute", 
+                    left: 0, 
+                    top: 0, 
+                    bottom: 0, 
+                    width: "4px",
                     background: "var(--color-accent)",
+                    boxShadow: "0 0 10px rgba(245, 158, 11, 0.4)",
                   }} />
                 )}
 
+                {/* Icon indicator */}
+                <div style={{ 
+                  width: "36px", 
+                  height: "36px", 
+                  borderRadius: "50%", 
+                  background: n.read ? "rgba(255, 255, 255, 0.02)" : "var(--color-accent-subtle)", 
+                  color: n.read ? "var(--color-text-muted)" : "var(--color-accent)", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center", 
+                  flexShrink: 0,
+                  border: n.read ? "1px solid rgba(255, 255, 255, 0.04)" : "1px solid var(--color-accent-border)",
+                }}>
+                  <Bell size={15} />
+                </div>
+
                 {/* Content */}
-                <div style={{ flex: 1, paddingLeft: n.read ? "0" : "6px" }}>
-                  <p style={{ fontSize: "14px", fontWeight: n.read ? 400 : 600, color: "var(--color-text-primary)", margin: "0 0 3px" }}>
+                <div style={{ flex: 1 }}>
+                  <p className="font-heading" style={{ fontSize: "14px", fontWeight: n.read ? 600 : 700, color: "var(--color-text-primary)", margin: "0 0 4px" }}>
                     {n.title}
                   </p>
-                  <p style={{ fontSize: "13px", color: "var(--color-text-secondary)", margin: "0 0 6px", lineHeight: 1.45 }}>
+                  <p style={{ fontSize: "13.5px", color: "var(--color-text-secondary)", margin: "0 0 8px", lineHeight: 1.45 }}>
                     {n.body}
                   </p>
-                  <p style={{ fontSize: "11px", color: "var(--color-text-muted)", margin: 0 }}>
+                  <span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 500 }}>
                     {timeAgo(n.createdAt)}
-                  </p>
+                  </span>
                 </div>
 
                 {/* Actions */}
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
                   {!n.read && (
                     <button
                       onClick={() => markRead(n.id)}
                       title="Mark as read"
-                      style={{ padding: "4px 10px", fontSize: "11px", fontWeight: 500, background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)", borderRadius: "5px", color: "var(--color-accent)", cursor: "pointer" }}
+                      style={{ 
+                        padding: "5px 12px", 
+                        fontSize: "11px", 
+                        fontWeight: 600, 
+                        background: "rgba(255,255,255,0.03)", 
+                        border: "1px solid rgba(255,255,255,0.06)", 
+                        borderRadius: "var(--radius-md)", 
+                        color: "var(--color-text-secondary)", 
+                        cursor: "pointer",
+                        transition: "all var(--transition-fast)",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = "var(--color-accent-subtle)";
+                        (e.currentTarget as HTMLElement).style.borderColor = "var(--color-accent-border)";
+                        (e.currentTarget as HTMLElement).style.color = "var(--color-accent)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
+                        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.06)";
+                        (e.currentTarget as HTMLElement).style.color = "var(--color-text-secondary)";
+                      }}
                     >
                       Mark read
                     </button>
                   )}
                   <button
                     onClick={() => deleteNotification(n.id)}
-                    title="Delete"
-                    style={{ padding: "4px 8px", fontSize: "14px", background: "none", border: "none", color: "var(--color-text-muted)", cursor: "pointer", lineHeight: 1 }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-danger)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-muted)")}
+                    title="Delete Notification"
+                    style={{ 
+                      width: "28px", 
+                      height: "28px", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      background: "transparent", 
+                      border: "none", 
+                      borderRadius: "var(--radius-md)",
+                      color: "var(--color-text-muted)", 
+                      cursor: "pointer", 
+                      transition: "all var(--transition-fast)" 
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.color = "var(--color-danger)";
+                      (e.currentTarget as HTMLElement).style.background = "rgba(239, 68, 68, 0.08)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.color = "var(--color-text-muted)";
+                      (e.currentTarget as HTMLElement).style.background = "transparent";
+                    }}
                   >
-                    ✕
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>

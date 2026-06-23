@@ -231,6 +231,8 @@ export const VisitorScalarFieldEnum = {
   personVisiting: 'personVisiting',
   vehicleReg: 'vehicleReg',
   purpose: 'purpose',
+  cellNumber: 'cellNumber',
+  townVillage: 'townVillage',
   status: 'status',
   checkInTime: 'checkInTime',
   checkOutTime: 'checkOutTime'
@@ -293,6 +295,9 @@ export const OccurrenceBookEntryScalarFieldEnum = {
   userId: 'userId',
   entryText: 'entryText',
   category: 'category',
+  location: 'location',
+  severity: 'severity',
+  image: 'image',
   createdAt: 'createdAt'
 } as const
 

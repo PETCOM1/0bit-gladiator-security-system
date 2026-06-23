@@ -52,19 +52,19 @@ export default function SecurityAttendancePage() {
   const upcomingShift = shifts.find(s => s.status === "SCHEDULED" && new Date(s.startTime).toDateString() === new Date().toDateString());
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
       <div>
-        <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-          <ClipboardCheck size={28} color="var(--color-accent)" /> Shift Attendance
+        <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
+          <ClipboardCheck size={24} color="var(--color-accent)" /> Shift Attendance
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-muted)", marginTop: "6px" }}>
+        <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
           Clock in and out of your assigned shifts.
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "28px" }}>
         {/* Active Shift Card */}
-        <div style={{ background: "var(--color-card-bg)", padding: "32px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", boxShadow: "var(--color-card-shadow)", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", textAlign: "center" }}>
+        <div style={{ background: "var(--color-card-bg)", padding: "32px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", textAlign: "center" }}>
           {currentShift ? (
             <>
               <div style={{ padding: "16px", background: "var(--color-success-subtle)", borderRadius: "50%", color: "var(--color-success)" }}>
@@ -78,7 +78,9 @@ export default function SecurityAttendancePage() {
               </div>
               <button 
                 onClick={() => handleEndShift(currentShift.id)}
-                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 32px", background: "var(--color-danger)", color: "#fff", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: 700, cursor: "pointer", marginTop: "8px" }}
+                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 32px", background: "var(--color-danger)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "16px", fontWeight: 700, cursor: "pointer", marginTop: "8px", transition: "opacity var(--transition-fast)" }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
               >
                 <Square size={18} fill="currentColor" /> Check Out
               </button>
@@ -98,7 +100,9 @@ export default function SecurityAttendancePage() {
               </div>
               <button 
                 onClick={() => handleStartShift(upcomingShift?.id)}
-                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 32px", background: "var(--color-success)", color: "#fff", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: 700, cursor: "pointer", marginTop: "8px" }}
+                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 32px", background: "var(--color-success)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "16px", fontWeight: 700, cursor: "pointer", marginTop: "8px", transition: "opacity var(--transition-fast)" }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
               >
                 <Play size={18} fill="currentColor" /> Check In
               </button>
@@ -107,7 +111,7 @@ export default function SecurityAttendancePage() {
         </div>
 
         {/* Shift Details */}
-        <div style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", display: "flex", flexDirection: "column", gap: "16px", boxShadow: "var(--color-card-shadow)" }}>
           <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 600, color: "var(--color-text-primary)" }}>Current Assignment</h3>
           
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -116,8 +120,8 @@ export default function SecurityAttendancePage() {
                 <MapPin size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Post / Location</div>
-                <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Post / Location</div>
+                <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)", marginTop: "2px" }}>
                   {currentShift?.post?.name || upcomingShift?.post?.name || currentShift?.site?.name || upcomingShift?.site?.name || "Unassigned"}
                 </div>
               </div>
@@ -128,8 +132,8 @@ export default function SecurityAttendancePage() {
                 <Clock size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Schedule</div>
-                <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Schedule</div>
+                <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)", marginTop: "2px" }}>
                   {currentShift || upcomingShift 
                     ? `${new Date((currentShift || upcomingShift)!.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${(currentShift || upcomingShift)!.endTime ? new Date((currentShift || upcomingShift)!.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Open Ended"}` 
                     : "N/A"}

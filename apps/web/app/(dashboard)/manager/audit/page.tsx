@@ -24,12 +24,12 @@ export default function AuditLogsPage() {
   }, []);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
       <div>
-        <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-          <ScrollText size={28} color="var(--color-accent)" /> Audit Logs
+        <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
+          <ScrollText size={24} color="var(--color-accent)" /> Audit Logs
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-muted)", marginTop: "6px" }}>
+        <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
           A secure, immutable log of all actions taken within your organization.
         </p>
       </div>
@@ -39,10 +39,10 @@ export default function AuditLogsPage() {
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Timestamp</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>User</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Action</th>
-                <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>IP Address</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Timestamp</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>User</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Action</th>
+                <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>IP Address</th>
               </tr>
             </thead>
             <tbody>
@@ -51,7 +51,12 @@ export default function AuditLogsPage() {
               ) : logs.length === 0 ? (
                 <tr><td colSpan={4} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No actions recorded.</td></tr>
               ) : logs.map((log, i) => (
-                <tr key={log.id} style={{ borderBottom: i < logs.length - 1 ? "1px solid var(--color-border)" : "none", fontSize: "13px" }}>
+                <tr 
+                  key={log.id} 
+                  style={{ borderBottom: i < logs.length - 1 ? "1px solid var(--color-border)" : "none", fontSize: "13.5px", transition: "background var(--transition-fast)" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                >
                   <td style={{ padding: "16px 24px", color: "var(--color-text-secondary)" }}>{new Date(log.createdAt).toLocaleString()}</td>
                   <td style={{ padding: "16px 24px", fontWeight: 600, color: "var(--color-text-primary)" }}>{log.user?.email || "Unknown"}</td>
                   <td style={{ padding: "16px 24px" }}>

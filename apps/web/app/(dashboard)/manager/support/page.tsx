@@ -90,11 +90,11 @@ export default function TenantSupportPage() {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", height: "100%", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", height: "100%", width: "100%" }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
             Help & Support
           </h1>
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
@@ -216,8 +216,8 @@ export default function TenantSupportPage() {
 
       {/* Create Ticket Modal */}
       {isCreating && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", width: "100%", maxWidth: "500px", boxShadow: "0 24px 64px rgba(0,0,0,0.3)" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", width: "100%", maxWidth: "500px", boxShadow: "0 24px 64px rgba(0,0,0,0.4)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
               <h2 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Create Support Ticket</h2>
               <button onClick={() => setIsCreating(false)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--color-text-muted)" }}><X size={20} /></button>

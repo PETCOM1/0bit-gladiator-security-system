@@ -29,12 +29,12 @@ export default function ReportsManagerPage() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
       <div>
-        <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-          <BarChart size={28} color="var(--color-accent)" /> Reports & Analytics
+        <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
+          <BarChart size={24} color="var(--color-accent)" /> Reports & Analytics
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-muted)", marginTop: "6px" }}>
+        <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
           Generate, view, and export comprehensive reports on your security operations.
         </p>
       </div>

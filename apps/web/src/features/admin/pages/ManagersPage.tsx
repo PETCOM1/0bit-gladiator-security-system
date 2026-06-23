@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { UserPlus } from "lucide-react";
 import { adminService, type TeamUser } from "../services/admin.service";
+import DataTable, { Column } from "@/shared/components/ui/DataTable";
 
 // ─── Shared input style ────────────────────────────────────────────────────────
 const inputStyle: React.CSSProperties = {
@@ -194,8 +195,8 @@ function ConfirmDialog({ title, message, confirmLabel, danger, onConfirm, onCanc
   );
 }
 
-// ─── Manager row ───────────────────────────────────────────────────────────────
-function ManagerRow({ manager, onStatusChange, onRefetch }: {
+// ─── Manager actions cell ──────────────────────────────────────────────────────
+function ManagerActionsCell({ manager, onStatusChange, onRefetch }: {
   manager: TeamUser;
   onStatusChange: (id: string, status: string) => Promise<void>;
   onRefetch: () => void;
@@ -205,73 +206,34 @@ function ManagerRow({ manager, onStatusChange, onRefetch }: {
   const name = manager.displayName ||
     [manager.firstName, manager.lastName].filter(Boolean).join(" ") ||
     manager.email;
-  const initials = name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <>
-      <tr
-        style={{ borderBottom: "1px solid var(--color-border)", transition: "background var(--transition-fast)" }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "var(--color-bg-subtle)"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "transparent"; }}
-      >
-        {/* Name + email */}
-        <td style={{ padding: "14px 20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{
-              width: "34px", height: "34px", borderRadius: "var(--radius-pill)",
-              background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)",
-              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}>
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-accent)" }}>{initials}</span>
-            </div>
-            <div>
-              <p style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0, lineHeight: 1.2 }}>{name}</p>
-              {name !== manager.email && (
-                <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0" }}>{manager.email}</p>
-              )}
-            </div>
-          </div>
-        </td>
-
-        {/* Status */}
-        <td style={{ padding: "14px 20px" }}>
-          <StatusBadge status={manager.accountStatus} />
-        </td>
-
-        {/* Joined */}
-        <td style={{ padding: "14px 20px", fontSize: "13px", color: "var(--color-text-muted)", whiteSpace: "nowrap" }}>
-          {new Date(manager.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
-        </td>
-
-        {/* Actions */}
-        <td style={{ padding: "14px 20px" }}>
-          <div style={{ display: "flex", gap: "6px" }}>
-            {manager.accountStatus === "ACTIVE" && (
-              <button onClick={() => setConfirm("suspend")} style={{
-                padding: "4px 12px", fontSize: "12px", fontWeight: 600,
-                color: "var(--color-warning)", background: "var(--color-warning-subtle)",
-                border: "1px solid var(--color-warning-subtle)", borderRadius: "var(--radius-md)", cursor: "pointer",
-              }}>
-                Suspend
-              </button>
-            )}
-            {manager.accountStatus === "SUSPENDED" && (
-              <button onClick={() => setConfirm("activate")} style={{
-                padding: "4px 12px", fontSize: "12px", fontWeight: 600,
-                color: "var(--color-accent)", background: "var(--color-accent-subtle)",
-                border: "1px solid var(--color-accent-border)", borderRadius: "var(--radius-md)", cursor: "pointer",
-              }}>
-                Activate
-              </button>
-            )}
-            {manager.accountStatus === "PENDING" && (
-              <span style={{ fontSize: "12px", color: "var(--color-text-muted)", fontStyle: "italic" }}>
-                Invite pending
-              </span>
-            )}
-          </div>
-        </td>
-      </tr>
+      <div style={{ display: "flex", gap: "6px" }}>
+        {manager.accountStatus === "ACTIVE" && (
+          <button onClick={() => setConfirm("suspend")} style={{
+            padding: "4px 12px", fontSize: "12px", fontWeight: 600,
+            color: "var(--color-warning)", background: "var(--color-warning-subtle)",
+            border: "1px solid var(--color-warning-subtle)", borderRadius: "var(--radius-md)", cursor: "pointer",
+          }}>
+            Suspend
+          </button>
+        )}
+        {manager.accountStatus === "SUSPENDED" && (
+          <button onClick={() => setConfirm("activate")} style={{
+            padding: "4px 12px", fontSize: "12px", fontWeight: 600,
+            color: "var(--color-accent)", background: "var(--color-accent-subtle)",
+            border: "1px solid var(--color-accent-border)", borderRadius: "var(--radius-md)", cursor: "pointer",
+          }}>
+            Activate
+          </button>
+        )}
+        {manager.accountStatus === "PENDING" && (
+          <span style={{ fontSize: "12px", color: "var(--color-text-muted)", fontStyle: "italic" }}>
+            Invite pending
+          </span>
+        )}
+      </div>
 
       {confirm === "suspend" && (
         <ConfirmDialog
@@ -322,6 +284,48 @@ export function ManagersPage() {
   const active    = managers.filter((m) => m.accountStatus === "ACTIVE").length;
   const pending   = managers.filter((m) => m.accountStatus === "PENDING").length;
   const suspended = managers.filter((m) => m.accountStatus === "SUSPENDED").length;
+
+  const columns: Column<TeamUser>[] = [
+    {
+      header: "Manager",
+      render: (m) => {
+        const name = m.displayName || [m.firstName, m.lastName].filter(Boolean).join(" ") || m.email;
+        const initials = name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{
+              width: "34px", height: "34px", borderRadius: "var(--radius-pill)",
+              background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-accent)" }}>{initials}</span>
+            </div>
+            <div>
+              <p style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0, lineHeight: 1.2 }}>{name}</p>
+              {name !== m.email && (
+                <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0" }}>{m.email}</p>
+              )}
+            </div>
+          </div>
+        );
+      }
+    },
+    {
+      header: "Status",
+      render: (m) => <StatusBadge status={m.accountStatus} />
+    },
+    {
+      header: "Joined",
+      render: (m) => new Date(m.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }),
+      style: { whiteSpace: "nowrap" }
+    },
+    {
+      header: "Actions",
+      render: (m) => (
+        <ManagerActionsCell manager={m} onStatusChange={handleStatusChange} onRefetch={fetchManagers} />
+      )
+    }
+  ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -378,11 +382,9 @@ export function ManagersPage() {
         boxShadow: "var(--color-card-shadow)",
         overflow: "hidden",
       }}>
-        {isLoading ? (
-          <div style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "14px" }}>Loading…</div>
-        ) : error ? (
+        {error ? (
           <div style={{ padding: "60px", textAlign: "center", color: "var(--color-danger)", fontSize: "14px" }}>{error}</div>
-        ) : managers.length === 0 ? (
+        ) : managers.length === 0 && !isLoading ? (
           <div style={{ padding: "60px", textAlign: "center" }}>
             <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "8px" }}>No managers yet</p>
             <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginBottom: "20px" }}>Invite a manager to get started</p>
@@ -395,28 +397,24 @@ export function ManagersPage() {
             </button>
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
-                {["Manager", "Status", "Joined", "Actions"].map((h) => (
-                  <th key={h} style={{
-                    padding: "12px 20px", textAlign: "left",
-                    fontSize: "11px", fontWeight: 700,
-                    color: "var(--color-text-muted)",
-                    textTransform: "uppercase", letterSpacing: "0.06em",
-                    background: "var(--color-bg-subtle)",
-                  }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {managers.map((m) => (
-                <ManagerRow key={m.id} manager={m} onStatusChange={handleStatusChange} onRefetch={fetchManagers} />
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            data={managers}
+            columns={columns}
+            loading={isLoading}
+            searchPlaceholder="Search managers by name or email..."
+            searchKeys={["displayName", "firstName", "lastName", "email"]}
+            filterOptions={[
+              {
+                label: "Status",
+                key: "accountStatus",
+                options: [
+                  { label: "Active", value: "ACTIVE" },
+                  { label: "Pending", value: "PENDING" },
+                  { label: "Suspended", value: "SUSPENDED" },
+                ],
+              },
+            ]}
+          />
         )}
       </div>
 

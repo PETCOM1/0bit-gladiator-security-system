@@ -10,15 +10,46 @@ export default function PlatformSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
 
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 12px",
+    background: "var(--color-bg-subtle)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    fontSize: "14px",
+    color: "var(--color-text-primary)",
+    outline: "none",
+    boxSizing: "border-box" as const,
+    transition: "border-color var(--transition-fast)"
+  };
+
   const fetchSettings = async () => {
     setLoading(true);
     try {
       const res = await superAdminService.getSettings();
-      setSettings(res.data.data.settings);
+      const settingsData = res.data?.data?.settings;
+      
+      let settingsArray: any[] = [];
       const data: Record<string, string> = {};
-      res.data.data.settings.forEach((s: any) => {
-        data[s.key] = s.value;
-      });
+      
+      if (Array.isArray(settingsData)) {
+        settingsArray = settingsData;
+        settingsData.forEach((s: any) => {
+          if (s && typeof s === "object" && s.key) {
+            data[s.key] = s.value || "";
+          }
+        });
+      } else if (settingsData && typeof settingsData === "object") {
+        settingsArray = Object.entries(settingsData).map(([key, value]) => ({
+          key,
+          value: value as string,
+        }));
+        Object.entries(settingsData).forEach(([key, value]) => {
+          data[key] = value as string;
+        });
+      }
+      
+      setSettings(settingsArray);
       setFormData(data);
     } catch (err) {
       console.error(err);
@@ -58,10 +89,10 @@ export default function PlatformSettingsPage() {
   }, {});
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "800px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
           Platform Settings
         </h1>
         <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
@@ -98,7 +129,7 @@ export default function PlatformSettingsPage() {
                   <select 
                     value={formData[setting.key]} 
                     onChange={e => setFormData({ ...formData, [setting.key]: e.target.value })}
-                    style={{ width: "100%", padding: "10px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "13px", color: "var(--color-text-primary)", outline: "none" }}
+                    style={inputStyle}
                   >
                     <option value="OPEN">Open (Anyone can register)</option>
                     <option value="INVITE_ONLY">Invite Only (Admins must invite)</option>
@@ -112,7 +143,7 @@ export default function PlatformSettingsPage() {
                         type="text" 
                         value={formData[setting.key] || ""} 
                         onChange={e => setFormData({ ...formData, [setting.key]: e.target.value })}
-                        style={{ width: "100%", padding: "10px 12px 10px 36px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "13px", color: "var(--color-text-primary)", outline: "none" }}
+                        style={{ ...inputStyle, paddingLeft: "36px" }}
                       />
                     </div>
                   </div>
@@ -128,7 +159,7 @@ export default function PlatformSettingsPage() {
                       type="text" 
                       value={formData[setting.key] || ""} 
                       onChange={e => setFormData({ ...formData, [setting.key]: e.target.value })}
-                      style={{ flex: 1, padding: "10px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "13px", color: "var(--color-text-primary)", outline: "none", fontFamily: "monospace" }}
+                      style={{ ...inputStyle, fontFamily: "monospace" }}
                     />
                   </div>
                 ) : (
@@ -136,7 +167,7 @@ export default function PlatformSettingsPage() {
                     type="text" 
                     value={formData[setting.key] || ""} 
                     onChange={e => setFormData({ ...formData, [setting.key]: e.target.value })}
-                    style={{ width: "100%", padding: "10px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "13px", color: "var(--color-text-primary)", outline: "none" }}
+                    style={inputStyle}
                   />
                 )}
               </div>

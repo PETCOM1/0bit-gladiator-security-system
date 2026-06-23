@@ -7,7 +7,7 @@ import * as occurrenceController from "./occurrence.controller.js";
 const router = Router();
 router.use(protect);
 
-router.get("/", authorize([Role.MANAGER, Role.SITE_MANAGER]), occurrenceController.getEntries);
+router.get("/", authorize([Role.MANAGER, Role.SITE_MANAGER, Role.USER]), occurrenceController.getEntries);
 router.post("/", authorize([Role.MANAGER, Role.SITE_MANAGER, Role.USER]), occurrenceController.createEntry);
 
 export default router;

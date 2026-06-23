@@ -29,15 +29,15 @@ export default function SettingsManagerPage() {
     transition: "border var(--transition-fast)"
   };
 
-  const labelStyle = { display: "block", fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: "6px" };
+  const labelStyle = { display: "block", fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: "6px", textTransform: "uppercase" as const, letterSpacing: "0.05em" };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
       <div>
-        <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-          <Settings size={28} color="var(--color-accent)" /> Organization Settings
+        <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
+          <Settings size={24} color="var(--color-accent)" /> Organization Settings
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-muted)", marginTop: "6px" }}>
+        <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
           Update your organization's profile and preferences.
         </p>
       </div>

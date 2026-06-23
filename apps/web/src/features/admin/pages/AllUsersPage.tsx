@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { adminService, type TeamUser } from "../services/admin.service";
+import DataTable, { Column } from "@/shared/components/ui/DataTable";
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 14px",
@@ -154,74 +155,44 @@ function ConfirmDialog({ title, message, confirmLabel, danger, onConfirm, onCanc
 
 // ── User row ───────────────────────────────────────────────────────────────────
 
-function UserRow({ user, onStatusChange, onRoleChange }: {
+// ── User actions cell ─────────────────────────────────────────────────────────
+
+function UserActionsCell({ user, onStatusChange, onRoleChange }: {
   user: TeamUser;
   onStatusChange: (id: string, status: string) => Promise<void>;
   onRoleChange:   (id: string, role: string)   => Promise<void>;
 }) {
   const [confirm, setConfirm] = useState<"suspend" | "activate" | "promote" | "demote" | null>(null);
-  const [hovered, setHovered] = useState(false);
 
   const displayName =
     user.displayName ||
     [user.firstName, user.lastName].filter(Boolean).join(" ") ||
     user.email;
-  const initials = displayName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <>
-      <tr
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          borderBottom: "1px solid var(--color-border)",
-          background: hovered ? "var(--color-bg-subtle)" : "transparent",
-          transition: "background 0.1s",
-        }}
-      >
-        <td style={{ padding: "14px 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-accent)" }}>{initials}</span>
-            </div>
-            <div>
-              <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0, lineHeight: 1.2 }}>{displayName}</p>
-              {displayName !== user.email && (
-                <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0" }}>{user.email}</p>
-              )}
-            </div>
-          </div>
-        </td>
-        <td style={{ padding: "14px 16px" }}><RoleBadge role={user.role} /></td>
-        <td style={{ padding: "14px 16px" }}><StatusBadge status={user.accountStatus} /></td>
-        <td style={{ padding: "14px 16px", fontSize: "13px", color: "var(--color-text-muted)" }}>
-          {new Date(user.createdAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
-        </td>
-        <td style={{ padding: "14px 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            {user.accountStatus === "ACTIVE" && (
-              <button onClick={() => setConfirm("suspend")} style={{ padding: "4px 10px", fontSize: "12px", fontWeight: 500, color: "var(--color-warning)", background: "var(--color-warning-subtle)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
-                Suspend
-              </button>
-            )}
-            {user.accountStatus === "SUSPENDED" && (
-              <button onClick={() => setConfirm("activate")} style={{ padding: "4px 10px", fontSize: "12px", fontWeight: 500, color: "var(--color-accent)", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
-                Activate
-              </button>
-            )}
-            {user.role === "USER" && user.accountStatus === "ACTIVE" && (
-              <button onClick={() => setConfirm("promote")} style={{ padding: "4px 10px", fontSize: "12px", fontWeight: 500, color: "var(--color-info)", background: "var(--color-info-subtle)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
-                → Manager
-              </button>
-            )}
-            {user.role === "MANAGER" && (
-              <button onClick={() => setConfirm("demote")} style={{ padding: "4px 10px", fontSize: "12px", fontWeight: 500, color: "var(--color-text-secondary)", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
-                → User
-              </button>
-            )}
-          </div>
-        </td>
-      </tr>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        {user.accountStatus === "ACTIVE" && (
+          <button onClick={() => setConfirm("suspend")} style={{ padding: "4px 10px", fontSize: "12px", fontWeight: 500, color: "var(--color-warning)", background: "var(--color-warning-subtle)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
+            Suspend
+          </button>
+        )}
+        {user.accountStatus === "SUSPENDED" && (
+          <button onClick={() => setConfirm("activate")} style={{ padding: "4px 10px", fontSize: "12px", fontWeight: 500, color: "var(--color-accent)", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
+            Activate
+          </button>
+        )}
+        {user.role === "USER" && user.accountStatus === "ACTIVE" && (
+          <button onClick={() => setConfirm("promote")} style={{ padding: "4px 10px", fontSize: "12px", fontWeight: 500, color: "var(--color-info)", background: "var(--color-info-subtle)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
+            → Manager
+          </button>
+        )}
+        {user.role === "MANAGER" && (
+          <button onClick={() => setConfirm("demote")} style={{ padding: "4px 10px", fontSize: "12px", fontWeight: 500, color: "var(--color-text-secondary)", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
+            → User
+          </button>
+        )}
+      </div>
 
       {confirm === "suspend"  && <ConfirmDialog title="Suspend user?"       message={`${displayName} will lose access immediately.`}                       confirmLabel="Suspend"  danger onConfirm={async () => { await onStatusChange(user.id, "SUSPENDED"); setConfirm(null); }} onCancel={() => setConfirm(null)} />}
       {confirm === "activate" && <ConfirmDialog title="Activate user?"      message={`${displayName} will regain full access.`}                            confirmLabel="Activate"       onConfirm={async () => { await onStatusChange(user.id, "ACTIVE");    setConfirm(null); }} onCancel={() => setConfirm(null)} />}
@@ -283,6 +254,48 @@ export function AllUsersPage() {
   const pendingCount   = users.filter((u) => u.accountStatus === "PENDING").length;
   const suspendedCount = users.filter((u) => u.accountStatus === "SUSPENDED").length;
 
+  const columns: Column<TeamUser>[] = [
+    {
+      header: "User",
+      render: (u) => {
+        const displayName = u.displayName || [u.firstName, u.lastName].filter(Boolean).join(" ") || u.email;
+        const initials = displayName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-accent)" }}>{initials}</span>
+            </div>
+            <div>
+              <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0, lineHeight: 1.2 }}>{displayName}</p>
+              {displayName !== u.email && (
+                <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0" }}>{u.email}</p>
+              )}
+            </div>
+          </div>
+        );
+      }
+    },
+    {
+      header: "Role",
+      render: (u) => <RoleBadge role={u.role} />
+    },
+    {
+      header: "Status",
+      render: (u) => <StatusBadge status={u.accountStatus} />
+    },
+    {
+      header: "Joined",
+      render: (u) => new Date(u.createdAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" }),
+      style: { whiteSpace: "nowrap" }
+    },
+    {
+      header: "Actions",
+      render: (u) => (
+        <UserActionsCell user={u} onStatusChange={handleStatusChange} onRoleChange={handleRoleChange} />
+      )
+    }
+  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
 
@@ -339,17 +352,11 @@ export function AllUsersPage() {
 
       {/* Table */}
       <div style={{ background: "var(--color-card-bg)", border: "1px solid var(--color-card-border)", borderRadius: "var(--radius-lg)", overflow: "hidden", boxShadow: "var(--color-card-shadow)" }}>
-        {isLoading ? (
-          <div style={{ padding: "48px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-            <div style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid var(--color-border)", borderTopColor: "var(--color-accent)", animation: "spin 0.7s linear infinite" }} />
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>Loading...</span>
-          </div>
-        ) : error ? (
+        {error ? (
           <div style={{ padding: "48px", textAlign: "center" }}>
             <p style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{error}</p>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : filtered.length === 0 && !isLoading ? (
           <div style={{ padding: "56px", textAlign: "center" }}>
             <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 4px" }}>No users yet</p>
             <p style={{ fontSize: "13px", color: "var(--color-text-muted)", margin: "0 0 20px" }}>Invite users to get started</p>
@@ -358,22 +365,24 @@ export function AllUsersPage() {
             </button>
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
-                {["User", "Role", "Status", "Joined", "Actions"].map((h) => (
-                  <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((u) => (
-                <UserRow key={u.id} user={u} onStatusChange={handleStatusChange} onRoleChange={handleRoleChange} />
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            data={filtered}
+            columns={columns}
+            loading={isLoading}
+            searchPlaceholder="Search users by name or email..."
+            searchKeys={["displayName", "firstName", "lastName", "email"]}
+            filterOptions={[
+              {
+                label: "Status",
+                key: "accountStatus",
+                options: [
+                  { label: "Active", value: "ACTIVE" },
+                  { label: "Pending", value: "PENDING" },
+                  { label: "Suspended", value: "SUSPENDED" },
+                ],
+              },
+            ]}
+          />
         )}
       </div>
 

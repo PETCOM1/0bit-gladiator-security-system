@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { managerService } from "@/features/manager/services/manager.service";
-import { MapPin, Users, ShieldAlert, Contact, Calendar, Activity, Info, ArrowLeft } from "lucide-react";
+import { MapPin, Users, ShieldAlert, Contact, Calendar, Info, ArrowLeft, Plus, CheckCircle2 } from "lucide-react";
 
 interface Props {
   siteId: string;
@@ -14,7 +14,9 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
   const router = useRouter();
   const [site, setSite] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "incidents" | "visitors" | "personnel" | "shifts">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "incidents" | "visitors" | "personnel" | "shifts" | "posts">("overview");
+  const [newPostName, setNewPostName] = useState("");
+  const [isAddingPost, setIsAddingPost] = useState(false);
 
   useEffect(() => {
     const fetchSite = async () => {
@@ -31,19 +33,82 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
     if (siteId) fetchSite();
   }, [siteId]);
 
-  if (loading) return <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading site profile...</div>;
-  if (!site) return <div style={{ padding: "40px", textAlign: "center", color: "var(--color-danger)" }}>Site not found or access denied.</div>;
+  if (loading) {
+    return (
+      <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", gap: "12px", padding: "80px", color: "var(--color-text-muted)" }}>
+        <div style={{ width: "16px", height: "16px", border: "2px solid var(--color-border)", borderTopColor: "var(--color-accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <span style={{ fontSize: "14px" }}>Loading site profile...</span>
+      </div>
+    );
+  }
+
+  if (!site) {
+    return (
+      <div style={{ padding: "40px", textAlign: "center", color: "var(--color-danger)", fontWeight: 600 }}>
+        Site not found or access denied.
+      </div>
+    );
+  }
 
   const tabs = [
-    { id: "overview", label: "Overview", icon: <Info size={16} /> },
-    { id: "incidents", label: "Occurrence Book", icon: <ShieldAlert size={16} /> },
-    { id: "visitors", label: "Visitor Book", icon: <Contact size={16} /> },
-    { id: "personnel", label: "Personnel", icon: <Users size={16} /> },
-    { id: "shifts", label: "Shifts", icon: <Calendar size={16} /> }
+    { id: "overview", label: "Overview", icon: <Info size={15} /> },
+    { id: "incidents", label: "Occurrence Book", icon: <ShieldAlert size={15} /> },
+    { id: "visitors", label: "Visitor Book", icon: <Contact size={15} /> },
+    { id: "personnel", label: "Personnel", icon: <Users size={15} /> },
+    { id: "shifts", label: "Shifts", icon: <Calendar size={15} /> },
+    { id: "posts", label: "Posts", icon: <MapPin size={15} /> }
   ] as const;
 
+  const handleAddPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPostName.trim()) return;
+    try {
+      await managerService.createPost({ name: newPostName, siteId });
+      setNewPostName("");
+      setIsAddingPost(false);
+      // Refresh site data
+      const res = await managerService.getSiteById(siteId);
+      setSite(res.data.data.site);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const cardStyle = {
+    background: "var(--color-card-bg)",
+    borderRadius: "var(--radius-xl)",
+    border: "1px solid var(--color-card-border)",
+    boxShadow: "var(--color-card-shadow)",
+    overflow: "hidden"
+  };
+
+  const statCardStyle: React.CSSProperties = {
+    background: "var(--color-card-bg)",
+    border: "1px solid var(--color-card-border)",
+    borderRadius: "var(--radius-lg)",
+    boxShadow: "var(--color-card-shadow)",
+    padding: "20px 24px",
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    transition: "transform var(--transition-base), border-color var(--transition-base)",
+    cursor: "default"
+  };
+
+  const iconWrapperStyle = (bg: string, color: string) => ({
+    background: bg,
+    color: color,
+    width: "40px",
+    height: "40px",
+    borderRadius: "var(--radius-md)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0
+  });
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
       
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -51,82 +116,132 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
           <button 
             onClick={() => router.back()}
             style={{ 
-              display: "flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", 
+              display: "flex", alignItems: "center", justifyContent: "center", width: "36px", height: "36px", 
               background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", 
               borderRadius: "var(--radius-md)", cursor: "pointer", color: "var(--color-text-secondary)",
               transition: "all var(--transition-fast)" 
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = "var(--color-border)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+            onMouseEnter={e => { e.currentTarget.style.background = "var(--color-border)"; e.currentTarget.style.color = "var(--color-text-primary)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; e.currentTarget.style.color = "var(--color-text-secondary)"; }}
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
           </button>
         )}
         <div>
-          <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px", margin: 0 }}>
-            <MapPin size={28} color="var(--color-accent)" /> {site.name}
+          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px", margin: 0 }}>
+            <MapPin size={24} color="var(--color-accent)" /> {site.name}
           </h1>
-          <p style={{ fontSize: "15px", color: "var(--color-text-muted)", marginTop: "6px", marginBottom: 0 }}>
+          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px", marginBottom: 0 }}>
             {site.address || "No address provided"}
           </p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", gap: "8px", borderBottom: "1px solid var(--color-border)", paddingBottom: "12px", overflowX: "auto" }}>
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              display: "flex", alignItems: "center", gap: "8px", padding: "8px 16px",
-              background: activeTab === tab.id ? "var(--color-sidebar-item-active-bg)" : "transparent",
-              color: activeTab === tab.id ? "var(--color-sidebar-text-active)" : "var(--color-text-secondary)",
-              border: "none", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: activeTab === tab.id ? 600 : 500,
-              cursor: "pointer", transition: "all var(--transition-fast)", whiteSpace: "nowrap"
-            }}
-          >
-            {tab.icon} {tab.label}
-          </button>
-        ))}
+      {/* Tabs Selector Strip */}
+      <div style={{ display: "flex", gap: "4px", borderBottom: "1px solid var(--color-border)", paddingBottom: "1px", overflowX: "auto" }}>
+        {tabs.map(tab => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px",
+                background: "transparent",
+                color: isActive ? "var(--color-accent)" : "var(--color-text-secondary)",
+                border: "none", 
+                borderBottom: isActive ? "2px solid var(--color-accent)" : "2px solid transparent",
+                fontSize: "13.5px", 
+                fontWeight: isActive ? 600 : 500,
+                cursor: "pointer", 
+                transition: "all var(--transition-fast)", 
+                whiteSpace: "nowrap",
+                position: "relative",
+                bottom: "-1px"
+              }}
+            >
+              {tab.icon} {tab.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Content */}
-      <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
+      {/* Viewport Card System */}
+      <div style={cardStyle}>
         
+        {/* TAB: OVERVIEW */}
         {activeTab === "overview" && (
           <div style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "32px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "24px" }}>
-              <div style={{ background: "var(--color-bg-subtle)", padding: "20px", borderRadius: "var(--radius-lg)" }}>
-                <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "8px" }}>Total Personnel</p>
-                <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.users?.length || 0}</h2>
+            
+            {/* Overview Stats Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "24px" }}>
+              <div 
+                style={statCardStyle}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "var(--color-accent)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "var(--color-card-border)"; }}
+              >
+                <div style={iconWrapperStyle("var(--color-accent-subtle)", "var(--color-accent)")}><Users size={20} /></div>
+                <div>
+                  <p style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 2px 0" }}>Total Personnel</p>
+                  <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.users?.length || 0}</h2>
+                </div>
               </div>
-              <div style={{ background: "var(--color-bg-subtle)", padding: "20px", borderRadius: "var(--radius-lg)" }}>
-                <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "8px" }}>Total Incidents</p>
-                <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.incidents?.length || 0}</h2>
+              <div 
+                style={statCardStyle}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "var(--color-danger)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "var(--color-card-border)"; }}
+              >
+                <div style={iconWrapperStyle("var(--color-danger-subtle)", "var(--color-danger)")}><ShieldAlert size={20} /></div>
+                <div>
+                  <p style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 2px 0" }}>Total Incidents</p>
+                  <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.incidents?.length || 0}</h2>
+                </div>
               </div>
-              <div style={{ background: "var(--color-bg-subtle)", padding: "20px", borderRadius: "var(--radius-lg)" }}>
-                <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "8px" }}>Total Visitors</p>
-                <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.visitors?.length || 0}</h2>
+              <div 
+                style={statCardStyle}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "var(--color-success)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "var(--color-card-border)"; }}
+              >
+                <div style={iconWrapperStyle("var(--color-success-subtle)", "var(--color-success)")}><Contact size={20} /></div>
+                <div>
+                  <p style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 2px 0" }}>Total Visitors</p>
+                  <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>{site.visitors?.length || 0}</h2>
+                </div>
               </div>
             </div>
 
+            {/* Coverage Grid */}
             <div>
-              <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "16px" }}>Live Site Coverage</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "16px" }}>
+              <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "16px" }}>Live Site Coverage</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
                 {site.posts?.length === 0 ? (
-                  <div style={{ padding: "20px", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-lg)", color: "var(--color-text-muted)", textAlign: "center" }}>No posts configured.</div>
+                  <div style={{ padding: "32px", background: "var(--color-bg-subtle)", border: "1px dashed var(--color-border)", borderRadius: "var(--radius-lg)", color: "var(--color-text-muted)", textAlign: "center", gridColumn: "1 / -1", fontSize: "13.5px" }}>No posts configured.</div>
                 ) : site.posts?.map((post: any) => {
                   const activeShift = site.shifts?.find((s: any) => s.status === "IN_PROGRESS" && s.postId === post.id);
                   return (
-                    <div key={post.id} style={{ padding: "16px", borderRadius: "var(--radius-lg)", border: "1px solid var(--color-border)", background: activeShift ? "var(--color-success-subtle)" : "var(--color-danger-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div 
+                      key={post.id} 
+                      style={{ 
+                        padding: "18px 20px", 
+                        borderRadius: "var(--radius-lg)", 
+                        border: "1px solid var(--color-border)", 
+                        background: activeShift ? "var(--color-success-subtle)" : "var(--color-danger-subtle)", 
+                        display: "flex", 
+                        justifyContent: "space-between", 
+                        alignItems: "center",
+                        transition: "transform var(--transition-base)",
+                        cursor: "default"
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
+                    >
                       <div>
-                        <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)" }}>{post.name}</h4>
-                        <p style={{ margin: 0, fontSize: "13px", color: activeShift ? "var(--color-success)" : "var(--color-danger)", fontWeight: 500, marginTop: "4px" }}>
-                          {activeShift ? `Covered by ${activeShift.user?.firstName}` : "Unmanned"}
+                        <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>{post.name}</h4>
+                        <p style={{ margin: 0, fontSize: "12.5px", color: activeShift ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600, marginTop: "4px" }}>
+                          {activeShift ? `Covered: ${activeShift.user?.firstName}` : "Unmanned"}
                         </p>
                       </div>
-                      <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: activeShift ? "var(--color-success)" : "var(--color-danger)" }} />
+                      <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: activeShift ? "var(--color-success)" : "var(--color-danger)", boxShadow: activeShift ? "0 0 8px var(--color-success)" : "0 0 8px var(--color-danger)" }} />
                     </div>
                   );
                 })}
@@ -135,36 +250,48 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
           </div>
         )}
 
+        {/* TAB: OCCURRENCE BOOK */}
         {activeTab === "incidents" && (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
               <thead style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
                 <tr>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Date</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Incident</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Severity</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Status</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Reported By</th>
+                  {["Date", "Incident", "Severity", "Status", "Reported By"].map(h => (
+                    <th key={h} style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {site.incidents.length === 0 ? (
-                  <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>No incidents recorded.</td></tr>
+                  <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13.5px" }}>No incidents recorded.</td></tr>
                 ) : site.incidents.map((inc: any, i: number) => (
-                  <tr key={inc.id} style={{ borderBottom: i < site.incidents.length - 1 ? "1px solid var(--color-border)" : "none" }}>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 500 }}>{new Date(inc.createdAt).toLocaleString()}</td>
+                  <tr 
+                    key={inc.id} 
+                    style={{ borderBottom: i < site.incidents.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <td style={{ padding: "16px 24px", fontSize: "13.5px", fontWeight: 500, color: "var(--color-text-secondary)" }}>{new Date(inc.createdAt).toLocaleString()}</td>
                     <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }}>{inc.title}</td>
                     <td style={{ padding: "16px 24px" }}>
-                      <span style={{ padding: "4px 8px", borderRadius: "12px", fontSize: "11px", fontWeight: 700, background: inc.severity === "CRITICAL" ? "var(--color-danger-subtle)" : "var(--color-warning-subtle)", color: inc.severity === "CRITICAL" ? "var(--color-danger)" : "var(--color-warning)" }}>
+                      <span style={{ 
+                        padding: "3px 8px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700, 
+                        background: inc.severity === "CRITICAL" ? "var(--color-danger-subtle)" : "var(--color-warning-subtle)", 
+                        color: inc.severity === "CRITICAL" ? "var(--color-danger)" : "var(--color-warning)" 
+                      }}>
                         {inc.severity}
                       </span>
                     </td>
                     <td style={{ padding: "16px 24px" }}>
-                      <span style={{ padding: "4px 8px", borderRadius: "12px", fontSize: "11px", fontWeight: 700, background: inc.status === "RESOLVED" ? "var(--color-success-subtle)" : "var(--color-bg-subtle)", color: inc.status === "RESOLVED" ? "var(--color-success)" : "var(--color-text-secondary)" }}>
+                      <span style={{ 
+                        padding: "3px 8px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700, 
+                        background: inc.status === "RESOLVED" ? "var(--color-success-subtle)" : "var(--color-bg-subtle)", 
+                        color: inc.status === "RESOLVED" ? "var(--color-success)" : "var(--color-text-secondary)" 
+                      }}>
                         {inc.status}
                       </span>
                     </td>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", color: "var(--color-text-muted)" }}>{inc.reportedBy?.firstName || "-"} {inc.reportedBy?.lastName || ""}</td>
+                    <td style={{ padding: "16px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>{inc.reportedBy?.firstName || "-"} {inc.reportedBy?.lastName || ""}</td>
                   </tr>
                 ))}
               </tbody>
@@ -172,28 +299,34 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
           </div>
         )}
 
+        {/* TAB: VISITOR BOOK */}
         {activeTab === "visitors" && (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
               <thead style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
                 <tr>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Name</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Company</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Host</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Check In</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Check Out</th>
+                  {["Name", "Company", "Host", "Check In", "Check Out"].map(h => (
+                    <th key={h} style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {site.visitors.length === 0 ? (
-                  <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>No visitors recorded.</td></tr>
+                  <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13.5px" }}>No visitors recorded.</td></tr>
                 ) : site.visitors.map((v: any, i: number) => (
-                  <tr key={v.id} style={{ borderBottom: i < site.visitors.length - 1 ? "1px solid var(--color-border)" : "none" }}>
+                  <tr 
+                    key={v.id} 
+                    style={{ borderBottom: i < site.visitors.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                  >
                     <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }}>{v.name}</td>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", color: "var(--color-text-muted)" }}>{v.company || "-"}</td>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", color: "var(--color-text-muted)" }}>{v.hostName || "-"}</td>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 500 }}>{new Date(v.checkInTime).toLocaleString()}</td>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 500, color: v.checkOutTime ? "var(--color-text-primary)" : "var(--color-warning)" }}>{v.checkOutTime ? new Date(v.checkOutTime).toLocaleString() : "Active"}</td>
+                    <td style={{ padding: "16px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>{v.company || "—"}</td>
+                    <td style={{ padding: "16px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>{v.hostName || "—"}</td>
+                    <td style={{ padding: "16px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)", fontWeight: 500 }}>{new Date(v.checkInTime).toLocaleString()}</td>
+                    <td style={{ padding: "16px 24px", fontSize: "13.5px", fontWeight: 500, color: v.checkOutTime ? "var(--color-text-secondary)" : "var(--color-accent)" }}>
+                      {v.checkOutTime ? new Date(v.checkOutTime).toLocaleString() : "Active"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -201,45 +334,84 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
           </div>
         )}
 
+        {/* TAB: PERSONNEL */}
         {activeTab === "personnel" && (
-          <div style={{ padding: "16px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "16px" }}>
+          <div style={{ padding: "24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
             {site.users.length === 0 ? (
-              <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", gridColumn: "1 / -1" }}>No personnel assigned to this site.</div>
+              <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", gridColumn: "1 / -1", fontSize: "13.5px" }}>No personnel assigned to this site.</div>
             ) : site.users.map((u: any) => (
-              <div key={u.id} style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", display: "flex", alignItems: "center", gap: "12px", background: "var(--color-bg-subtle)" }}>
-                <div style={{ width: "40px", height: "40px", borderRadius: "20px", background: "var(--color-accent-subtle)", color: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "14px" }}>
-                  {u.firstName?.[0] || ""}{u.lastName?.[0] || ""}
+              <div 
+                key={u.id} 
+                style={{ 
+                  padding: "16px 20px", 
+                  border: "1px solid var(--color-border)", 
+                  borderRadius: "var(--radius-xl)", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: "16px", 
+                  background: "var(--color-card-bg)",
+                  transition: "transform var(--transition-base)",
+                  cursor: "default"
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
+              >
+                <div style={{ 
+                  width: "40px", 
+                  height: "40px", 
+                  borderRadius: "50%", 
+                  background: "var(--color-accent-subtle)", 
+                  color: "var(--color-accent)", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center", 
+                  fontWeight: 700, 
+                  fontSize: "12px",
+                  border: "1px solid var(--color-accent-border)"
+                }}>
+                  {(u.firstName?.[0] || "") + (u.lastName?.[0] || "")}
                 </div>
                 <div>
-                  <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)" }}>{u.firstName} {u.lastName}</h4>
-                  <p style={{ margin: 0, fontSize: "13px", color: "var(--color-text-muted)" }}>{u.role}</p>
+                  <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>{u.firstName} {u.lastName}</h4>
+                  <p style={{ margin: 0, fontSize: "12.5px", color: "var(--color-text-muted)", marginTop: "2px" }}>{u.role}</p>
                 </div>
               </div>
             ))}
           </div>
         )}
 
+        {/* TAB: SHIFTS */}
         {activeTab === "shifts" && (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
               <thead style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
                 <tr>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Personnel</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Start Time</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>End Time</th>
-                  <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Status</th>
+                  {["Personnel", "Start Time", "End Time", "Status"].map(h => (
+                    <th key={h} style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {site.shifts.length === 0 ? (
-                  <tr><td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>No shifts scheduled.</td></tr>
+                  <tr><td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13.5px" }}>No shifts scheduled.</td></tr>
                 ) : site.shifts.map((s: any, i: number) => (
-                  <tr key={s.id} style={{ borderBottom: i < site.shifts.length - 1 ? "1px solid var(--color-border)" : "none" }}>
+                  <tr 
+                    key={s.id} 
+                    style={{ borderBottom: i < site.shifts.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                  >
                     <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }}>{s.user?.firstName || "-"} {s.user?.lastName || ""}</td>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 500 }}>{new Date(s.startTime).toLocaleString()}</td>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 500, color: s.endTime ? "var(--color-text-primary)" : "var(--color-text-muted)" }}>{s.endTime ? new Date(s.endTime).toLocaleString() : "Active"}</td>
+                    <td style={{ padding: "16px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>{new Date(s.startTime).toLocaleString()}</td>
+                    <td style={{ padding: "16px 24px", fontSize: "13.5px", color: s.endTime ? "var(--color-text-secondary)" : "var(--color-accent)", fontWeight: s.endTime ? 400 : 500 }}>
+                      {s.endTime ? new Date(s.endTime).toLocaleString() : "Active"}
+                    </td>
                     <td style={{ padding: "16px 24px" }}>
-                      <span style={{ padding: "4px 8px", borderRadius: "12px", fontSize: "11px", fontWeight: 700, background: s.status === "COMPLETED" ? "var(--color-success-subtle)" : "var(--color-bg-subtle)", color: s.status === "COMPLETED" ? "var(--color-success)" : "var(--color-text-secondary)" }}>
+                      <span style={{ 
+                        padding: "3px 8px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700, 
+                        background: s.status === "COMPLETED" ? "var(--color-success-subtle)" : "var(--color-bg-subtle)", 
+                        color: s.status === "COMPLETED" ? "var(--color-success)" : "var(--color-text-secondary)" 
+                      }}>
                         {s.status}
                       </span>
                     </td>
@@ -247,6 +419,121 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* TAB: POSTS */}
+        {activeTab === "posts" && (
+          <div style={{ padding: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Site Guard Posts</h3>
+              <button 
+                onClick={() => setIsAddingPost(!isAddingPost)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px",
+                  background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)",
+                  fontSize: "13.5px", fontWeight: 600, cursor: "pointer", transition: "opacity var(--transition-fast)",
+                  boxShadow: "0 4px 12px rgba(245, 158, 11, 0.25)"
+                }}
+                onMouseEnter={e => e.currentTarget.style.opacity = "0.9"}
+                onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+              >
+                <Plus size={16} /> Add Post
+              </button>
+            </div>
+
+            {/* Add Post Form */}
+            {isAddingPost && (
+              <form onSubmit={handleAddPost} className="glass-panel" style={{ display: "flex", gap: "12px", marginBottom: "24px", padding: "20px", borderRadius: "var(--radius-xl)" }}>
+                <input
+                  type="text"
+                  placeholder="Post Name (e.g. Main Gate)"
+                  value={newPostName}
+                  onChange={e => setNewPostName(e.target.value)}
+                  style={{
+                    flex: 1, padding: "10px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)",
+                    background: "var(--color-bg-subtle)", color: "var(--color-text-primary)", fontSize: "13.5px",
+                    outline: "none"
+                  }}
+                  autoFocus
+                />
+                <button 
+                  type="submit"
+                  disabled={!newPostName.trim()}
+                  style={{
+                    padding: "10px 20px", background: newPostName.trim() ? "var(--color-accent)" : "var(--color-bg-subtle)",
+                    color: newPostName.trim() ? "var(--color-accent-text)" : "var(--color-text-muted)", border: "none", borderRadius: "var(--radius-md)",
+                    fontSize: "13.5px", fontWeight: 600, cursor: newPostName.trim() ? "pointer" : "not-allowed"
+                  }}
+                >
+                  Save
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => { setIsAddingPost(false); setNewPostName(""); }}
+                  style={{
+                    padding: "10px 20px", background: "transparent", color: "var(--color-text-secondary)", border: "1px solid var(--color-border)", 
+                    borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600, cursor: "pointer"
+                  }}
+                >
+                  Cancel
+                </button>
+              </form>
+            )}
+
+            {/* Posts Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
+              {site.posts?.length === 0 && !isAddingPost ? (
+                <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", gridColumn: "1 / -1", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-lg)", border: "1px dashed var(--color-border)", fontSize: "13.5px" }}>
+                  No posts configured for this site.
+                </div>
+              ) : site.posts?.map((post: any) => {
+                const activeShift = site.shifts?.find((s: any) => s.status === "IN_PROGRESS" && s.postId === post.id);
+                return (
+                  <div 
+                    key={post.id} 
+                    style={{ 
+                      padding: "20px", 
+                      border: "1px solid var(--color-border)", 
+                      borderRadius: "var(--radius-xl)", 
+                      background: "var(--color-card-bg)", 
+                      display: "flex", 
+                      flexDirection: "column", 
+                      gap: "12px", 
+                      boxShadow: "var(--color-card-shadow)",
+                      transition: "transform var(--transition-base)",
+                      cursor: "default"
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)" }}>{post.name}</h4>
+                      <span style={{ 
+                        padding: "3px 8px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700, 
+                        background: activeShift ? "var(--color-success-subtle)" : "var(--color-danger-subtle)", 
+                        color: activeShift ? "var(--color-success)" : "var(--color-danger)" 
+                      }}>
+                        {activeShift ? "MANNED" : "UNMANNED"}
+                      </span>
+                    </div>
+                    {activeShift && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                        <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--color-accent-subtle)", color: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "10px", border: "1px solid var(--color-accent-border)" }}>
+                          {(activeShift.user?.firstName?.[0] || "") + (activeShift.user?.lastName?.[0] || "")}
+                        </div>
+                        <p style={{ margin: 0, fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                          {activeShift.user?.firstName} {activeShift.user?.lastName}
+                        </p>
+                      </div>
+                    )}
+                    <p style={{ margin: 0, fontSize: "12px", color: "var(--color-text-muted)", marginTop: "auto", paddingTop: "8px", borderTop: "1px solid var(--color-border)" }}>
+                      Created {new Date(post.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 

@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM   = `${process.env.EMAIL_FROM_NAME || "The 0-Bit Platform Team"} <${process.env.SENDER_EMAIL || "noreply@phoque-orbit.co.za"}>`;
-const APP    = process.env.APP_NAME || "My App";
+const APP    = process.env.APP_NAME || "Gladiator Pro";
 
 async function send(payload: Parameters<typeof resend.emails.send>[0]) {
   const { data, error } = await resend.emails.send(payload);

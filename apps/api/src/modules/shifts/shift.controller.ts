@@ -75,8 +75,16 @@ export const getTenantShifts = catchAsync(async (req: Request, res: Response) =>
   
   if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
 
+  let whereClause: any = { tenantId };
+  if (siteId) {
+    whereClause.siteId = siteId;
+  }
+  if (req.user!.role === Role.USER) {
+    whereClause.userId = req.user!.userId;
+  }
+
   const shifts = await prisma.shift.findMany({
-    where: { tenantId, ...(siteId && { siteId }) },
+    where: whereClause,
     orderBy: { startTime: 'desc' },
     include: { 
       user: { select: { firstName: true, lastName: true, email: true, avatarUrl: true } }, 

@@ -89,12 +89,35 @@ export default function TenantSupportPage() {
     return matchSearch && matchStatus;
   });
 
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 12px",
+    background: "var(--color-bg-subtle)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    fontSize: "14px",
+    color: "var(--color-text-primary)",
+    outline: "none",
+    boxSizing: "border-box" as const,
+    transition: "border-color var(--transition-fast)"
+  };
+
+  const labelStyle = {
+    display: "block",
+    fontSize: "12px",
+    fontWeight: 600,
+    color: "var(--color-text-secondary)",
+    marginBottom: "6px",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.05em"
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", height: "100%", maxWidth: "1200px", margin: "0 auto", width: "100%", padding: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%", height: "100%" }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
             Help & Support
           </h1>
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
@@ -103,7 +126,9 @@ export default function TenantSupportPage() {
         </div>
         <button
           onClick={() => setIsCreating(true)}
-          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", background: "var(--color-accent)", border: "none", borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600, color: "var(--color-accent-text)", cursor: "pointer", transition: "background var(--transition-fast)" }}
+          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", background: "var(--color-accent)", border: "none", borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600, color: "var(--color-accent-text)", cursor: "pointer", transition: "opacity var(--transition-fast)" }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
         >
           <Plus size={15} strokeWidth={2} /> New Ticket
         </button>
@@ -112,14 +137,12 @@ export default function TenantSupportPage() {
       <div style={{ display: "flex", gap: "24px", flex: 1, minHeight: 0 }}>
         {/* Ticket List */}
         <div style={{ width: "350px", display: "flex", flexDirection: "column", background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden", flexShrink: 0 }}>
-          <div style={{ padding: "16px", borderBottom: "1px solid var(--color-border)" }}>
-            <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
-              <div style={{ position: "relative", flex: 1 }}>
-                <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
-                <input type="text" placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={{ width: "100%", padding: "8px 12px 8px 30px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "13px", color: "var(--color-text-primary)", outline: "none" }} />
-              </div>
+          <div style={{ padding: "16px", borderBottom: "1px solid var(--color-border)", display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div style={{ position: "relative" }}>
+              <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
+              <input type="text" placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={{ ...inputStyle, paddingLeft: "30px" }} />
             </div>
-            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ width: "100%", padding: "8px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "13px", color: "var(--color-text-primary)", outline: "none" }}>
+            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={inputStyle}>
               <option value="ALL">All Statuses</option>
               <option value="OPEN">Open</option>
               <option value="WAITING_ON_CUSTOMER">Waiting on Customer</option>
@@ -135,7 +158,7 @@ export default function TenantSupportPage() {
               <div style={{ padding: "24px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px" }}>No tickets found.</div>
             ) : (
               filteredTickets.map(t => (
-                <div key={t.id} onClick={() => fetchTicketDetails(t.id)} style={{ padding: "16px", borderBottom: "1px solid var(--color-border)", cursor: "pointer", background: selectedTicket?.id === t.id ? "var(--color-bg-subtle)" : "transparent", transition: "background var(--transition-fast)" }}>
+                <div key={t.id} onClick={() => fetchTicketDetails(t.id)} style={{ padding: "16px", borderBottom: "1px solid var(--color-border)", cursor: "pointer", background: selectedTicket?.id === t.id ? "var(--color-bg-subtle)" : "transparent", transition: "background var(--transition-fast)" }} onMouseEnter={e => { if (selectedTicket?.id !== t.id) e.currentTarget.style.background = "var(--color-bg-subtle)"; }} onMouseLeave={e => { if (selectedTicket?.id !== t.id) e.currentTarget.style.background = "transparent"; }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
                     <span style={{ fontSize: "11px", fontWeight: 700, color: t.status === "OPEN" ? "var(--color-danger)" : t.status === "CLOSED" ? "var(--color-text-muted)" : "var(--color-warning)", background: t.status === "OPEN" ? "var(--color-danger-subtle)" : t.status === "CLOSED" ? "var(--color-bg-subtle)" : "var(--color-warning-subtle)", padding: "2px 6px", borderRadius: "4px" }}>
                       {t.status.replace(/_/g, " ")}
@@ -162,7 +185,7 @@ export default function TenantSupportPage() {
                   </div>
                 </div>
                 {selectedTicket.status !== "CLOSED" && selectedTicket.status !== "RESOLVED" && (
-                  <button onClick={closeTicket} style={{ padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)", cursor: "pointer" }}>
+                  <button onClick={closeTicket} style={{ padding: "8px 16px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)", cursor: "pointer", transition: "background var(--transition-fast)" }} onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }} onMouseLeave={e => { e.currentTarget.style.background = "var(--color-card-bg)"; }}>
                     Mark as Resolved
                   </button>
                 )}
@@ -194,10 +217,10 @@ export default function TenantSupportPage() {
                       value={replyContent} 
                       onChange={e => setReplyContent(e.target.value)}
                       placeholder="Type your reply here..." 
-                      style={{ width: "100%", minHeight: "100px", padding: "12px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", fontSize: "14px", color: "var(--color-text-primary)", outline: "none", resize: "vertical" }} 
+                      style={{ ...inputStyle, minHeight: "100px", resize: "vertical" }} 
                     />
                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                      <button type="submit" disabled={!replyContent.trim()} style={{ padding: "8px 24px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: 600, cursor: replyContent.trim() ? "pointer" : "not-allowed", opacity: replyContent.trim() ? 1 : 0.6, display: "flex", alignItems: "center", gap: "8px" }}>
+                      <button type="submit" disabled={!replyContent.trim()} style={{ padding: "8px 24px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: 600, cursor: replyContent.trim() ? "pointer" : "not-allowed", opacity: replyContent.trim() ? 1 : 0.6, display: "flex", alignItems: "center", gap: "8px", transition: "opacity var(--transition-fast)" }} onMouseEnter={e => { if (replyContent.trim()) e.currentTarget.style.opacity = "0.9"; }} onMouseLeave={e => { if (replyContent.trim()) e.currentTarget.style.opacity = "1"; }}>
                         <MessageSquare size={16} /> Send Reply
                       </button>
                     </div>
@@ -216,20 +239,20 @@ export default function TenantSupportPage() {
 
       {/* Create Ticket Modal */}
       {isCreating && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", width: "100%", maxWidth: "500px", boxShadow: "0 24px 64px rgba(0,0,0,0.3)" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", width: "100%", maxWidth: "500px", boxShadow: "0 24px 64px rgba(0,0,0,0.4)", border: "1px solid var(--color-border)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
               <h2 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Create Support Ticket</h2>
               <button onClick={() => setIsCreating(false)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--color-text-muted)" }}><X size={20} /></button>
             </div>
             <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "6px" }}>Subject <span style={{color: "var(--color-danger)"}}>*</span></label>
-                <input required type="text" value={newTicket.subject} onChange={e => setNewTicket({...newTicket, subject: e.target.value})} style={{ width: "100%", padding: "10px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "14px", color: "var(--color-text-primary)", outline: "none" }} placeholder="Brief description of the issue" />
+                <label style={labelStyle}>Subject <span style={{color: "var(--color-danger)"}}>*</span></label>
+                <input required type="text" value={newTicket.subject} onChange={e => setNewTicket({...newTicket, subject: e.target.value})} style={inputStyle} placeholder="Brief description of the issue" />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "6px" }}>Priority</label>
-                <select value={newTicket.priority} onChange={e => setNewTicket({...newTicket, priority: e.target.value})} style={{ width: "100%", padding: "10px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "14px", color: "var(--color-text-primary)", outline: "none" }}>
+                <label style={labelStyle}>Priority</label>
+                <select value={newTicket.priority} onChange={e => setNewTicket({...newTicket, priority: e.target.value})} style={inputStyle}>
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
                   <option value="HIGH">High</option>
@@ -237,11 +260,11 @@ export default function TenantSupportPage() {
                 </select>
               </div>
               <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "6px" }}>Description <span style={{color: "var(--color-danger)"}}>*</span></label>
-                <textarea required value={newTicket.description} onChange={e => setNewTicket({...newTicket, description: e.target.value})} style={{ width: "100%", minHeight: "120px", padding: "10px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "14px", color: "var(--color-text-primary)", outline: "none", resize: "vertical" }} placeholder="Please provide details about your issue..." />
+                <label style={labelStyle}>Description <span style={{color: "var(--color-danger)"}}>*</span></label>
+                <textarea required value={newTicket.description} onChange={e => setNewTicket({...newTicket, description: e.target.value})} style={{ ...inputStyle, minHeight: "120px", resize: "vertical" }} placeholder="Please provide details about your issue..." />
               </div>
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "8px" }}>
-                <button type="button" onClick={() => setIsCreating(false)} style={{ padding: "10px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)", cursor: "pointer" }}>Cancel</button>
+                <button type="button" onClick={() => setIsCreating(false)} style={{ padding: "10px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)", cursor: "pointer", transition: "background var(--transition-fast)" }} onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}>Cancel</button>
                 <button type="submit" disabled={isSubmitting || !newTicket.subject || !newTicket.description} style={{ padding: "10px 24px", background: "var(--color-accent)", border: "none", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: 600, color: "var(--color-accent-text)", cursor: isSubmitting ? "not-allowed" : "pointer", opacity: isSubmitting ? 0.7 : 1 }}>
                   {isSubmitting ? "Creating..." : "Submit Ticket"}
                 </button>

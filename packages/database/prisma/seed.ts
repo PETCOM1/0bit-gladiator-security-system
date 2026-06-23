@@ -9,7 +9,7 @@ async function main() {
   // 1. Create a Platform Admin
   await prisma.user.upsert({
     where: { email: "admin@example.com" },
-    update: {},
+    update: { role: "ADMIN" },
     create: {
       email: "admin@example.com",
       password: passwordHash,
@@ -28,7 +28,7 @@ async function main() {
     update: {},
     create: {
       id: "mock-tenant-id",
-      name: "SecureGuard Solutions",
+      name: "Gladiator Pro",
     },
   });
 
@@ -46,7 +46,7 @@ async function main() {
   // 3. Create a Manager (Tenant Owner)
   await prisma.user.upsert({
     where: { email: "manager@example.com" },
-    update: {},
+    update: { role: "MANAGER" },
     create: {
       email: "manager@example.com",
       password: passwordHash,
@@ -63,7 +63,7 @@ async function main() {
   // 4. Create a Guard (User)
   await prisma.user.upsert({
     where: { email: "guard@example.com" },
-    update: {},
+    update: { role: "USER" },
     create: {
       email: "guard@example.com",
       password: passwordHash,

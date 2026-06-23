@@ -31,6 +31,9 @@ export type OccurrenceBookEntryMinAggregateOutputType = {
   userId: string | null
   entryText: string | null
   category: string | null
+  location: string | null
+  severity: string | null
+  image: string | null
   createdAt: Date | null
 }
 
@@ -41,6 +44,9 @@ export type OccurrenceBookEntryMaxAggregateOutputType = {
   userId: string | null
   entryText: string | null
   category: string | null
+  location: string | null
+  severity: string | null
+  image: string | null
   createdAt: Date | null
 }
 
@@ -51,6 +57,9 @@ export type OccurrenceBookEntryCountAggregateOutputType = {
   userId: number
   entryText: number
   category: number
+  location: number
+  severity: number
+  image: number
   createdAt: number
   _all: number
 }
@@ -63,6 +72,9 @@ export type OccurrenceBookEntryMinAggregateInputType = {
   userId?: true
   entryText?: true
   category?: true
+  location?: true
+  severity?: true
+  image?: true
   createdAt?: true
 }
 
@@ -73,6 +85,9 @@ export type OccurrenceBookEntryMaxAggregateInputType = {
   userId?: true
   entryText?: true
   category?: true
+  location?: true
+  severity?: true
+  image?: true
   createdAt?: true
 }
 
@@ -83,6 +98,9 @@ export type OccurrenceBookEntryCountAggregateInputType = {
   userId?: true
   entryText?: true
   category?: true
+  location?: true
+  severity?: true
+  image?: true
   createdAt?: true
   _all?: true
 }
@@ -166,6 +184,9 @@ export type OccurrenceBookEntryGroupByOutputType = {
   userId: string
   entryText: string
   category: string
+  location: string | null
+  severity: string | null
+  image: string | null
   createdAt: Date
   _count: OccurrenceBookEntryCountAggregateOutputType | null
   _min: OccurrenceBookEntryMinAggregateOutputType | null
@@ -197,6 +218,9 @@ export type OccurrenceBookEntryWhereInput = {
   userId?: Prisma.StringFilter<"OccurrenceBookEntry"> | string
   entryText?: Prisma.StringFilter<"OccurrenceBookEntry"> | string
   category?: Prisma.StringFilter<"OccurrenceBookEntry"> | string
+  location?: Prisma.StringNullableFilter<"OccurrenceBookEntry"> | string | null
+  severity?: Prisma.StringNullableFilter<"OccurrenceBookEntry"> | string | null
+  image?: Prisma.StringNullableFilter<"OccurrenceBookEntry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OccurrenceBookEntry"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   site?: Prisma.XOR<Prisma.SiteScalarRelationFilter, Prisma.SiteWhereInput>
@@ -210,6 +234,9 @@ export type OccurrenceBookEntryOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   entryText?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  location?: Prisma.SortOrderInput | Prisma.SortOrder
+  severity?: Prisma.SortOrderInput | Prisma.SortOrder
+  image?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   site?: Prisma.SiteOrderByWithRelationInput
@@ -226,6 +253,9 @@ export type OccurrenceBookEntryWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"OccurrenceBookEntry"> | string
   entryText?: Prisma.StringFilter<"OccurrenceBookEntry"> | string
   category?: Prisma.StringFilter<"OccurrenceBookEntry"> | string
+  location?: Prisma.StringNullableFilter<"OccurrenceBookEntry"> | string | null
+  severity?: Prisma.StringNullableFilter<"OccurrenceBookEntry"> | string | null
+  image?: Prisma.StringNullableFilter<"OccurrenceBookEntry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OccurrenceBookEntry"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   site?: Prisma.XOR<Prisma.SiteScalarRelationFilter, Prisma.SiteWhereInput>
@@ -239,6 +269,9 @@ export type OccurrenceBookEntryOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   entryText?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  location?: Prisma.SortOrderInput | Prisma.SortOrder
+  severity?: Prisma.SortOrderInput | Prisma.SortOrder
+  image?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.OccurrenceBookEntryCountOrderByAggregateInput
   _max?: Prisma.OccurrenceBookEntryMaxOrderByAggregateInput
@@ -255,6 +288,9 @@ export type OccurrenceBookEntryScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"OccurrenceBookEntry"> | string
   entryText?: Prisma.StringWithAggregatesFilter<"OccurrenceBookEntry"> | string
   category?: Prisma.StringWithAggregatesFilter<"OccurrenceBookEntry"> | string
+  location?: Prisma.StringNullableWithAggregatesFilter<"OccurrenceBookEntry"> | string | null
+  severity?: Prisma.StringNullableWithAggregatesFilter<"OccurrenceBookEntry"> | string | null
+  image?: Prisma.StringNullableWithAggregatesFilter<"OccurrenceBookEntry"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OccurrenceBookEntry"> | Date | string
 }
 
@@ -262,6 +298,9 @@ export type OccurrenceBookEntryCreateInput = {
   id?: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOccurrenceBooksInput
   site: Prisma.SiteCreateNestedOneWithoutOccurrenceBooksInput
@@ -275,6 +314,9 @@ export type OccurrenceBookEntryUncheckedCreateInput = {
   userId: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
 }
 
@@ -282,6 +324,9 @@ export type OccurrenceBookEntryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOccurrenceBooksNestedInput
   site?: Prisma.SiteUpdateOneRequiredWithoutOccurrenceBooksNestedInput
@@ -295,6 +340,9 @@ export type OccurrenceBookEntryUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -305,6 +353,9 @@ export type OccurrenceBookEntryCreateManyInput = {
   userId: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
 }
 
@@ -312,6 +363,9 @@ export type OccurrenceBookEntryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -322,6 +376,9 @@ export type OccurrenceBookEntryUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -342,6 +399,9 @@ export type OccurrenceBookEntryCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   entryText?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  location?: Prisma.SortOrder
+  severity?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -352,6 +412,9 @@ export type OccurrenceBookEntryMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   entryText?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  location?: Prisma.SortOrder
+  severity?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -362,6 +425,9 @@ export type OccurrenceBookEntryMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   entryText?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  location?: Prisma.SortOrder
+  severity?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -495,6 +561,9 @@ export type OccurrenceBookEntryCreateWithoutUserInput = {
   id?: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOccurrenceBooksInput
   site: Prisma.SiteCreateNestedOneWithoutOccurrenceBooksInput
@@ -506,6 +575,9 @@ export type OccurrenceBookEntryUncheckedCreateWithoutUserInput = {
   siteId: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
 }
 
@@ -545,6 +617,9 @@ export type OccurrenceBookEntryScalarWhereInput = {
   userId?: Prisma.StringFilter<"OccurrenceBookEntry"> | string
   entryText?: Prisma.StringFilter<"OccurrenceBookEntry"> | string
   category?: Prisma.StringFilter<"OccurrenceBookEntry"> | string
+  location?: Prisma.StringNullableFilter<"OccurrenceBookEntry"> | string | null
+  severity?: Prisma.StringNullableFilter<"OccurrenceBookEntry"> | string | null
+  image?: Prisma.StringNullableFilter<"OccurrenceBookEntry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OccurrenceBookEntry"> | Date | string
 }
 
@@ -552,6 +627,9 @@ export type OccurrenceBookEntryCreateWithoutTenantInput = {
   id?: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
   site: Prisma.SiteCreateNestedOneWithoutOccurrenceBooksInput
   user: Prisma.UserCreateNestedOneWithoutOccurrenceBooksInput
@@ -563,6 +641,9 @@ export type OccurrenceBookEntryUncheckedCreateWithoutTenantInput = {
   userId: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
 }
 
@@ -596,6 +677,9 @@ export type OccurrenceBookEntryCreateWithoutSiteInput = {
   id?: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOccurrenceBooksInput
   user: Prisma.UserCreateNestedOneWithoutOccurrenceBooksInput
@@ -607,6 +691,9 @@ export type OccurrenceBookEntryUncheckedCreateWithoutSiteInput = {
   userId: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
 }
 
@@ -642,6 +729,9 @@ export type OccurrenceBookEntryCreateManyUserInput = {
   siteId: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
 }
 
@@ -649,6 +739,9 @@ export type OccurrenceBookEntryUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOccurrenceBooksNestedInput
   site?: Prisma.SiteUpdateOneRequiredWithoutOccurrenceBooksNestedInput
@@ -660,6 +753,9 @@ export type OccurrenceBookEntryUncheckedUpdateWithoutUserInput = {
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -669,6 +765,9 @@ export type OccurrenceBookEntryUncheckedUpdateManyWithoutUserInput = {
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -678,6 +777,9 @@ export type OccurrenceBookEntryCreateManyTenantInput = {
   userId: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
 }
 
@@ -685,6 +787,9 @@ export type OccurrenceBookEntryUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   site?: Prisma.SiteUpdateOneRequiredWithoutOccurrenceBooksNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutOccurrenceBooksNestedInput
@@ -696,6 +801,9 @@ export type OccurrenceBookEntryUncheckedUpdateWithoutTenantInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -705,6 +813,9 @@ export type OccurrenceBookEntryUncheckedUpdateManyWithoutTenantInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -714,6 +825,9 @@ export type OccurrenceBookEntryCreateManySiteInput = {
   userId: string
   entryText: string
   category?: string
+  location?: string | null
+  severity?: string | null
+  image?: string | null
   createdAt?: Date | string
 }
 
@@ -721,6 +835,9 @@ export type OccurrenceBookEntryUpdateWithoutSiteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOccurrenceBooksNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutOccurrenceBooksNestedInput
@@ -732,6 +849,9 @@ export type OccurrenceBookEntryUncheckedUpdateWithoutSiteInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -741,6 +861,9 @@ export type OccurrenceBookEntryUncheckedUpdateManyWithoutSiteInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   entryText?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -753,6 +876,9 @@ export type OccurrenceBookEntrySelect<ExtArgs extends runtime.Types.Extensions.I
   userId?: boolean
   entryText?: boolean
   category?: boolean
+  location?: boolean
+  severity?: boolean
+  image?: boolean
   createdAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
@@ -766,6 +892,9 @@ export type OccurrenceBookEntrySelectCreateManyAndReturn<ExtArgs extends runtime
   userId?: boolean
   entryText?: boolean
   category?: boolean
+  location?: boolean
+  severity?: boolean
+  image?: boolean
   createdAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
@@ -779,6 +908,9 @@ export type OccurrenceBookEntrySelectUpdateManyAndReturn<ExtArgs extends runtime
   userId?: boolean
   entryText?: boolean
   category?: boolean
+  location?: boolean
+  severity?: boolean
+  image?: boolean
   createdAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
@@ -792,10 +924,13 @@ export type OccurrenceBookEntrySelectScalar = {
   userId?: boolean
   entryText?: boolean
   category?: boolean
+  location?: boolean
+  severity?: boolean
+  image?: boolean
   createdAt?: boolean
 }
 
-export type OccurrenceBookEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "siteId" | "userId" | "entryText" | "category" | "createdAt", ExtArgs["result"]["occurrenceBookEntry"]>
+export type OccurrenceBookEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "siteId" | "userId" | "entryText" | "category" | "location" | "severity" | "image" | "createdAt", ExtArgs["result"]["occurrenceBookEntry"]>
 export type OccurrenceBookEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
@@ -826,6 +961,9 @@ export type $OccurrenceBookEntryPayload<ExtArgs extends runtime.Types.Extensions
     userId: string
     entryText: string
     category: string
+    location: string | null
+    severity: string | null
+    image: string | null
     createdAt: Date
   }, ExtArgs["result"]["occurrenceBookEntry"]>
   composites: {}
@@ -1259,6 +1397,9 @@ export interface OccurrenceBookEntryFieldRefs {
   readonly userId: Prisma.FieldRef<"OccurrenceBookEntry", 'String'>
   readonly entryText: Prisma.FieldRef<"OccurrenceBookEntry", 'String'>
   readonly category: Prisma.FieldRef<"OccurrenceBookEntry", 'String'>
+  readonly location: Prisma.FieldRef<"OccurrenceBookEntry", 'String'>
+  readonly severity: Prisma.FieldRef<"OccurrenceBookEntry", 'String'>
+  readonly image: Prisma.FieldRef<"OccurrenceBookEntry", 'String'>
   readonly createdAt: Prisma.FieldRef<"OccurrenceBookEntry", 'DateTime'>
 }
     

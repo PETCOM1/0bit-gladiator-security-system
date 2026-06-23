@@ -13,7 +13,7 @@ export const swaggerConfig: Options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "O-Bit Agency API",
+      title: "Gladiator Pro API",
       version: "1.0.0",
       description: "Community Transformation Platform Core API",
     },
