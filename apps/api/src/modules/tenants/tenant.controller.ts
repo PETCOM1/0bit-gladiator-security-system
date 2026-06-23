@@ -6,7 +6,13 @@ import { sendInviteEmail } from "../../services/mail.service.js";
 import { AppError } from "../../utils/appError.js";
 
 export const getTenants = catchAsync(async (req: Request, res: Response) => {
-  const tenants = await prisma.tenant.findMany({ orderBy: { name: 'asc' }});
+  const tenants = await prisma.tenant.findMany({
+    orderBy: { name: 'asc' },
+    include: {
+      subscriptionTier: { select: { name: true, price: true } },
+      _count: { select: { users: true, sites: true, incidents: true } }
+    }
+  });
   res.status(HttpStatus.OK).json({ status: "success", data: { tenants } });
 });
 

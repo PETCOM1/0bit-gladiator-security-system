@@ -45,7 +45,7 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
       backgroundColor: "rgba(10, 25, 47, 0.85)",
       backdropFilter:  "blur(20px)",
       WebkitBackdropFilter: "blur(20px)",
-      borderRight:     "1px solid rgba(255, 255, 255, 0.06)",
+      borderRight:     "1px solid #e5e7eb",
       display:         "flex",
       flexDirection:   "column",
       flexShrink:      0,
@@ -104,10 +104,10 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
       {/* ── Nav items ────────────────────────────────────────────────────────── */}
       <nav style={{
         flex:          1,
-        padding:       "12px 8px",
+        padding:       "16px 10px",
         display:       "flex",
         flexDirection: "column",
-        gap:           "2px",
+        gap:           "4px",
         overflowY:     "auto",
         overflowX:     "hidden",
       }}>
@@ -126,7 +126,7 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
                 display:        "flex",
                 alignItems:     "center",
                 gap:            "10px",
-                padding:        "9px 10px",
+                padding:        "10px 12px",
                 borderRadius:   "var(--radius-md)",
                 fontSize:       "13.5px",
                 fontWeight:     isActive ? 600 : 400,
@@ -189,7 +189,7 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
             justifyContent: isOpen ? "flex-start" : "center",
             gap:            "10px",
             width:          "100%",
-            padding:        "9px 10px",
+            padding:        "10px 12px",
             borderRadius:   "var(--radius-md)",
             background:     "transparent",
             border:         "none",
@@ -208,6 +208,8 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
           }
         </button>
       </div>
-    </aside>
+    
+      
+</aside>
   );
 }

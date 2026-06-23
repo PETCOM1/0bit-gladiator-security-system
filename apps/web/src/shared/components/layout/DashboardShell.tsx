@@ -12,7 +12,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
       display:         "flex",
       height:          "100vh",
       overflow:        "hidden",
-      backgroundColor: "var(--color-bg)",
+      backgroundColor: "#f9fafb",
       backgroundImage: "radial-gradient(circle at top right, rgba(245, 158, 11, 0.05), transparent 40%), radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.03), transparent 30%)",
     }}>
       {/* LEFT COLUMN — sidebar owns full height */}
@@ -30,9 +30,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         minWidth:      0,
       }}>
         <TopNav />
-        <main 
-          className="glass-panel floating-shell animate-fade-in"
-          style={{
+        <main style={{
             flex:      1,
             overflowY: "auto",
             padding:   "32px",

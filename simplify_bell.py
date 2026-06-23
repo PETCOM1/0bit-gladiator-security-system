@@ -1,4 +1,9 @@
-"use client";
+﻿path = 'apps/web/src/shared/components/layout/NotificationBell.tsx'
+with open(path, 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# Replace entire component with a simple link to notifications page
+new_content = '''"use client";
 
 import Link from "next/link";
 import { Bell } from "lucide-react";
@@ -35,3 +40,7 @@ export default function NotificationBell() {
     </Link>
   );
 }
+'''
+with open(path, 'w', encoding='utf-8') as f:
+    f.write(new_content)
+print('NotificationBell now links directly to notifications page.')
