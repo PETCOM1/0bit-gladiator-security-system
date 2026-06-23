@@ -14,7 +14,7 @@ function Avatar({ initials, size = 32 }: { initials: string; size?: number }) {
     <div style={{
       width:           size,
       height:          size,
-      borderRadius:    "var(--radius-pill)",
+      borderRadius:    "6px",
       background:      "linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))",
       display:         "flex",
       alignItems:      "center",
@@ -50,7 +50,7 @@ function DropdownItem({
     borderRadius: "var(--radius-md)",
     fontSize:    "13.5px",
     fontWeight:  400,
-    color:       danger ? "var(--color-danger)" : "var(--color-text-secondary)",
+    color:       danger ? "#ef4444" : "#4b5563",
     background:  "transparent",
     border:      "none",
     cursor:      "pointer",
@@ -60,8 +60,8 @@ function DropdownItem({
     transition:  "background var(--transition-fast), color var(--transition-fast)",
   };
 
-  const hoverBg  = danger ? "var(--color-danger-subtle)" : "var(--color-accent-subtle)";
-  const hoverClr = danger ? "var(--color-danger)"        : "var(--color-text-primary)";
+  const hoverBg  = danger ? "#fee2e2" : "#f3f4f6";
+  const hoverClr = danger ? "#ef4444" : "#111827";
 
   const handlers = {
     onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
@@ -90,7 +90,7 @@ function DropdownItem({
 
 // ─── Divider ──────────────────────────────────────────────────────────────────
 function Divider() {
-  return <div style={{ height: "1px", background: "var(--color-border)", margin: "4px 0" }} />;
+  return <div style={{ height: "1px", background: "#e5e7eb", margin: "4px 0" }} />;
 }
 
 // ─── TOP NAV ──────────────────────────────────────────────────────────────────
@@ -134,9 +134,10 @@ export default function TopNav() {
 
   return (
     <header 
-      className="glass-navbar"
       style={{
         height:          "var(--topnav-height)",
+        background:      "#ffffff",
+        borderBottom:    "1px solid #e5e7eb",
         display:         "flex",
         alignItems:      "center",
         justifyContent:  "flex-end",
@@ -164,7 +165,7 @@ export default function TopNav() {
             alignItems:  "center",
             gap:         "8px",
             padding:     "5px 12px 5px 6px",
-            borderRadius: "var(--radius-pill)",
+            borderRadius: "6px",
             background:  dropdownOpen ? "var(--color-accent-subtle)" : "rgba(255, 255, 255, 0.03)",
             border:      dropdownOpen
               ? "1px solid var(--color-accent-border)"
@@ -212,14 +213,15 @@ export default function TopNav() {
         {/* ── Dropdown panel ──────────────────────────────────────────────── */}
         {dropdownOpen && (
           <div 
-            className="glass-panel"
             style={{
               position:    "absolute",
               top:         "calc(100% + 8px)",
               right:       0,
               minWidth:    "220px",
+              background:  "var(--color-card-bg)",
+              border:      "1px solid var(--color-card-border)",
               borderRadius: "var(--radius-xl)",
-              boxShadow:   "0 12px 40px rgba(0,0,0,0.4)",
+              boxShadow:   "var(--color-card-shadow)",
               padding:     "8px",
               zIndex:      100,
             }}
@@ -229,10 +231,10 @@ export default function TopNav() {
               padding:      "8px 12px 10px",
               marginBottom: "2px",
             }}>
-              <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+              <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827" }}>
                 {displayName}
               </div>
-              <div style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "2px" }}>
+              <div style={{ fontSize: "11px", color: "#6b7280", marginTop: "2px" }}>
                 {user?.email}
               </div>
             </div>
@@ -266,7 +268,7 @@ export default function TopNav() {
                   color:       "var(--color-accent)",
                   background:  "var(--color-accent-subtle)",
                   padding:     "2px 6px",
-                  borderRadius: "var(--radius-pill)",
+                  borderRadius: "6px",
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
                 }}>

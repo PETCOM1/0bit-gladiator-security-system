@@ -1,14 +1,24 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Activity } from "lucide-react";
 import apiClient from "@/api/client";
+import DataTable, { Column } from "@/shared/components/ui/DataTable";
 
 function displayName(u: any) {
-  return u?.displayName || [u?.firstName, u?.lastName].filter(Boolean).join(" ") || u?.email || "—";
+  return u?.displayName || [u?.firstName, u?.lastName].filter(Boolean).join(" ") || u?.email || "-";
 }
 
 function formatAction(action: string, meta: any): { label: string; detail: string | null } {
   const map: Record<string, (m: any) => { label: string; detail: string | null }> = {
+    USER_INVITED:           (m) => ({ label: "Invited user",           detail: m?.email ?? null }),
+    MANAGER_INVITED:        (m) => ({ label: "Invited manager",        detail: m?.email ?? null }),
+    LOGIN:                  ()  => ({ label: "Logged in",              detail: null }),
+    LOGOUT:                 ()  => ({ label: "Logged out",             detail: null }),
+    PASSWORD_RESET:         ()  => ({ label: "Reset password",         detail: null }),
+    PROFILE_UPDATED:        ()  => ({ label: "Updated profile",        detail: null }),
+    USER_STATUS_UPDATED:    (m) => ({ label: "Updated user status",    detail: m?.status ?? null }),
+    USER_ROLE_UPDATED:      (m) => ({ label: "Updated user role",      detail: m?.role ?? null }),
     PROJECT_CREATED:        (m) => ({ label: "Created project",        detail: m?.projectName ?? null }),
     PROJECT_UPDATED:        ()  => ({ label: "Updated project",        detail: null }),
     PROJECT_STATUS_CHANGED: (m) => ({ label: "Changed project status", detail: m?.from && m?.to ? `${m.from} → ${m.to}` : null }),
@@ -23,37 +33,46 @@ function formatAction(action: string, meta: any): { label: string; detail: strin
   return fn ? fn(meta) : { label: action.replace(/_/g, " ").toLowerCase(), detail: null };
 }
 
-const ROLE_COLOR: Record<string, string> = {
-  SUPER_ADMIN: "var(--color-danger)", ADMIN: "var(--color-warning)", MANAGER: "var(--color-info)", DEVELOPER: "var(--color-accent)", CLIENT: "#a855f7",
+const ROLE_STYLES: Record<string, React.CSSProperties> = {
+  SUPER_ADMIN: { background: "var(--color-danger-subtle)",  color: "var(--color-danger)",  border: "1px solid rgba(239,68,68,0.25)"   },
+  ADMIN:       { background: "var(--color-warning-subtle)", color: "var(--color-warning)", border: "1px solid rgba(245,158,11,0.25)"  },
+  MANAGER:     { background: "var(--color-info-subtle)",    color: "var(--color-info)",    border: "1px solid rgba(59,130,246,0.25)"  },
+  USER:        { background: "var(--color-bg-subtle)",      color: "var(--color-text-secondary)", border: "1px solid var(--color-border)" },
 };
 
-const ACTION_COLOR: Record<string, string> = {
-  PROJECT_CREATED: "var(--color-accent)", PROJECT_DELETED: "var(--color-danger)",
-  MILESTONE_APPROVED: "var(--color-success)", INVOICE_STATUS_UPDATED: "var(--color-info)",
-  DOCUMENT_CREATED: "#a855f7", PROJECT_STATUS_CHANGED: "var(--color-warning)",
-};
+function RoleBadge({ role }: { role: string }) {
+  const s = ROLE_STYLES[role] ?? ROLE_STYLES.USER;
+  return (
+    <span style={{ ...s, display: "inline-flex", alignItems: "center", padding: "3px 12px", borderRadius: "var(--radius-pill)", fontSize: "11.5px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+      {role?.replace(/_/g, " ")}
+    </span>
+  );
+}
 
-function groupByDate(logs: any[]) {
-  const groups: Record<string, any[]> = {};
-  logs.forEach((log) => {
-    const key = new Date(log.createdAt).toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(log);
-  });
-  return groups;
+function TimeCell({ iso }: { iso: string }) {
+  const d = new Date(iso);
+  return (
+    <div>
+      <p style={{ fontSize: "14px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
+        {d.toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
+      </p>
+      <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0", fontFeatureSettings: "'tnum'" }}>
+        {d.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}
+      </p>
+    </div>
+  );
 }
 
 export function AdminActivityPage() {
-  const [logs,         setLogs]         = useState<any[]>([]);
-  const [isLoading,    setIsLoading]    = useState(true);
+  const [logs,          setLogs]          = useState<any[]>([]);
+  const [isLoading,     setIsLoading]     = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [page,         setPage]         = useState(1);
-  const [hasMore,      setHasMore]      = useState(false);
-  const [total,        setTotal]        = useState(0);
-  const [search,       setSearch]       = useState("");
+  const [page,          setPage]          = useState(1);
+  const [hasMore,       setHasMore]       = useState(false);
+  const [total,         setTotal]         = useState(0);
+  const [search,        setSearch]        = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  // Debounce search
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 400);
     return () => clearTimeout(t);
@@ -65,7 +84,7 @@ export function AdminActivityPage() {
       const params = new URLSearchParams({ page: String(p) });
       if (actionSearch) params.set("action", actionSearch);
       const { data } = await apiClient.get(`/admin/activity?${params}`);
-      const newLogs  = data.data?.logs ?? [];
+      const newLogs = data.data?.logs ?? [];
       setLogs((prev) => append ? [...prev, ...newLogs] : newLogs);
       setTotal(data.data?.pagination?.total ?? 0);
       setHasMore(p < (data.data?.pagination?.pages ?? 1));
@@ -74,96 +93,157 @@ export function AdminActivityPage() {
     finally { setIsLoading(false); setIsLoadingMore(false); }
   }, []);
 
-  useEffect(() => { fetchLogs(1, debouncedSearch); }, [debouncedSearch]);
+  useEffect(() => { fetchLogs(1, debouncedSearch); }, [debouncedSearch, fetchLogs]);
 
-  if (isLoading) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", padding: "80px", color: "var(--color-text-muted)" }}>
-      <div style={{ width: "16px", height: "16px", border: "2px solid var(--color-border)", borderTopColor: "var(--color-accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-      <span style={{ fontSize: "13px" }}>Loading activity...</span>
-    </div>
-  );
-
-  const grouped = groupByDate(logs);
+  const columns: Column<any>[] = [
+    {
+      header: "User",
+      style: { padding: "16px 24px", verticalAlign: "middle" },
+      headerStyle: { padding: "12px 24px" },
+      render: (log) => {
+        const name = displayName(log.user);
+        const initials = name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2) || "?";
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: "11.5px", fontWeight: 700, color: "var(--color-accent)" }}>{initials}</span>
+            </div>
+            <div>
+              <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0, lineHeight: 1.25 }}>{name}</p>
+              {name !== log.user?.email && (
+                <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0" }}>{log.user?.email}</p>
+              )}
+            </div>
+          </div>
+        );
+      }
+    },
+    {
+      header: "Action",
+      style: { padding: "16px 24px", verticalAlign: "middle" },
+      headerStyle: { padding: "12px 24px" },
+      render: (log) => {
+        const { label } = formatAction(log.action, log.meta);
+        return (
+          <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }}>
+            {label}
+          </span>
+        );
+      }
+    },
+    {
+      header: "Detail",
+      style: { padding: "16px 24px", verticalAlign: "middle" },
+      headerStyle: { padding: "12px 24px" },
+      render: (log) => {
+        const { detail } = formatAction(log.action, log.meta);
+        return (
+          <span style={{ fontSize: "14px", color: "var(--color-text-muted)" }}>
+            {detail || "-"}
+          </span>
+        );
+      }
+    },
+    {
+      header: "Role",
+      style: { padding: "16px 24px", verticalAlign: "middle" },
+      headerStyle: { padding: "12px 24px" },
+      render: (log) => <RoleBadge role={log.user?.role} />
+    },
+    {
+      header: "Time",
+      style: { padding: "16px 24px", verticalAlign: "middle" },
+      headerStyle: { padding: "12px 24px" },
+      render: (log) => <TimeCell iso={log.createdAt} />
+    },
+  ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--color-text-primary)" }}>Activity</h1>
-          <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "4px" }}>Full audit log — all team actions</p>
+          <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
+            Activity Log
+          </h1>
+          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+            Full audit trail - all team actions across the platform.
+          </p>
         </div>
         {total > 0 && (
-          <div style={{ padding: "6px 14px", background: "var(--color-card-bg)", border: "1px solid var(--color-card-border)", borderRadius: "var(--radius-md)" }}>
-            <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>{total} total actions</span>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "10px 18px",
+            background: "var(--color-card-bg)",
+            border: "1px solid var(--color-card-border)",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--color-card-shadow)",
+            fontSize: "13.5px",
+            fontWeight: 600,
+            color: "var(--color-text-secondary)"
+          }}>
+            <span>{total.toLocaleString()} Total Actions</span>
           </div>
         )}
       </div>
 
-      {/* Search */}
-      <input
-        type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search by action (e.g. PROJECT, MILESTONE, INVOICE)..."
-        style={{ width: "100%", padding: "9px 14px", background: "var(--color-card-bg)", border: "1px solid var(--color-card-border)", borderRadius: "var(--radius-md)", fontSize: "13px", color: "var(--color-text-primary)", outline: "none", boxSizing: "border-box" }}
-      />
-
-      {logs.length === 0 ? (
-        <div style={{ padding: "60px 40px", textAlign: "center", background: "var(--color-card-bg)", border: "1px solid var(--color-card-border)", borderRadius: "var(--radius-lg)" }}>
-          <p style={{ fontSize: "15px", fontWeight: 500, color: "var(--color-text-primary)", marginBottom: "6px" }}>{search ? "No matching actions" : "No activity yet"}</p>
-          <p style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>Team actions will appear here as they happen.</p>
+      {/* Table card */}
+      <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
+        <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", gap: "12px" }}>
+          <Activity size={18} color="var(--color-accent)" />
+          <h2 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>System Activity Records</h2>
         </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          {Object.entries(grouped).map(([date, dayLogs]) => (
-            <div key={date}>
-              {/* Date divider */}
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>{date}</p>
-                <div style={{ flex: 1, height: "1px", background: "var(--color-border)" }} />
-              </div>
+        <DataTable
+          data={logs}
+          columns={columns}
+          loading={isLoading}
+          searchPlaceholder="Search by action keyword..."
+          searchKeys={["action"]}
+          itemsPerPage={100}
+          filterOptions={[
+            {
+              label: "Role",
+              key: (log: any) => log.user?.role,
+              options: [
+                { label: "Admin",       value: "ADMIN"       },
+                { label: "Manager",     value: "MANAGER"     },
+                { label: "User",        value: "USER"        },
+                { label: "Super Admin", value: "SUPER_ADMIN" },
+              ],
+            },
+          ]}
+          emptyMessage="No activity yet. Team actions will appear here as they happen."
+        />
+      </div>
 
-              <div style={{ background: "var(--color-card-bg)", border: "1px solid var(--color-card-border)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
-                {dayLogs.map((log: any, i: number) => {
-                  const { label, detail } = formatAction(log.action, log.meta);
-                  const dotColor  = ACTION_COLOR[log.action] ?? "#94a3b8";
-                  const roleColor = ROLE_COLOR[log.user?.role] ?? "#94a3b8";
-                  return (
-                    <div key={log.id} style={{ display: "flex", alignItems: "flex-start", gap: "14px", padding: "13px 20px", borderBottom: i < dayLogs.length - 1 ? "1px solid var(--color-border)" : "none" }}>
-                      {/* Dot */}
-                      <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: dotColor, flexShrink: 0, marginTop: "5px" }} />
-
-                      {/* Content */}
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
-                          <p style={{ fontSize: "13px", fontWeight: 500, color: "var(--color-text-primary)" }}>{label}</p>
-                        </div>
-                        {detail && <p style={{ fontSize: "12px", color: "var(--color-text-secondary)", marginBottom: "2px" }}>{detail}</p>}
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <p style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>{displayName(log.user)}</p>
-                          <span style={{ fontSize: "9px", fontWeight: 700, padding: "1px 6px", borderRadius: "999px", background: `${roleColor}15`, color: roleColor, textTransform: "uppercase" }}>
-                            {log.user?.role?.replace(/_/g, " ")}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Time */}
-                      <p style={{ fontSize: "11px", color: "var(--color-text-muted)", flexShrink: 0 }}>
-                        {new Date(log.createdAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-
-          {hasMore && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <button onClick={() => fetchLogs(page + 1, debouncedSearch, true)} disabled={isLoadingMore} style={{ padding: "9px 24px", fontSize: "13px", fontWeight: 500, background: "var(--color-card-bg)", border: "1px solid var(--color-card-border)", borderRadius: "var(--radius-md)", cursor: "pointer", color: "var(--color-text-secondary)", opacity: isLoadingMore ? 0.6 : 1 }}>
-                {isLoadingMore ? "Loading..." : "Load more"}
-              </button>
-            </div>
-          )}
+      {/* Load more */}
+      {hasMore && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "8px" }}>
+          <button
+            onClick={() => fetchLogs(page + 1, debouncedSearch, true)}
+            disabled={isLoadingMore}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "10px 24px",
+              fontSize: "13.5px",
+              fontWeight: 600,
+              background: "var(--color-bg-subtle)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-md)",
+              cursor: isLoadingMore ? "not-allowed" : "pointer",
+              color: "var(--color-text-primary)",
+              opacity: isLoadingMore ? 0.6 : 1,
+              transition: "all var(--transition-fast)",
+              boxShadow: "var(--color-card-shadow)",
+            }}
+          >
+            {isLoadingMore ? "Loading..." : "Load More Activity"}
+          </button>
         </div>
       )}
     </div>
