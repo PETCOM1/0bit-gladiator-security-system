@@ -6,14 +6,14 @@ export interface NavItem {
 
 export const NAV_CONFIG: Record<string, NavItem[]> = {
   SUPER_ADMIN: [
-    { href: "/super-admin",        label: "Overview",  icon: "LayoutDashboard" },
+    { href: "/super-admin",        label: "Dashboard", icon: "LayoutDashboard" },
     { href: "/super-admin/admins", label: "Admins",    icon: "Users"           },
     { href: "/super-admin/analytics", label: "Analytics", icon: "BarChart"     },
     { href: "/super-admin/audit",  label: "Audit Log", icon: "ScrollText"      },
     { href: "/super-admin/system", label: "System",    icon: "Settings"        },
   ],
   ADMIN: [
-    { href: "/admin",           label: "Overview",  icon: "LayoutDashboard" },
+    { href: "/admin",           label: "Dashboard", icon: "LayoutDashboard" },
     { href: "/admin/tenants",   label: "Tenants",   icon: "Building2"       },
     { href: "/admin/analytics", label: "Analytics", icon: "BarChart"        },
     { href: "/admin/activity",  label: "Activity Log",  icon: "Activity"    },
@@ -22,7 +22,7 @@ export const NAV_CONFIG: Record<string, NavItem[]> = {
     { href: "/admin/settings",  label: "Settings",  icon: "Settings"        },
   ],
   MANAGER: [
-    { href: "/manager",           label: "Overview",   icon: "LayoutDashboard" },
+    { href: "/manager",           label: "Dashboard",  icon: "LayoutDashboard" },
     { href: "/manager/sites",     label: "Sites",      icon: "MapPin"          },
     { href: "/manager/operations",label: "Operations",  icon: "FolderKanban"    },
     { href: "/manager/analytics", label: "Analytics",  icon: "BarChart"        },

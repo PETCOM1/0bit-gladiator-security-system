@@ -4,6 +4,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import { Building2, Plus, X, CheckCircle2, ChevronRight, ChevronLeft, DollarSign, Search, Filter, Users } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
+import { useAuth } from "@/shared/context/AuthContext";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -35,7 +36,17 @@ const labelStyle: React.CSSProperties = {
 };
 
 function SuperAdminDashboardContent() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({ mrr: 0, activeTenants: 0, platformUsers: 0 });
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  const greeting = user?.firstName ? `${getGreeting()}, ${user.firstName}` : "Welcome Back";
   const [tenants, setTenants] = useState<any[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [step, setStep] = useState(1);
@@ -147,7 +158,7 @@ function SuperAdminDashboardContent() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
-            Global Command Center
+            {greeting} (Super Admin)
           </h1>
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
             Manage and monitor all active security company tenants on the Gladiator Pro platform.

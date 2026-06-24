@@ -5,6 +5,7 @@ import { Building2, Plus, X, CheckCircle2, ChevronRight, ChevronLeft, Users, Sea
 import { useSearchParams, useRouter } from "next/navigation";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useAuth } from "@/shared/context/AuthContext";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -43,8 +44,18 @@ const mockGrowthData = [
 ];
 
 function PlatformAdminDashboardContent() {
+  const { user } = useAuth();
   const [tenants, setTenants] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  const greeting = user?.firstName ? `${getGreeting()}, ${user.firstName}` : "Welcome Back";
   const [isModalOpen, setModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -155,7 +166,7 @@ function PlatformAdminDashboardContent() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>
-            Platform Admin Console
+            {greeting} (Platform Admin)
           </h1>
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
             Telemetry, analytics, and tenant management for Gladiator Pro portals.

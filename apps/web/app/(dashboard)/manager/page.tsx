@@ -3,12 +3,24 @@
 import { useEffect, useState } from "react";
 import { Users, ShieldAlert, MapPin, Activity, Calendar, LayoutDashboard, Radio } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
+import { useAuth } from "@/shared/context/AuthContext";
 
 export default function ManagerDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     sites: 0, officers: 0, visitorsToday: 0, incidentsToday: 0, openIncidents: 0, activeShifts: 0, attendanceRate: "0%"
   });
   const [loading, setLoading] = useState(true);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  const greeting = user?.firstName ? `${getGreeting()}, ${user.firstName}` : "Welcome Back";
+  const companyName = user?.tenant?.name || "Gladiator Security";
 
   useEffect(() => {
     const loadData = async () => {
@@ -63,10 +75,10 @@ export default function ManagerDashboard() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-            <LayoutDashboard size={24} color="var(--color-accent)" /> Operations Command Center
+            <LayoutDashboard size={24} color="var(--color-accent)" /> {greeting}
           </h1>
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-            Overview of security metrics and telemetry across active client portfolios.
+            Operations Command Center for <strong style={{ color: "var(--color-text-primary)" }}>{companyName}</strong>.
           </p>
         </div>
         <div style={{
