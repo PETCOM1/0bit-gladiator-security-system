@@ -26,7 +26,7 @@ export const getSiteById = catchAsync(async (req: Request, res: Response) => {
     where: { id, tenantId },
     include: {
       users: {
-        select: { id: true, firstName: true, lastName: true, email: true, role: true, accountStatus: true }
+        select: { id: true, firstName: true, lastName: true, email: true, role: true, accountStatus: true, onLeave: true }
       },
       incidents: {
         orderBy: { createdAt: 'desc' },

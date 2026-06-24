@@ -105,6 +105,7 @@ model User {
   password      String
   role          Role          @default(USER)
   accountStatus AccountStatus @default(PENDING)
+  onLeave       Boolean       @default(false)
 
   firstName            String?
   lastName             String?

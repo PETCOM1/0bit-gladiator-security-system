@@ -13,6 +13,7 @@ const PROFILE_SELECT = {
   avatarUrl: true, phone: true,
   city: true, country: true, language: true, dateOfBirth: true,
   lastActiveAt: true, createdAt: true,
+  onLeave: true,
 } as const;
 
 // ── Get profile ────────────────────────────────────────────────────────────────
@@ -189,4 +190,21 @@ export const disableUser = catchAsync(async (req: Request, res: Response) => {
   });
 
   res.status(HttpStatus.OK).json({ status: "success", message: `User status changed to ${newStatus}` });
+});
+
+export const toggleUserLeave = catchAsync(async (req: Request, res: Response) => {
+  const tenantId = req.user!.tenantId;
+  const { id } = req.params;
+
+  if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
+
+  const user = await prisma.user.findFirst({ where: { id, tenantId } });
+  if (!user) return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
+
+  const updatedUser = await prisma.user.update({
+    where: { id },
+    data: { onLeave: !user.onLeave }
+  });
+
+  res.status(HttpStatus.OK).json({ status: "success", message: "User leave status updated", data: { user: updatedUser } });
 });

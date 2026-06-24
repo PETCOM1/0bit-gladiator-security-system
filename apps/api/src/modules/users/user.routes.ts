@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { protect } from "../../middleware/auth.middleware.js";
-import { getProfile, updateProfile, changePassword, inviteUser, getTenantUsers, updateUserRole, assignToSite, disableUser } from "./user.controller.js";
+import { getProfile, updateProfile, changePassword, inviteUser, getTenantUsers, updateUserRole, assignToSite, disableUser, toggleUserLeave } from "./user.controller.js";
 
 const router = Router();
 router.use(protect);
@@ -104,6 +104,19 @@ router.patch(
   "/:id/status",
   authorize([Role.MANAGER]),
   disableUser
+);
+
+/**
+ * @openapi
+ * /api/v1/users/{id}/leave:
+ *   patch:
+ *     tags: [Users]
+ *     summary: Toggle a user's leave status
+ */
+router.patch(
+  "/:id/leave",
+  authorize([Role.MANAGER, Role.SITE_MANAGER]),
+  toggleUserLeave
 );
 
 export default router;

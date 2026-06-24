@@ -17,6 +17,7 @@ export const managerService = {
   updateUserRole: (id: string, role: string) => apiClient.patch(`/users/${id}/role`, { role }),
   assignUserToSite: (id: string, siteId: string) => apiClient.patch(`/users/${id}/site`, { siteId }),
   disableUser: (id: string) => apiClient.patch(`/users/${id}/status`),
+  toggleUserLeave: (id: string) => apiClient.patch(`/users/${id}/leave`),
 
   // Incidents
   getIncidents: () => apiClient.get("/incidents"),

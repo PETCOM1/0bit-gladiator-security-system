@@ -47,6 +47,8 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
   const [assignStartTime, setAssignStartTime] = useState("");
   const [assignEndTime, setAssignEndTime] = useState("");
   const [isAssigning, setIsAssigning] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [shiftPreset, setShiftPreset] = useState("morning");
 
   useEffect(() => {
     const fetchSite = async () => {
@@ -95,24 +97,56 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
   };
 
   const openAssignModal = (postId: string) => {
-    const start = new Date();
-    const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+    
     setAssignPostId(postId);
     setAssignUserId("");
+    setSelectedDate(todayStr);
+    setShiftPreset("morning");
+    
+    const start = new Date();
+    const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
     setAssignStartTime(getLocalDatetimeString(start));
     setAssignEndTime(getLocalDatetimeString(end));
   };
 
   const handleAssignGuard = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!assignPostId || !assignUserId || !assignStartTime || !assignEndTime) return;
+    if (!assignPostId || !assignUserId) return;
+    
+    const selectedGuard = site.users?.find((u: any) => u.id === assignUserId);
+    if (selectedGuard?.onLeave) {
+      if (!confirm(`Warning: ${selectedGuard.firstName} ${selectedGuard.lastName} is flagged as On Leave. Do you still want to assign them to this shift?`)) {
+        return;
+      }
+    }
+    
+    let finalStart = assignStartTime;
+    let finalEnd = assignEndTime;
+
+    if (shiftPreset !== "custom" && selectedDate) {
+      if (shiftPreset === "morning") {
+        finalStart = `${selectedDate}T06:00`;
+        finalEnd = `${selectedDate}T14:00`;
+      } else if (shiftPreset === "afternoon") {
+        finalStart = `${selectedDate}T14:00`;
+        finalEnd = `${selectedDate}T22:00`;
+      } else if (shiftPreset === "night") {
+        finalStart = `${selectedDate}T22:00`;
+        const nextDay = new Date(new Date(selectedDate).getTime() + 24 * 60 * 60 * 1000);
+        const nextDayStr = nextDay.toISOString().split("T")[0];
+        finalEnd = `${nextDayStr}T06:00`;
+      }
+    }
+    
     setIsAssigning(true);
     try {
       await managerService.createShift({
         userId: assignUserId,
         postId: assignPostId,
-        startTime: assignStartTime,
-        endTime: assignEndTime,
+        startTime: finalStart,
+        endTime: finalEnd,
         siteId: site.id
       });
       setAssignPostId(null);
@@ -124,6 +158,18 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
       alert("Failed to assign personnel to this post.");
     } finally {
       setIsAssigning(false);
+    }
+  };
+
+  const handleToggleLeave = async (userId: string) => {
+    try {
+      await managerService.toggleUserLeave(userId);
+      // Refresh site data
+      const res = await managerService.getSiteById(siteId);
+      setSite(res.data.data.site);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to toggle leave status.");
     }
   };
 
@@ -411,11 +457,11 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
               <div 
                 key={u.id} 
                 style={{ 
-                  padding: "16px 20px", 
+                  padding: "20px", 
                   border: "1px solid var(--color-border)", 
                   borderRadius: "var(--radius-xl)", 
                   display: "flex", 
-                  alignItems: "center", 
+                  flexDirection: "column",
                   gap: "16px", 
                   background: "var(--color-card-bg)",
                   transition: "transform var(--transition-base)",
@@ -424,24 +470,57 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
                 onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
               >
-                <div style={{ 
-                  width: "40px", 
-                  height: "40px", 
-                  borderRadius: "50%", 
-                  background: "var(--color-accent-subtle)", 
-                  color: "var(--color-accent)", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "center", 
-                  fontWeight: 700, 
-                  fontSize: "12px",
-                  border: "1px solid var(--color-accent-border)"
-                }}>
-                  {(u.firstName?.[0] || "") + (u.lastName?.[0] || "")}
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ 
+                    width: "40px", 
+                    height: "40px", 
+                    borderRadius: "50%", 
+                    background: "var(--color-accent-subtle)", 
+                    color: "var(--color-accent)", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    fontWeight: 700, 
+                    fontSize: "12px",
+                    border: "1px solid var(--color-accent-border)"
+                  }}>
+                    {(u.firstName?.[0] || "") + (u.lastName?.[0] || "")}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>{u.firstName} {u.lastName}</h4>
+                    <p style={{ margin: 0, fontSize: "12.5px", color: "var(--color-text-muted)", marginTop: "2px" }}>{u.role}</p>
+                  </div>
+                  <span style={{
+                    padding: "3px 8px",
+                    borderRadius: "12px",
+                    fontSize: "10.5px",
+                    fontWeight: 700,
+                    background: u.onLeave ? "var(--color-danger-subtle)" : "var(--color-success-subtle)",
+                    color: u.onLeave ? "var(--color-danger)" : "var(--color-success)"
+                  }}>
+                    {u.onLeave ? "ON LEAVE" : "ACTIVE"}
+                  </span>
                 </div>
-                <div>
-                  <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>{u.firstName} {u.lastName}</h4>
-                  <p style={{ margin: 0, fontSize: "12.5px", color: "var(--color-text-muted)", marginTop: "2px" }}>{u.role}</p>
+                
+                <div style={{ borderTop: "1px solid var(--color-border)", paddingTop: "12px", display: "flex", justifyContent: "flex-end" }}>
+                  <button
+                    onClick={() => handleToggleLeave(u.id)}
+                    style={{
+                      padding: "6px 12px",
+                      background: u.onLeave ? "var(--color-success-subtle)" : "var(--color-danger-subtle)",
+                      border: "none",
+                      borderRadius: "var(--radius-md)",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: u.onLeave ? "var(--color-success)" : "var(--color-danger)",
+                      cursor: "pointer",
+                      transition: "opacity var(--transition-fast)"
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.opacity = "0.8"; }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+                  >
+                    {u.onLeave ? "Mark as Active" : "Flag on Leave"}
+                  </button>
                 </div>
               </div>
             ))}
@@ -667,32 +746,64 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
               >
                 <option value="">Choose a guard...</option>
                 {site.users?.map((u: any) => (
-                  <option key={u.id} value={u.id}>{u.firstName} {u.lastName} ({u.role})</option>
+                  <option key={u.id} value={u.id}>
+                    {u.firstName} {u.lastName} ({u.role}){u.onLeave ? " - [ON LEAVE]" : ""}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={labelStyle}>Start Time *</label>
+              <label style={labelStyle}>Day / Date *</label>
               <input 
-                type="datetime-local" 
+                type="date" 
                 required 
-                value={assignStartTime} 
-                onChange={e => setAssignStartTime(e.target.value)} 
+                value={selectedDate} 
+                onChange={e => setSelectedDate(e.target.value)} 
                 style={inputStyle} 
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={labelStyle}>End Time *</label>
-              <input 
-                type="datetime-local" 
+              <label style={labelStyle}>Shift Type *</label>
+              <select 
                 required 
-                value={assignEndTime} 
-                onChange={e => setAssignEndTime(e.target.value)} 
-                style={inputStyle} 
-              />
+                value={shiftPreset} 
+                onChange={e => setShiftPreset(e.target.value)} 
+                style={inputStyle}
+              >
+                <option value="morning">Morning Shift (06:00 - 14:00)</option>
+                <option value="afternoon">Afternoon Shift (14:00 - 22:00)</option>
+                <option value="night">Night Shift (22:00 - 06:00 next day)</option>
+                <option value="custom">Custom Times</option>
+              </select>
             </div>
+
+            {shiftPreset === "custom" && (
+              <>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={labelStyle}>Start Time *</label>
+                  <input 
+                    type="datetime-local" 
+                    required 
+                    value={assignStartTime} 
+                    onChange={e => setAssignStartTime(e.target.value)} 
+                    style={inputStyle} 
+                  />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={labelStyle}>End Time *</label>
+                  <input 
+                    type="datetime-local" 
+                    required 
+                    value={assignEndTime} 
+                    onChange={e => setAssignEndTime(e.target.value)} 
+                    style={inputStyle} 
+                  />
+                </div>
+              </>
+            )}
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "12px" }}>
               <button 
