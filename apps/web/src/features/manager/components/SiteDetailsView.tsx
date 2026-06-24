@@ -10,6 +10,29 @@ interface Props {
   hideBackButton?: boolean;
 }
 
+const inputStyle = {
+  padding: "10px 14px",
+  background: "var(--color-bg-subtle)",
+  border: "1px solid var(--color-border)",
+  borderRadius: "var(--radius-md)",
+  fontSize: "14px",
+  color: "var(--color-text-primary)",
+  outline: "none",
+  transition: "border var(--transition-fast)",
+  width: "100%",
+  boxSizing: "border-box" as const
+};
+
+const labelStyle = {
+  display: "block",
+  fontSize: "12px",
+  fontWeight: 600,
+  color: "var(--color-text-secondary)",
+  marginBottom: "6px",
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.05em"
+};
+
 export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
   const router = useRouter();
   const [site, setSite] = useState<any>(null);
@@ -17,6 +40,13 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
   const [activeTab, setActiveTab] = useState<"overview" | "incidents" | "visitors" | "personnel" | "shifts" | "posts">("overview");
   const [newPostName, setNewPostName] = useState("");
   const [isAddingPost, setIsAddingPost] = useState(false);
+
+  // Assignment Modal States
+  const [assignPostId, setAssignPostId] = useState<string | null>(null);
+  const [assignUserId, setAssignUserId] = useState("");
+  const [assignStartTime, setAssignStartTime] = useState("");
+  const [assignEndTime, setAssignEndTime] = useState("");
+  const [isAssigning, setIsAssigning] = useState(false);
 
   useEffect(() => {
     const fetchSite = async () => {
@@ -58,6 +88,44 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
     { id: "shifts", label: "Shifts", icon: <Calendar size={15} /> },
     { id: "posts", label: "Posts", icon: <MapPin size={15} /> }
   ] as const;
+
+  const getLocalDatetimeString = (date: Date) => {
+    const tzoffset = date.getTimezoneOffset() * 60000;
+    return (new Date(date.getTime() - tzoffset)).toISOString().slice(0, 16);
+  };
+
+  const openAssignModal = (postId: string) => {
+    const start = new Date();
+    const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
+    setAssignPostId(postId);
+    setAssignUserId("");
+    setAssignStartTime(getLocalDatetimeString(start));
+    setAssignEndTime(getLocalDatetimeString(end));
+  };
+
+  const handleAssignGuard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assignPostId || !assignUserId || !assignStartTime || !assignEndTime) return;
+    setIsAssigning(true);
+    try {
+      await managerService.createShift({
+        userId: assignUserId,
+        postId: assignPostId,
+        startTime: assignStartTime,
+        endTime: assignEndTime,
+        siteId: site.id
+      });
+      setAssignPostId(null);
+      // Refresh site data
+      const res = await managerService.getSiteById(siteId);
+      setSite(res.data.data.site);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to assign personnel to this post.");
+    } finally {
+      setIsAssigning(false);
+    }
+  };
 
   const handleAddPost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -481,7 +549,7 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
               </form>
             )}
 
-            {/* Posts Grid */}
+             {/* Posts Grid */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
               {site.posts?.length === 0 && !isAddingPost ? (
                 <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", gridColumn: "1 / -1", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-lg)", border: "1px dashed var(--color-border)", fontSize: "13.5px" }}>
@@ -489,6 +557,12 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
                 </div>
               ) : site.posts?.map((post: any) => {
                 const activeShift = site.shifts?.find((s: any) => s.status === "IN_PROGRESS" && s.postId === post.id);
+                const scheduledShift = site.shifts?.find((s: any) => s.status === "SCHEDULED" && s.postId === post.id && new Date(s.endTime) > new Date());
+                
+                const hasAssignment = activeShift || scheduledShift;
+                const assignedUser = activeShift?.user || scheduledShift?.user;
+                const assignmentStatus = activeShift ? "MANNED" : (scheduledShift ? "ASSIGNED" : "UNMANNED");
+
                 return (
                   <div 
                     key={post.id} 
@@ -511,22 +585,53 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
                       <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)" }}>{post.name}</h4>
                       <span style={{ 
                         padding: "3px 8px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700, 
-                        background: activeShift ? "var(--color-success-subtle)" : "var(--color-danger-subtle)", 
-                        color: activeShift ? "var(--color-success)" : "var(--color-danger)" 
+                        background: assignmentStatus === "MANNED" ? "var(--color-success-subtle)" : (assignmentStatus === "ASSIGNED" ? "var(--color-warning-subtle)" : "var(--color-danger-subtle)"), 
+                        color: assignmentStatus === "MANNED" ? "var(--color-success)" : (assignmentStatus === "ASSIGNED" ? "var(--color-warning)" : "var(--color-danger)") 
                       }}>
-                        {activeShift ? "MANNED" : "UNMANNED"}
+                        {assignmentStatus}
                       </span>
                     </div>
-                    {activeShift && (
+                    {hasAssignment && assignedUser && (
                       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
                         <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--color-accent-subtle)", color: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "10px", border: "1px solid var(--color-accent-border)" }}>
-                          {(activeShift.user?.firstName?.[0] || "") + (activeShift.user?.lastName?.[0] || "")}
+                          {(assignedUser.firstName?.[0] || "") + (assignedUser.lastName?.[0] || "")}
                         </div>
-                        <p style={{ margin: 0, fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                          {activeShift.user?.firstName} {activeShift.user?.lastName}
-                        </p>
+                        <div>
+                          <p style={{ margin: 0, fontSize: "13px", color: "var(--color-text-secondary)", fontWeight: 600 }}>
+                            {assignedUser.firstName} {assignedUser.lastName}
+                          </p>
+                          {scheduledShift && (
+                            <p style={{ margin: 0, fontSize: "11px", color: "var(--color-text-muted)", marginTop: "2px" }}>
+                              {new Date(scheduledShift.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(scheduledShift.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     )}
+                    
+                    {!activeShift && (
+                      <button
+                        onClick={() => openAssignModal(post.id)}
+                        style={{
+                          marginTop: "8px",
+                          padding: "6px 12px",
+                          background: "var(--color-bg-subtle)",
+                          border: "1px solid var(--color-border)",
+                          borderRadius: "var(--radius-md)",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: "var(--color-text-primary)",
+                          cursor: "pointer",
+                          transition: "all var(--transition-fast)",
+                          width: "fit-content"
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "var(--color-border)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                      >
+                        {scheduledShift ? "Reassign Guard" : "Assign Guard"}
+                      </button>
+                    )}
+
                     <p style={{ margin: 0, fontSize: "12px", color: "var(--color-text-muted)", marginTop: "auto", paddingTop: "8px", borderTop: "1px solid var(--color-border)" }}>
                       Created {new Date(post.createdAt).toLocaleDateString()}
                     </p>
@@ -538,6 +643,76 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
         )}
 
       </div>
+      {/* Assign Guard Modal */}
+      {assignPostId && (
+        <div 
+          onClick={() => setAssignPostId(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px" }}
+        >
+          <form 
+            onSubmit={handleAssignGuard}
+            className="glass-panel animate-fade-in" 
+            style={{ borderRadius: "var(--radius-xl)", boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "420px", display: "flex", flexDirection: "column", overflow: "hidden", padding: "24px", gap: "16px" }} 
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Assign Guard to Post</h3>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={labelStyle}>Select Personnel *</label>
+              <select 
+                required 
+                value={assignUserId} 
+                onChange={e => setAssignUserId(e.target.value)} 
+                style={inputStyle}
+              >
+                <option value="">Choose a guard...</option>
+                {site.users?.map((u: any) => (
+                  <option key={u.id} value={u.id}>{u.firstName} {u.lastName} ({u.role})</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={labelStyle}>Start Time *</label>
+              <input 
+                type="datetime-local" 
+                required 
+                value={assignStartTime} 
+                onChange={e => setAssignStartTime(e.target.value)} 
+                style={inputStyle} 
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={labelStyle}>End Time *</label>
+              <input 
+                type="datetime-local" 
+                required 
+                value={assignEndTime} 
+                onChange={e => setAssignEndTime(e.target.value)} 
+                style={inputStyle} 
+              />
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "12px" }}>
+              <button 
+                type="button" 
+                onClick={() => setAssignPostId(null)} 
+                style={{ padding: "8px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13.5px" }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                disabled={isAssigning}
+                style={{ padding: "8px 16px", background: "var(--color-accent)", border: "none", color: "var(--color-accent-text)", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: isAssigning ? "not-allowed" : "pointer", fontSize: "13.5px" }}
+              >
+                {isAssigning ? "Assigning..." : "Assign"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

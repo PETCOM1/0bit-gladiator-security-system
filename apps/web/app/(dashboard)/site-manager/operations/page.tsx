@@ -4,9 +4,11 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { 
   FolderKanban, CheckCircle2, Calendar, ClipboardCheck, Contact, MapPin, 
-  Search, Filter, ShieldAlert, User, Clock, Ban, Plus, X, Eye, Image as ImageIcon
+  Search, Filter, ShieldAlert, User, Clock, Ban, Plus, X, Eye, Image as ImageIcon,
+  FileText
 } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
+import { exportIncidentReport } from "@/shared/utils/pdf";
 
 const inputStyle = {
   padding: "10px 14px",
@@ -61,6 +63,26 @@ const filterByDuration = (createdAtString: string, duration: string) => {
   return true;
 };
 
+const filterVisitorByDuration = (checkInTimeString: string, duration: string) => {
+  if (duration === "ALL") return true;
+  const date = new Date(checkInTimeString);
+  const now = new Date();
+  
+  if (duration === "TODAY") {
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return date >= todayStart;
+  }
+  if (duration === "7DAYS") {
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    return date >= sevenDaysAgo;
+  }
+  if (duration === "30DAYS") {
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    return date >= thirtyDaysAgo;
+  }
+  return true;
+};
+
 function OperationsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -89,8 +111,14 @@ function OperationsContent() {
   const [shiftEndTime, setShiftEndTime] = useState("");
   const [isScheduling, setIsScheduling] = useState(false);
 
-  // Zoom Modal State
+  // Zoom & Detailed Modal State
   const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
+
+  // Visitor Filters & Pagination State
+  const [visitorSearchTerm, setVisitorSearchTerm] = useState("");
+  const [visitorFilterDuration, setVisitorFilterDuration] = useState("ALL");
+  const [visitorCurrentPage, setVisitorCurrentPage] = useState(1);
 
   const loadData = async () => {
     setLoading(true);
@@ -170,6 +198,27 @@ function OperationsContent() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filterCategory, filterDuration]);
+
+  // Filtered & Paginated Visitors
+  const filteredVisitorsList = visitors.filter(v => {
+    const matchesSearch = 
+      v.name.toLowerCase().includes(visitorSearchTerm.toLowerCase()) ||
+      (v.idNumber && v.idNumber.toLowerCase().includes(visitorSearchTerm.toLowerCase())) ||
+      (v.vehicleReg && v.vehicleReg.toLowerCase().includes(visitorSearchTerm.toLowerCase())) ||
+      (v.purpose && v.purpose.toLowerCase().includes(visitorSearchTerm.toLowerCase())) ||
+      (v.loggedBy && `${v.loggedBy.firstName} ${v.loggedBy.lastName}`.toLowerCase().includes(visitorSearchTerm.toLowerCase())) ||
+      (v.site?.name && v.site.name.toLowerCase().includes(visitorSearchTerm.toLowerCase()));
+      
+    const matchesDuration = filterVisitorByDuration(v.checkInTime, visitorFilterDuration);
+    return matchesSearch && matchesDuration;
+  });
+
+  const visitorTotalPages = Math.ceil(filteredVisitorsList.length / itemsPerPage) || 1;
+  const paginatedVisitorsList = filteredVisitorsList.slice((visitorCurrentPage - 1) * itemsPerPage, visitorCurrentPage * itemsPerPage);
+
+  useEffect(() => {
+    setVisitorCurrentPage(1);
+  }, [visitorSearchTerm, visitorFilterDuration]);
 
   // Status Style Evaluators
   const getSeverityStyle = (sev: string) => {
@@ -347,7 +396,8 @@ function OperationsContent() {
                     return (
                       <tr 
                         key={entry.id} 
-                        style={{ borderBottom: i < paginatedOccurrences.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                        onClick={() => setSelectedEntry(entry)}
+                        style={{ cursor: "pointer", borderBottom: i < paginatedOccurrences.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
                         onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
                         onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
                       >
@@ -405,7 +455,7 @@ function OperationsContent() {
                         <td style={{ padding: "16px 24px" }}>
                           {entry.image ? (
                             <div 
-                              onClick={() => setZoomImage(entry.image)}
+                              onClick={(e) => { e.stopPropagation(); setZoomImage(entry.image); }}
                               style={{ position: "relative", width: "40px", height: "40px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--color-border)", cursor: "zoom-in" }}
                               title="Click to zoom photo"
                             >
@@ -614,59 +664,147 @@ function OperationsContent() {
 
         {/* TAB 4: VISITOR LOGS */}
         {activeTab === "visitors" && (
-          <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                    <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Visitor</th>
-                    <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Purpose / Details</th>
-                    <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Location & Guard</th>
-                    <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Time Log</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr><td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading visitors...</td></tr>
-                  ) : visitors.length === 0 ? (
-                    <tr><td colSpan={4} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No visitors recorded yet.</td></tr>
-                  ) : visitors.map((v, i) => (
-                    <tr 
-                      key={v.id} 
-                      style={{ borderBottom: i < visitors.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
-                      onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
+              
+              {/* Filter Section */}
+              <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <Filter size={16} color="var(--color-accent)" />
+                  <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Filter Visitors</h3>
+                </div>
+                <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                  {/* Search */}
+                  <div style={{ position: "relative" }}>
+                    <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
+                    <input 
+                      type="text" 
+                      placeholder="Search visitor details..." 
+                      value={visitorSearchTerm} 
+                      onChange={e => setVisitorSearchTerm(e.target.value)}
+                      style={{ ...inputStyle, paddingLeft: "32px", width: "240px", padding: "8px 12px 8px 32px" }} 
+                    />
+                  </div>
+
+                  {/* Duration dropdown */}
+                  <div style={{ position: "relative" }}>
+                    <select 
+                      value={visitorFilterDuration} 
+                      onChange={e => setVisitorFilterDuration(e.target.value)} 
+                      style={{ ...selectStyle, width: "160px", padding: "8px 12px 8px 14px" }}
                     >
-                      <td style={{ padding: "16px 24px" }}>
-                        <div style={{ fontWeight: 600, color: "var(--color-text-primary)", fontSize: "15px", display: "flex", alignItems: "center", gap: "6px" }}>
-                          <User size={14} /> {v.name}
-                        </div>
-                        {v.idNumber && <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }}>ID: {v.idNumber}</div>}
-                      </td>
-                      <td style={{ padding: "16px 24px" }}>
-                        <div style={{ fontSize: "14px", color: "var(--color-text-secondary)" }}>{v.purpose || "No reason given"}</div>
-                        {v.vehicleReg && <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }}>Vehicle: {v.vehicleReg}</div>}
-                      </td>
-                      <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px", fontWeight: 600, color: "var(--color-text-primary)" }}>
-                          <MapPin size={14} color="var(--color-accent)" /> {v.site?.name || "Unknown Site"}
-                        </div>
-                        <div>Logged by: {v.loggedBy?.firstName} {v.loggedBy?.lastName}</div>
-                      </td>
-                      <td style={{ padding: "16px 24px" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--color-text-primary)", fontWeight: 500 }}>
-                            <span style={{ color: "var(--color-success)" }}>IN:</span> {new Date(v.checkInTime).toLocaleString()}
-                          </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: v.checkOutTime ? "var(--color-text-primary)" : "var(--color-text-muted)", fontWeight: 500 }}>
-                            <span style={{ color: "var(--color-danger)" }}>OUT:</span> {v.checkOutTime ? new Date(v.checkOutTime).toLocaleString() : "Still on site"}
-                          </div>
-                        </div>
-                      </td>
+                      <option value="ALL">All Time</option>
+                      <option value="TODAY">Today</option>
+                      <option value="7DAYS">Last 7 Days</option>
+                      <option value="30DAYS">Last 30 Days</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Table */}
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
+                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Visitor Name</th>
+                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "140px" }}>SA ID Number</th>
+                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "120px" }}>Vehicle Reg</th>
+                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Purpose / Visiting</th>
+                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Location & Guard</th>
+                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "160px" }}>Check In</th>
+                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "160px" }}>Check Out</th>
+                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "110px" }}>Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      <tr><td colSpan={8} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading visitors...</td></tr>
+                    ) : paginatedVisitorsList.length === 0 ? (
+                      <tr><td colSpan={8} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No visitors recorded yet.</td></tr>
+                    ) : paginatedVisitorsList.map((v, i) => (
+                      <tr 
+                        key={v.id} 
+                        style={{ borderBottom: i < paginatedVisitorsList.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                      >
+                        <td style={{ padding: "16px 24px", fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px" }}>
+                          {v.name}
+                        </td>
+                        <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-primary)" }}>
+                          {v.idNumber || <span style={{ color: "var(--color-text-muted)" }}>—</span>}
+                        </td>
+                        <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-primary)", fontWeight: 500 }}>
+                          {v.vehicleReg || <span style={{ color: "var(--color-text-muted)" }}>—</span>}
+                        </td>
+                        <td style={{ padding: "16px 24px", fontSize: "13.5px" }}>
+                          <div style={{ color: "var(--color-text-primary)" }}>{v.purpose || "No reason given"}</div>
+                          {v.personVisiting && (
+                            <div style={{ fontSize: "11px", color: "var(--color-text-secondary)", marginTop: "4px" }}>
+                              Visiting: {v.personVisiting}
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ padding: "16px 24px", fontSize: "13px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                            <MapPin size={13} color="var(--color-accent)" /> {v.site?.name || "Unknown Site"}
+                          </div>
+                          {v.loggedBy && (
+                            <div style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+                              Guard: {v.loggedBy.firstName} {v.loggedBy.lastName}
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                          {new Date(v.checkInTime).toLocaleString()}
+                        </td>
+                        <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                          {v.checkOutTime ? new Date(v.checkOutTime).toLocaleString() : <span style={{ color: "var(--color-text-muted)" }}>—</span>}
+                        </td>
+                        <td style={{ padding: "16px 24px" }}>
+                          <span style={{ 
+                            display: "inline-flex", 
+                            alignItems: "center", 
+                            padding: "3px 8px", 
+                            borderRadius: "12px", 
+                            fontSize: "10.5px", 
+                            fontWeight: 700, 
+                            background: v.status === "CHECKED_IN" ? "var(--color-success-subtle)" : "var(--color-bg-subtle)", 
+                            color: v.status === "CHECKED_IN" ? "var(--color-success)" : "var(--color-text-secondary)"
+                          }}>
+                            {v.status === "CHECKED_IN" ? "ON SITE" : "DEPARTED"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination Controls */}
+              <div style={{ padding: "16px 24px", borderTop: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--color-bg-subtle)" }}>
+                <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                  Showing {filteredVisitorsList.length === 0 ? 0 : (visitorCurrentPage - 1) * itemsPerPage + 1} to {Math.min(visitorCurrentPage * itemsPerPage, filteredVisitorsList.length)} of {filteredVisitorsList.length} visitors
+                </span>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button 
+                    disabled={visitorCurrentPage === 1} 
+                    onClick={() => setVisitorCurrentPage(prev => prev - 1)}
+                    style={{ padding: "6px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: visitorCurrentPage === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)", cursor: visitorCurrentPage === 1 ? "not-allowed" : "pointer" }}
+                  >
+                    Previous
+                  </button>
+                  <button 
+                    disabled={visitorCurrentPage === visitorTotalPages} 
+                    onClick={() => setVisitorCurrentPage(prev => prev + 1)}
+                    style={{ padding: "6px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: visitorCurrentPage === visitorTotalPages ? "var(--color-text-muted)" : "var(--color-text-primary)", cursor: visitorCurrentPage === visitorTotalPages ? "not-allowed" : "pointer" }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
         )}
@@ -683,6 +821,91 @@ function OperationsContent() {
         )}
 
       </div>
+
+      {/* Details & PDF Export Modal */}
+      {selectedEntry && (
+        <div 
+          onClick={() => setSelectedEntry(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px" }}
+        >
+          <div 
+            className="glass-panel animate-fade-in" 
+            style={{ borderRadius: "var(--radius-xl)", boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "600px", maxHeight: "90vh", display: "flex", flexDirection: "column", overflow: "hidden" }} 
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <FileText size={18} color="var(--color-accent)" />
+                <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>OB Entry Details</h3>
+              </div>
+              <button onClick={() => setSelectedEntry(null)} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", display: "flex" }}><X size={18} /></button>
+            </div>
+            
+            {/* Body */}
+            <div style={{ padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* Metadata grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", background: "var(--color-bg-subtle)", padding: "16px", borderRadius: "var(--radius-md)" }}>
+                <div>
+                  <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Category</span>
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", marginTop: "4px" }}>{selectedEntry.category}</div>
+                </div>
+                {selectedEntry.severity && (
+                  <div>
+                    <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Severity</span>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", marginTop: "4px" }}>{selectedEntry.severity}</div>
+                  </div>
+                )}
+                <div>
+                  <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Logged By</span>
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", marginTop: "4px" }}>
+                    {selectedEntry.user ? `${selectedEntry.user.firstName} ${selectedEntry.user.lastName}` : "System Log"}
+                  </div>
+                </div>
+                <div>
+                  <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Logged At</span>
+                  <div style={{ fontSize: "13px", color: "var(--color-text-primary)", marginTop: "4px" }}>{new Date(selectedEntry.createdAt).toLocaleString()}</div>
+                </div>
+                {selectedEntry.location && (
+                  <div style={{ gridColumn: "span 2" }}>
+                    <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Location</span>
+                    <div style={{ fontSize: "13px", color: "var(--color-text-primary)", marginTop: "4px" }}>{selectedEntry.location}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Statement details */}
+              <div>
+                <h4 style={{ margin: "0 0 6px 0", fontSize: "13px", color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Statement / Description</h4>
+                <p style={{ margin: 0, fontSize: "14px", color: "var(--color-text-primary)", lineHeight: 1.5, background: "var(--color-card-bg)", border: "1px solid var(--color-border)", padding: "16px", borderRadius: "var(--radius-md)", whiteSpace: "pre-wrap" }}>
+                  {selectedEntry.entryText}
+                </p>
+              </div>
+
+              {/* Attached Photo */}
+              {selectedEntry.image && (
+                <div>
+                  <h4 style={{ margin: "0 0 6px 0", fontSize: "13px", color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Attached Photo Evidence</h4>
+                  <img src={selectedEntry.image} alt="Evidence" style={{ width: "100%", maxHeight: "250px", objectFit: "contain", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)" }} />
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{ padding: "16px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              <button onClick={() => setSelectedEntry(null)} style={{ padding: "8px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13.5px" }}>Close</button>
+              <button 
+                onClick={() => {
+                  exportIncidentReport(selectedEntry, `Incident_Report_${selectedEntry.id}.pdf`);
+                }}
+                style={{ padding: "8px 16px", background: "var(--color-accent)", border: "none", color: "var(--color-accent-text)", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", fontSize: "13.5px" }}
+              >
+                Download PDF Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lightbox / Zoom Modal */}
       {zoomImage && (

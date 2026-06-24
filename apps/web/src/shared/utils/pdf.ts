@@ -1277,3 +1277,145 @@ export function exportPlatformAdminReport(data: PlatformAdminReportData, filenam
   doc.save(filename);
 }
 
+export interface SingleIncidentReportData {
+  id: string;
+  createdAt: string;
+  category: string;
+  entryText: string;
+  severity?: string;
+  location?: string;
+  image?: string;
+  user?: {
+    firstName: string;
+    lastName: string;
+  };
+  site?: {
+    name: string;
+  };
+}
+
+export function exportIncidentReport(data: SingleIncidentReportData, filename: string = "Confidential_Incident_Report.pdf") {
+  const doc = new jsPDF();
+  const primaryColor = [15, 23, 42]; // slate-900
+  const secondaryColor = [71, 85, 105]; // slate-600
+  const borderLight = [226, 232, 240]; // slate-200
+
+  // 1. Cover Banner & Header block
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(0, 0, 210, 32, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(255, 255, 255);
+  doc.text("GLADIATOR PRO", 14, 15);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(200, 200, 200);
+  doc.text("CONFIDENTIAL INCIDENT & OB REPORT", 14, 23);
+
+  // Red Confidential Stamp
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(239, 68, 68); // Red
+  doc.setFillColor(254, 226, 226); // Red-100 background
+  doc.rect(145, 8, 51, 14, "F");
+  doc.text("STRICTLY CONFIDENTIAL", 148, 17);
+
+  let y = 46;
+
+  // 2. Incident Summary / Metadata
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("INCIDENT LEDGER RECORD", 14, y);
+  y += 5;
+  doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+  doc.setLineWidth(0.5);
+  doc.line(14, y, 196, y);
+  y += 10;
+
+  const drawRow = (label: string, value: string) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text(label.toUpperCase(), 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(value, 65, y);
+    y += 5;
+    doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+    doc.line(14, y, 196, y);
+    y += 8;
+  };
+
+  drawRow("Record / Entry ID:", data.id);
+  drawRow("Date & Time Logged:", new Date(data.createdAt).toLocaleString());
+  drawRow("Reported Category:", data.category);
+  drawRow("Reporting Officer:", data.user ? `${data.user.firstName} ${data.user.lastName}` : "System Log");
+  drawRow("Site / Location:", data.site?.name || data.location || "On-site");
+  
+  if (data.category === "INCIDENT" || data.category === "EMERGENCY") {
+    drawRow("Severity Level:", data.severity?.toUpperCase() || "LOW");
+  }
+
+  y += 5;
+
+  // 3. Incident Details / Narrative Description
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("DETAILED REPORT DESCRIPTION / STATEMENT:", 14, y);
+  y += 7;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  
+  // Wrap report description text
+  const splitDesc = doc.splitTextToSize(data.entryText, 182);
+  doc.text(splitDesc, 14, y);
+  y += (splitDesc.length * 5) + 12;
+
+  // 4. Photo Attachment (if present)
+  if (data.image) {
+    // If y is close to page bottom, add a page
+    if (y > 200) {
+      doc.addPage();
+      y = 20;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text("ATTACHED PHOTO EVIDENCE:", 14, y);
+    y += 7;
+
+    try {
+      // Set image dimensions: maxWidth = 130mm, maxHeight = 90mm
+      doc.addImage(data.image, "JPEG", 14, y, 130, 90);
+    } catch (e) {
+      console.error("Failed to add image to PDF", e);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.text("[Image format not supported or invalid payload]", 14, y);
+    }
+  }
+
+  // Footer on all pages
+  const pageCount = (doc.internal as any).getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+    doc.line(14, 282, 196, 282);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text("GLADIATOR PRO © 2026 - CONFIDENTIAL SECURITY REPORT", 14, 288);
+    doc.text(`Page ${i} of ${pageCount}`, 196 - doc.getTextWidth(`Page ${i} of ${pageCount}`), 288);
+  }
+
+  doc.save(filename);
+}
+

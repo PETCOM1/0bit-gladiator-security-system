@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState, Suspense } from "react";
-import { CheckCircle2, Plus, X, ShieldAlert, Image as ImageIcon, Eye, Search, Filter, Calendar } from "lucide-react";
+import { CheckCircle2, Plus, X, ShieldAlert, Image as ImageIcon, Eye, Search, Filter, FileText } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
 import { useAuth } from "@/shared/context/AuthContext";
+import { exportIncidentReport } from "@/shared/utils/pdf";
 
 const inputStyle = {
   padding: "10px 14px",
@@ -38,8 +39,6 @@ const filterByDuration = (createdAtString: string, duration: string) => {
   if (duration === "ALL") return true;
   const date = new Date(createdAtString);
   const now = new Date();
-  
-  // Reset hours to start of day for comparison
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   
   if (duration === "TODAY") {
@@ -82,8 +81,9 @@ function SecurityComplianceContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Zoom Modal State
+  // Zoom / Detailed Modal State
   const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -415,7 +415,8 @@ function SecurityComplianceContent() {
                 return (
                   <tr 
                     key={entry.id} 
-                    style={{ borderBottom: i < paginatedEntries.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
+                    onClick={() => setSelectedEntry(entry)}
+                    style={{ cursor: "pointer", borderBottom: i < paginatedEntries.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
                     onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
                     onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
                   >
@@ -474,7 +475,7 @@ function SecurityComplianceContent() {
                     <td style={{ padding: "16px 24px" }}>
                       {entry.image ? (
                         <div 
-                          onClick={() => setZoomImage(entry.image)}
+                          onClick={(e) => { e.stopPropagation(); setZoomImage(entry.image); }}
                           style={{ position: "relative", width: "40px", height: "40px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--color-border)", cursor: "zoom-in" }}
                           title="Click to zoom image"
                         >
@@ -517,6 +518,85 @@ function SecurityComplianceContent() {
           </div>
         </div>
       </div>
+
+      {/* Details & PDF Export Modal */}
+      {selectedEntry && (
+        <div 
+          onClick={() => setSelectedEntry(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px" }}
+        >
+          <div 
+            className="glass-panel animate-fade-in" 
+            style={{ borderRadius: "var(--radius-xl)", boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "600px", maxHeight: "90vh", display: "flex", flexDirection: "column", overflow: "hidden" }} 
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <FileText size={18} color="var(--color-accent)" />
+                <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>OB Entry Details</h3>
+              </div>
+              <button onClick={() => setSelectedEntry(null)} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", display: "flex" }}><X size={18} /></button>
+            </div>
+            
+            {/* Body */}
+            <div style={{ padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* Metadata grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", background: "var(--color-bg-subtle)", padding: "16px", borderRadius: "var(--radius-md)" }}>
+                <div>
+                  <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Category</span>
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", marginTop: "4px" }}>{selectedEntry.category}</div>
+                </div>
+                {selectedEntry.severity && (
+                  <div>
+                    <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Severity</span>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", marginTop: "4px" }}>{selectedEntry.severity}</div>
+                  </div>
+                )}
+                <div>
+                  <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Logged At</span>
+                  <div style={{ fontSize: "13px", color: "var(--color-text-primary)", marginTop: "4px" }}>{new Date(selectedEntry.createdAt).toLocaleString()}</div>
+                </div>
+                {selectedEntry.location && (
+                  <div>
+                    <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Location</span>
+                    <div style={{ fontSize: "13px", color: "var(--color-text-primary)", marginTop: "4px" }}>{selectedEntry.location}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Statement details */}
+              <div>
+                <h4 style={{ margin: "0 0 6px 0", fontSize: "13px", color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Statement / Description</h4>
+                <p style={{ margin: 0, fontSize: "14px", color: "var(--color-text-primary)", lineHeight: 1.5, background: "var(--color-card-bg)", border: "1px solid var(--color-border)", padding: "16px", borderRadius: "var(--radius-md)", whiteSpace: "pre-wrap" }}>
+                  {selectedEntry.entryText}
+                </p>
+              </div>
+
+              {/* Attached Photo */}
+              {selectedEntry.image && (
+                <div>
+                  <h4 style={{ margin: "0 0 6px 0", fontSize: "13px", color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Attached Photo Evidence</h4>
+                  <img src={selectedEntry.image} alt="Evidence" style={{ width: "100%", maxHeight: "250px", objectFit: "contain", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)" }} />
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{ padding: "16px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              <button onClick={() => setSelectedEntry(null)} style={{ padding: "8px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13.5px" }}>Close</button>
+              <button 
+                onClick={() => {
+                  exportIncidentReport(selectedEntry, `Incident_Report_${selectedEntry.id}.pdf`);
+                }}
+                style={{ padding: "8px 16px", background: "var(--color-accent)", border: "none", color: "var(--color-accent-text)", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", fontSize: "13.5px" }}
+              >
+                Download PDF Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Zoom Modal */}
       {zoomImage && (
