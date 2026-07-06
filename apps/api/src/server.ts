@@ -45,6 +45,8 @@ app.use(morgan(isProduction ? "combined" : "dev"));
 // ── 2. CORS ───────────────────────────────────────────────────────────────────
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:8081",
+  "http://localhost:8082",
   process.env.FRONTEND_URL ?? "",
 ].filter(Boolean);
 
@@ -52,11 +54,25 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
+      
       const isAllowed = allowedOrigins.some((allowed) =>
         origin.startsWith(allowed)
-      ) || origin.endsWith('.vercel.app') || origin.endsWith('.vercel.live');
+      ) || 
+      origin.endsWith('.vercel.app') || 
+      origin.endsWith('.vercel.live') ||
+      origin === 'https://webmobilefirst.com' ||
+      origin.endsWith('.webmobilefirst.com');
+
+      const isDevOrigin = !isProduction && (
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:') ||
+        origin.startsWith('http://10.0.2.2:') ||
+        origin.startsWith('http://192.168.') ||
+        origin.startsWith('http://172.') ||
+        origin.startsWith('http://10.')
+      );
       
-      if (isAllowed) {
+      if (isAllowed || isDevOrigin) {
         callback(null, true);
       } else {
         console.error(`🔴 CORS Blocked: ${origin}`);
