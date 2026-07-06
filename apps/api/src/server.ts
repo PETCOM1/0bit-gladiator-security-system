@@ -97,6 +97,14 @@ app.use(auditLog);
 // ── 5. ROUTES ─────────────────────────────────────────────────────────────────
 const API = "/api/v1";
 
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+    status: "success",
+    message: "0-Bit Gladiator Security System API is online",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.use(`${API}/system`,        systemRoutes);
 app.use(`${API}/auth`,          authRateLimiter, authRoutes);
 app.use(`${API}/users`,         userRoutes);
