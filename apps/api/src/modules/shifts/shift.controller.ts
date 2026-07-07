@@ -37,6 +37,19 @@ export const startShift = catchAsync(async (req: Request, res: Response) => {
 
   let shift;
   if (shiftId) {
+    const existingShift = await prisma.shift.findUnique({ where: { id: shiftId } });
+    if (!existingShift) {
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "Shift not found" });
+    }
+
+    // A guard cannot clock in to a shift starting more than 15 minutes in the future
+    const earlyThreshold = new Date(Date.now() + 15 * 60 * 1000);
+    if (new Date(existingShift.startTime) > earlyThreshold) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: "Cannot clock in to a future shift. You can only clock in up to 15 minutes before the shift starts."
+      });
+    }
+
     shift = await prisma.shift.update({
       where: { id: shiftId },
       data: { actualStartTime: new Date(), status: "IN_PROGRESS" }

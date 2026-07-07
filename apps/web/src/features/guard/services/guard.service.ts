@@ -2,8 +2,9 @@ import apiClient from "@/api/client";
 
 export const guardService = {
   // Shifts
-  startShift: () => apiClient.post("/shifts/start"),
+  startShift: (shiftId?: string) => apiClient.post("/shifts/start", shiftId ? { shiftId } : {}),
   endShift: (id: string) => apiClient.post(`/shifts/${id}/end`),
+  getMyShifts: () => apiClient.get("/shifts/tenant"),
 
   // Visitors
   logVisitor: (data: { name: string; idNumber?: string; vehicleReg?: string; purpose?: string }) => 
@@ -15,3 +16,4 @@ export const guardService = {
     apiClient.post("/incidents", data),
   getIncidents: () => apiClient.get("/incidents"),
 };
+

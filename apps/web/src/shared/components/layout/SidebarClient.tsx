@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/shared/context/AuthContext";
@@ -28,6 +29,16 @@ interface Props {
 export default function SidebarClient({ isOpen, onToggle }: Props) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const tenantName = (user?.role === "SUPER_ADMIN" || user?.role === "ADMIN") ? BRAND.name : (user?.tenant?.name || BRAND.name);
   const logoMark = (user?.role === "SUPER_ADMIN" || user?.role === "ADMIN") ? BRAND.logoMark : (user?.tenant?.name ? user.tenant.name.charAt(0).toUpperCase() : BRAND.logoMark);
@@ -36,6 +47,67 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
   const navItems = NAV_CONFIG[role] ?? [];
 
   const w = isOpen ? "var(--sidebar-expanded)" : "var(--sidebar-collapsed)";
+
+  // Mobile view renders a fixed bottom navigation bar
+  if (isMobile) {
+    return (
+      <nav style={{
+        position:        "fixed",
+        bottom:          0,
+        left:            0,
+        right:           0,
+        height:          "64px",
+        backgroundColor: "#ffffff",
+        borderTop:       "1px solid #e2e8f0",
+        display:         "flex",
+        flexDirection:   "row",
+        justifyContent:  "space-around",
+        alignItems:      "center",
+        zIndex:          100,
+        boxShadow:       "0 -4px 12px rgba(0, 0, 0, 0.05)",
+      }}>
+        {navItems.map((item) => {
+          const Icon = ICON_MAP[item.icon];
+          const isActive =
+            pathname === item.href ||
+            (item.href.split("/").length > 2 && pathname.startsWith(item.href + "/"));
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{
+                display:        "flex",
+                flexDirection:  "column",
+                alignItems:     "center",
+                justifyContent: "center",
+                gap:            "4px",
+                flex:           1,
+                height:         "100%",
+                textDecoration: "none",
+                color:          isActive ? "#f59e0b" : "#64748b",
+                transition:     "color var(--transition-fast)",
+              }}
+            >
+              {Icon && (
+                <Icon
+                  size={20}
+                  strokeWidth={isActive ? 2.2 : 1.8}
+                />
+              )}
+              <span style={{
+                fontSize:      "10px",
+                fontWeight:    isActive ? 700 : 500,
+                letterSpacing: "-0.01em",
+              }}>
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
+    );
+  }
 
   return (
     <aside style={{
@@ -208,8 +280,6 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
           }
         </button>
       </div>
-    
-      
-</aside>
+    </aside>
   );
 }

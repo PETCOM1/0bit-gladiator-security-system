@@ -7,7 +7,7 @@
 
 import axios from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api-gladiator-security-system.onrender.com/api/v1";
 
 const apiClient = axios.create({
   baseURL: `${BASE_URL}`,

@@ -73,7 +73,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = () => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://api-gladiator-security-system.onrender.com/api/v1";
     window.location.href = `${apiBase}/auth/google`;
   };
 

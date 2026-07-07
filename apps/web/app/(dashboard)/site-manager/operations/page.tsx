@@ -4,8 +4,9 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { 
   FolderKanban, CheckCircle2, Calendar, ClipboardCheck, Contact, MapPin, 
-  Search, Filter, ShieldAlert, User, Clock, Ban, Plus, X, Eye, Image as ImageIcon,
-  FileText
+  Search, Filter, ShieldAlert, User, Clock, Ban, Plus, X, Eye,
+  FileText, LayoutGrid, Wand2, BarChart3, Settings, ChevronDown, AlertTriangle,
+  RefreshCw, Copy, Save, Trash2, Edit3
 } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
 import { exportIncidentReport } from "@/shared/utils/pdf";
@@ -103,13 +104,59 @@ function OperationsContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Shift Scheduling Form State
+  // Shift Scheduling Form State (legacy, kept for basic scheduling)
   const [showShiftForm, setShowShiftForm] = useState(false);
   const [shiftUserId, setShiftUserId] = useState("");
   const [shiftPostId, setShiftPostId] = useState("");
   const [shiftStartTime, setShiftStartTime] = useState("");
   const [shiftEndTime, setShiftEndTime] = useState("");
   const [isScheduling, setIsScheduling] = useState(false);
+
+  // ── Shift Management System State ──────────────────────────────────────
+  // Sub-tab inside the "shifts" tab
+  const [shiftSubTab, setShiftSubTab] = useState<"templates" | "roster" | "autoschedule" | "coverage">("templates");
+
+  // Shift Templates
+  interface ShiftTemplate { id: string; name: string; startTime: string; endTime: string; color: string; }
+  const defaultTemplates: ShiftTemplate[] = [
+    { id: "t1", name: "Day Shift",       startTime: "06:00", endTime: "18:00", color: "#f59e0b" },
+    { id: "t2", name: "Night Shift",     startTime: "18:00", endTime: "06:00", color: "#6366f1" },
+    { id: "t3", name: "Morning Shift",   startTime: "06:00", endTime: "14:00", color: "#10b981" },
+    { id: "t4", name: "Afternoon Shift", startTime: "14:00", endTime: "22:00", color: "#3b82f6" },
+    { id: "t5", name: "Night Patrol",    startTime: "22:00", endTime: "06:00", color: "#8b5cf6" },
+  ];
+  const [templates, setTemplates] = useState<ShiftTemplate[]>(defaultTemplates);
+  const [showAddTemplate, setShowAddTemplate] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const [newTemplateStart, setNewTemplateStart] = useState("07:00");
+  const [newTemplateEnd, setNewTemplateEnd] = useState("15:00");
+  const [newTemplateColor, setNewTemplateColor] = useState("#3b82f6");
+  const [editTemplateId, setEditTemplateId] = useState<string | null>(null);
+
+  // Weekly Roster state
+  const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const [rosterWeekStart, setRosterWeekStart] = useState<string>(() => {
+    const d = new Date();
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const mon = new Date(d.setDate(diff));
+    return mon.toISOString().split("T")[0];
+  });
+  // roster: { [userId]: { [dayIndex]: templateId | "OFF" | "" } }
+  const [roster, setRoster] = useState<Record<string, Record<number, string>>>({});
+  // rosterPosts: { [userId]: { [dayIndex]: postId } }
+  const [rosterPosts, setRosterPosts] = useState<Record<string, Record<number, string>>>({});
+  const [activeCellKey, setActiveCellKey] = useState<string | null>(null);
+  const [isSavingRoster, setIsSavingRoster] = useState(false);
+
+  // Auto-Schedule state
+  const [autoWeekStart, setAutoWeekStart] = useState<string>(rosterWeekStart);
+  const [autoRequirements, setAutoRequirements] = useState<Array<{ templateId: string; count: number }>>([
+    { templateId: "t1", count: 3 },
+    { templateId: "t2", count: 2 },
+  ]);
+  const [autoResult, setAutoResult] = useState<Record<string, Record<number, string>> | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Zoom & Detailed Modal State
   const [zoomImage, setZoomImage] = useState<string | null>(null);
@@ -501,110 +548,724 @@ function OperationsContent() {
           </div>
         )}
 
-        {/* TAB 2: SHIFT SCHEDULING */}
-        {activeTab === "shifts" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            
-            {/* Header / Schedule shift button */}
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <button 
-                onClick={() => setShowShiftForm(!showShiftForm)}
-                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", transition: "opacity var(--transition-fast)" }}
-              >
-                <Plus size={18} /> Schedule Shift
-              </button>
-            </div>
 
-            {/* Schedule form */}
-            {showShiftForm && (
-              <form onSubmit={handleScheduleShift} style={{ background: "var(--color-card-bg)", padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", display: "flex", gap: "16px", alignItems: "flex-end", flexWrap: "wrap", boxShadow: "var(--color-card-shadow)" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "200px" }}>
-                  <label style={labelStyle}>Guard</label>
-                  <select required value={shiftUserId} onChange={e => setShiftUserId(e.target.value)} style={inputStyle}>
-                    <option value="">Select a guard...</option>
-                    {users.map(u => <option key={u.id} value={u.id}>{u.firstName} {u.lastName}</option>)}
-                  </select>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "150px" }}>
-                  <label style={labelStyle}>Post (Optional)</label>
-                  <select value={shiftPostId} onChange={e => setShiftPostId(e.target.value)} style={inputStyle}>
-                    <option value="">No specific post</option>
-                    {posts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "180px" }}>
-                  <label style={labelStyle}>Start Time</label>
-                  <input type="datetime-local" required value={shiftStartTime} onChange={e => setShiftStartTime(e.target.value)} style={inputStyle} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "180px" }}>
-                  <label style={labelStyle}>End Time</label>
-                  <input type="datetime-local" required value={shiftEndTime} onChange={e => setShiftEndTime(e.target.value)} style={inputStyle} />
-                </div>
-                <button type="submit" disabled={isScheduling} style={{ padding: "10px 24px", background: "var(--color-text-primary)", color: "var(--color-bg-secondary)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", height: "42px", transition: "opacity var(--transition-fast)" }}>
-                  {isScheduling ? "Saving..." : "Save"}
-                </button>
-              </form>
-            )}
+        {/* TAB 2: SHIFT MANAGEMENT — 4 Sub-tabs */}
+        {activeTab === "shifts" && (() => {
+          // ── Helper: build date from week start + day offset
+          const getRosterDate = (dayIndex: number) => {
+            const base = new Date(rosterWeekStart + "T00:00:00");
+            base.setDate(base.getDate() + dayIndex);
+            return base;
+          };
 
-            {/* Shifts table */}
-            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Date</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Personnel</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Post</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Scheduled</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading shifts...</td></tr>
-                    ) : shifts.length === 0 ? (
-                      <tr><td colSpan={5} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No shifts scheduled.</td></tr>
-                    ) : shifts.map((s, i) => {
-                      const style = getShiftStatusStyle(s.status);
-                      return (
-                        <tr 
-                          key={s.id} 
-                          style={{ borderBottom: i < shifts.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
-                        >
-                          <td style={{ padding: "16px 24px", fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px" }}>
-                             {new Date(s.startTime).toLocaleDateString()}
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <div style={{ fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
-                              <User size={14} /> {s.user?.firstName} {s.user?.lastName}
+          // ── Template handlers
+          const handleAddTemplate = () => {
+            if (!newTemplateName.trim()) return;
+            const newT: ShiftTemplate = {
+              id: `t${Date.now()}`,
+              name: newTemplateName.trim(),
+              startTime: newTemplateStart,
+              endTime: newTemplateEnd,
+              color: newTemplateColor
+            };
+            setTemplates(prev => [...prev, newT]);
+            setNewTemplateName(""); setNewTemplateStart("07:00"); setNewTemplateEnd("15:00"); setNewTemplateColor("#3b82f6");
+            setShowAddTemplate(false);
+          };
+          const handleDeleteTemplate = (id: string) => {
+            setTemplates(prev => prev.filter(t => t.id !== id));
+          };
+
+          // ── Roster handlers
+          const setRosterCell = (userId: string, dayIndex: number, value: string) => {
+            setRoster(prev => ({
+              ...prev,
+              [userId]: { ...(prev[userId] || {}), [dayIndex]: value }
+            }));
+            setActiveCellKey(null);
+          };
+
+          const handleSaveRoster = async () => {
+            setIsSavingRoster(true);
+            const toCreate: Array<{ userId: string; startTime: string; endTime: string; postId?: string }> = [];
+            for (const [userId, days] of Object.entries(roster)) {
+              for (const [dayIndexStr, templateId] of Object.entries(days)) {
+                if (!templateId || templateId === "OFF") continue;
+                const tmpl = templates.find(t => t.id === templateId);
+                if (!tmpl) continue;
+                const dayIndex = parseInt(dayIndexStr);
+                const dayDate = getRosterDate(dayIndex).toISOString().split("T")[0];
+                // Handle overnight shifts (end < start)
+                const endDate = tmpl.endTime < tmpl.startTime
+                  ? getRosterDate(dayIndex + 1).toISOString().split("T")[0]
+                  : dayDate;
+                const postId = rosterPosts[userId]?.[dayIndex] || undefined;
+                toCreate.push({
+                  userId,
+                  startTime: `${dayDate}T${tmpl.startTime}`,
+                  endTime: `${endDate}T${tmpl.endTime}`,
+                  postId
+                });
+              }
+            }
+            try {
+              await Promise.all(toCreate.map(s => managerService.createShift(s)));
+              alert(`✅ ${toCreate.length} shift(s) saved successfully!`);
+              loadData();
+            } catch (err) {
+              alert("Failed to save some shifts. Please try again.");
+            } finally {
+              setIsSavingRoster(false);
+            }
+          };
+
+          // ── Auto-Schedule generator
+          const handleGenerateRoster = () => {
+            setIsGenerating(true);
+            const availableGuards = users.filter(u => !u.onLeave);
+            const generated: Record<string, Record<number, string>> = {};
+            // Initialize all guards to empty
+            availableGuards.forEach(u => { generated[u.id] = {}; });
+            // Assign per requirement across all 7 days
+            DAYS.forEach((_, dayIndex) => {
+              let guardPool = [...availableGuards];
+              for (const req of autoRequirements) {
+                if (req.count <= 0) continue;
+                const picked = guardPool.splice(0, req.count);
+                picked.forEach(g => {
+                  generated[g.id] = { ...(generated[g.id] || {}), [dayIndex]: req.templateId };
+                });
+              }
+              // remaining guards get OFF
+              guardPool.forEach(g => {
+                generated[g.id] = { ...(generated[g.id] || {}), [dayIndex]: "OFF" };
+              });
+            });
+            setAutoResult(generated);
+            setIsGenerating(false);
+          };
+
+          const handleApplyAutoRoster = () => {
+            if (!autoResult) return;
+            setRoster(autoResult);
+            setAutoResult(null);
+            setShiftSubTab("roster");
+          };
+
+          // ── Coverage calculator
+          const coverageData = DAYS.map((day, dayIndex) => {
+            const dayShifts = shifts.filter(s => {
+              const shiftDate = new Date(s.startTime);
+              const rosterDayDate = getRosterDate(dayIndex);
+              return shiftDate.toDateString() === rosterDayDate.toDateString();
+            });
+            const templateCoverage = templates.map(tmpl => {
+              const assigned = dayShifts.filter(s => {
+                const startHour = new Date(s.startTime).getHours().toString().padStart(2, "0");
+                const startMin = new Date(s.startTime).getMinutes().toString().padStart(2, "0");
+                return `${startHour}:${startMin}` === tmpl.startTime;
+              }).length;
+              return { template: tmpl, assigned };
+            });
+            return { day, dayIndex, templateCoverage, total: dayShifts.length };
+          });
+
+          const subTabBtnStyle = (active: boolean) => ({
+            padding: "8px 16px",
+            background: active ? "var(--color-accent)" : "transparent",
+            color: active ? "var(--color-accent-text)" : "var(--color-text-muted)",
+            border: active ? "none" : "1px solid var(--color-border)",
+            borderRadius: "var(--radius-md)",
+            fontWeight: 600,
+            fontSize: "13px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            transition: "all var(--transition-fast)",
+            whiteSpace: "nowrap" as const
+          });
+
+          return (
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+
+              {/* Sub-tab Nav */}
+              <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", padding: "16px 20px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", boxShadow: "var(--color-card-shadow)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginRight: "12px" }}>
+                  <Calendar size={18} color="var(--color-accent)" />
+                  <span style={{ fontWeight: 700, fontSize: "15px", color: "var(--color-text-primary)" }}>Shift Management</span>
+                </div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <button onClick={() => setShiftSubTab("templates")} style={subTabBtnStyle(shiftSubTab === "templates")}>
+                    <Settings size={14} /> Shift Templates
+                  </button>
+                  <button onClick={() => setShiftSubTab("roster")} style={subTabBtnStyle(shiftSubTab === "roster")}>
+                    <LayoutGrid size={14} /> Weekly Roster
+                  </button>
+                  <button onClick={() => setShiftSubTab("autoschedule")} style={subTabBtnStyle(shiftSubTab === "autoschedule")}>
+                    <Wand2 size={14} /> Auto-Schedule
+                  </button>
+                  <button onClick={() => setShiftSubTab("coverage")} style={subTabBtnStyle(shiftSubTab === "coverage")}>
+                    <BarChart3 size={14} /> Shift Coverage
+                  </button>
+                </div>
+              </div>
+
+              {/* ─── SUB-TAB 1: SHIFT TEMPLATES ─── */}
+              {shiftSubTab === "templates" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Shift Templates</h3>
+                      <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--color-text-muted)" }}>Define reusable shift patterns that can be applied to the weekly roster.</p>
+                    </div>
+                    <button onClick={() => setShowAddTemplate(!showAddTemplate)} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", fontSize: "13.5px" }}>
+                      <Plus size={16} /> Add Template
+                    </button>
+                  </div>
+
+                  {/* Add Template form */}
+                  {showAddTemplate && (
+                    <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-accent)", padding: "24px", display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "flex-end", boxShadow: "0 0 0 3px var(--color-accent-subtle)" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "160px" }}>
+                        <label style={labelStyle}>Shift Name</label>
+                        <input type="text" placeholder="e.g. Evening Shift" value={newTemplateName} onChange={e => setNewTemplateName(e.target.value)} style={inputStyle} />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        <label style={labelStyle}>Start Time</label>
+                        <input type="time" value={newTemplateStart} onChange={e => setNewTemplateStart(e.target.value)} style={{ ...inputStyle, width: "130px" }} />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        <label style={labelStyle}>End Time</label>
+                        <input type="time" value={newTemplateEnd} onChange={e => setNewTemplateEnd(e.target.value)} style={{ ...inputStyle, width: "130px" }} />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        <label style={labelStyle}>Colour</label>
+                        <input type="color" value={newTemplateColor} onChange={e => setNewTemplateColor(e.target.value)} style={{ width: "60px", height: "42px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: "4px", cursor: "pointer", background: "var(--color-bg-subtle)" }} />
+                      </div>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <button onClick={handleAddTemplate} style={{ padding: "10px 20px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: "pointer", fontSize: "13.5px" }}>
+                          Save Template
+                        </button>
+                        <button onClick={() => setShowAddTemplate(false)} style={{ padding: "10px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13.5px" }}>
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Templates grid */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "16px" }}>
+                    {templates.map(t => (
+                      <div key={t.id} style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden", transition: "transform var(--transition-base), box-shadow var(--transition-base)" }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 24px rgba(0,0,0,0.15)"; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = "var(--color-card-shadow)"; }}
+                      >
+                        {/* Colour bar */}
+                        <div style={{ height: "5px", background: t.color }} />
+                        <div style={{ padding: "20px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <div>
+                              <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)" }}>{t.name}</h4>
+                              <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span style={{ fontSize: "20px", fontWeight: 800, color: t.color, letterSpacing: "-0.03em" }}>{t.startTime}</span>
+                                <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>→</span>
+                                <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-secondary)", letterSpacing: "-0.03em" }}>{t.endTime}</span>
+                              </div>
                             </div>
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                              <MapPin size={14} color="var(--color-accent)" /> {s.post?.name || s.site?.name || "Unassigned"}
-                            </div>
-                          </td>
-                          <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                            <div style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>Start: {new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                            <div style={{ color: "var(--color-text-muted)", marginTop: "4px" }}>End: {s.endTime ? new Date(s.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--"}</div>
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: 700, background: style.bg, color: style.color }}>
-                              {style.icon} {s.status.replace("_", " ")}
-                            </span>
-                          </td>
+                            <button onClick={() => handleDeleteTemplate(t.id)} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: "4px", borderRadius: "6px", display: "flex" }}
+                              onMouseEnter={e => (e.currentTarget.style.color = "var(--color-danger)")}
+                              onMouseLeave={e => (e.currentTarget.style.color = "var(--color-text-muted)")}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                          <div style={{ marginTop: "12px", padding: "8px 12px", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-md)", fontSize: "12px", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "6px" }}>
+                            <Clock size={13} />
+                            {(() => {
+                              const [sh, sm] = t.startTime.split(":").map(Number);
+                              const [eh, em] = t.endTime.split(":").map(Number);
+                              let mins = (eh * 60 + em) - (sh * 60 + sm);
+                              if (mins < 0) mins += 24 * 60;
+                              const h = Math.floor(mins / 60);
+                              const m = mins % 60;
+                              return `${h}h${m > 0 ? ` ${m}m` : ""} duration`;
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ─── SUB-TAB 2: WEEKLY ROSTER ─── */}
+              {shiftSubTab === "roster" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {/* Controls row */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Weekly Roster</h3>
+                      <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--color-text-muted)" }}>Click any cell to assign a shift or mark a guard as Off Duty.</p>
+                    </div>
+                    <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>Week Starting</label>
+                        <input type="date" value={rosterWeekStart} onChange={e => setRosterWeekStart(e.target.value)} style={{ ...inputStyle, width: "160px", padding: "8px 12px" }} />
+                      </div>
+                      <button onClick={() => { setRoster({}); setRosterPosts({}); }} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13px", fontWeight: 600, marginTop: "18px" }}>
+                        <RefreshCw size={14} /> Clear
+                      </button>
+                      <button onClick={handleSaveRoster} disabled={isSavingRoster} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", background: "var(--color-success)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: "pointer", fontSize: "13px", marginTop: "18px" }}>
+                        <Save size={14} /> {isSavingRoster ? "Saving..." : "Save Roster"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Legend */}
+                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                    {templates.map(t => (
+                      <div key={t.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--color-text-secondary)" }}>
+                        <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: t.color, flexShrink: 0 }} />
+                        {t.name} ({t.startTime}–{t.endTime})
+                      </div>
+                    ))}
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--color-text-secondary)" }}>
+                      <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: "var(--color-danger)", flexShrink: 0 }} />
+                      Off Duty
+                    </div>
+                  </div>
+
+                  {/* Roster Grid */}
+                  <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflowX: "auto" }}>
+                    <table style={{ borderCollapse: "collapse", tableLayout: "auto", minWidth: "1100px", width: "100%" }}>
+                      <thead>
+                        <tr style={{ background: "var(--color-bg-subtle)", borderBottom: "2px solid var(--color-border)" }}>
+                          <th style={{ padding: "16px 20px", textAlign: "left", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", minWidth: "200px", whiteSpace: "nowrap" }}>Guard</th>
+                          {DAYS.map((day, di) => {
+                            const d = getRosterDate(di);
+                            const isToday = d.toDateString() === new Date().toDateString();
+                            return (
+                              <th key={day} style={{ padding: "16px 10px", textAlign: "center", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", minWidth: "120px", color: isToday ? "var(--color-accent)" : "var(--color-text-muted)", background: isToday ? "var(--color-accent-subtle)" : "transparent", borderBottom: isToday ? "3px solid var(--color-accent)" : "2px solid transparent" }}>
+                                <div style={{ fontWeight: isToday ? 800 : 700 }}>{day}</div>
+                                <div style={{ fontSize: "12px", fontWeight: isToday ? 700 : 500, marginTop: "3px" }}>{d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</div>
+                              </th>
+                            );
+                          })}
                         </tr>
+                      </thead>
+                      <tbody>
+                        {users.length === 0 ? (
+                          <tr><td colSpan={8} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "14px" }}>No guards loaded. Go to the Auto-Schedule tab to load guards first.</td></tr>
+                        ) : users.map((u: any, ui: number) => (
+                          <tr key={u.id} style={{ borderBottom: ui < users.length - 1 ? "1px solid var(--color-border)" : "none" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "var(--color-bg-subtle)")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                          >
+                            {/* Guard name column */}
+                            <td style={{ padding: "14px 20px", whiteSpace: "nowrap" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "var(--color-accent-subtle)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, color: "var(--color-accent)", flexShrink: 0 }}>
+                                  {u.firstName?.[0]}{u.lastName?.[0]}
+                                </div>
+                                <div>
+                                  <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>{u.firstName} {u.lastName}</div>
+                                  {u.onLeave ? (
+                                    <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--color-warning)", background: "var(--color-warning-subtle)", padding: "2px 8px", borderRadius: "4px", display: "inline-block", marginTop: "2px" }}>ON LEAVE</span>
+                                  ) : (
+                                    <span style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>Available</span>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            {/* Day cells */}
+                            {DAYS.map((_, dayIndex) => {
+                              const cellKey = `${u.id}-${dayIndex}`;
+                              const assigned = roster[u.id]?.[dayIndex] ?? "";
+                              const assignedPost = rosterPosts[u.id]?.[dayIndex] ?? "";
+                              const tmpl = templates.find(t => t.id === assigned);
+                              const postObj = posts.find((p: any) => p.id === assignedPost);
+                              const isActive = activeCellKey === cellKey;
+                              return (
+                                <td key={dayIndex} style={{ padding: "8px 8px", textAlign: "center", position: "relative", verticalAlign: "middle" }}>
+                                  {/* Cell button */}
+                                  <button
+                                    onClick={() => setActiveCellKey(isActive ? null : cellKey)}
+                                    style={{
+                                      width: "100%",
+                                      minWidth: "100px",
+                                      padding: "10px 8px",
+                                      borderRadius: "var(--radius-md)",
+                                      border: isActive ? "2px solid var(--color-accent)" : `1px solid ${tmpl ? tmpl.color + "55" : "var(--color-border)"}`,
+                                      cursor: "pointer",
+                                      background: assigned === "OFF" ? "var(--color-danger-subtle)" : tmpl ? `${tmpl.color}18` : "var(--color-bg-subtle)",
+                                      color: assigned === "OFF" ? "var(--color-danger)" : tmpl ? tmpl.color : "var(--color-text-muted)",
+                                      transition: "all var(--transition-fast)",
+                                      minHeight: "62px",
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: "4px"
+                                    }}
+                                  >
+                                    {assigned === "OFF" ? (
+                                      <>
+                                        <Ban size={14} />
+                                        <span style={{ fontSize: "11px", fontWeight: 800 }}>OFF DUTY</span>
+                                      </>
+                                    ) : tmpl ? (
+                                      <>
+                                        <span style={{ fontSize: "12px", fontWeight: 800, lineHeight: 1.2 }}>{tmpl.name}</span>
+                                        <span style={{ fontSize: "10px", opacity: 0.8 }}>{tmpl.startTime}–{tmpl.endTime}</span>
+                                        {postObj ? (
+                                          <span style={{ fontSize: "10px", fontWeight: 700, background: tmpl.color + "33", padding: "2px 6px", borderRadius: "4px", color: tmpl.color, display: "flex", alignItems: "center", gap: "3px", marginTop: "2px" }}>
+                                            <MapPin size={9} /> {postObj.name}
+                                          </span>
+                                        ) : (
+                                          <span style={{ fontSize: "10px", color: "var(--color-text-muted)", fontStyle: "italic" }}>No post</span>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Plus size={16} />
+                                        <span style={{ fontSize: "10px" }}>Assign</span>
+                                      </>
+                                    )}
+                                  </button>
+
+                                  {/* Popup picker — wider, two-section */}
+                                  {isActive && (
+                                    <div
+                                      onClick={e => e.stopPropagation()}
+                                      style={{ position: "absolute", top: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", boxShadow: "0 12px 36px rgba(0,0,0,0.25)", zIndex: 200, minWidth: "260px", overflow: "hidden" }}
+                                    >
+                                      {/* Section: Shift */}
+                                      <div style={{ padding: "10px 14px", background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)", fontSize: "10px", fontWeight: 800, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: "6px" }}>
+                                        <Calendar size={11} /> Shift Template
+                                      </div>
+                                      {templates.map(t => {
+                                        const isSelected = assigned === t.id;
+                                        return (
+                                          <button key={t.id}
+                                            onClick={() => {
+                                              setRoster(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: t.id } }));
+                                            }}
+                                            style={{ width: "100%", padding: "10px 14px", background: isSelected ? t.color + "18" : "transparent", border: "none", borderLeft: isSelected ? `3px solid ${t.color}` : "3px solid transparent", color: "var(--color-text-primary)", cursor: "pointer", fontSize: "13px", fontWeight: isSelected ? 700 : 500, textAlign: "left", display: "flex", alignItems: "center", gap: "10px" }}
+                                            onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                                            onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = "transparent"; }}
+                                          >
+                                            <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: t.color, flexShrink: 0 }} />
+                                            <span>{t.name}</span>
+                                            <span style={{ fontSize: "11px", color: "var(--color-text-muted)", marginLeft: "auto" }}>{t.startTime}–{t.endTime}</span>
+                                          </button>
+                                        );
+                                      })}
+
+                                      {/* Section: Post */}
+                                      <div style={{ padding: "10px 14px", background: "var(--color-bg-subtle)", borderTop: "1px solid var(--color-border)", borderBottom: "1px solid var(--color-border)", fontSize: "10px", fontWeight: 800, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: "6px" }}>
+                                        <MapPin size={11} /> Assign Post
+                                      </div>
+                                      <button
+                                        onClick={() => setRosterPosts(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "" } }))}
+                                        style={{ width: "100%", padding: "9px 14px", background: !assignedPost ? "var(--color-bg-subtle)" : "transparent", border: "none", borderLeft: !assignedPost ? "3px solid var(--color-text-muted)" : "3px solid transparent", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "12.5px", fontWeight: !assignedPost ? 700 : 500, textAlign: "left", display: "flex", alignItems: "center", gap: "8px" }}
+                                        onMouseEnter={e => { if (assignedPost) e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                                        onMouseLeave={e => { if (assignedPost) e.currentTarget.style.background = "transparent"; }}
+                                      >
+                                        <X size={12} /> No specific post
+                                      </button>
+                                      {posts.map((p: any) => {
+                                        const isPostSelected = assignedPost === p.id;
+                                        return (
+                                          <button key={p.id}
+                                            onClick={() => setRosterPosts(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: p.id } }))}
+                                            style={{ width: "100%", padding: "9px 14px", background: isPostSelected ? "var(--color-accent-subtle)" : "transparent", border: "none", borderLeft: isPostSelected ? "3px solid var(--color-accent)" : "3px solid transparent", color: isPostSelected ? "var(--color-accent)" : "var(--color-text-primary)", cursor: "pointer", fontSize: "12.5px", fontWeight: isPostSelected ? 700 : 500, textAlign: "left", display: "flex", alignItems: "center", gap: "8px" }}
+                                            onMouseEnter={e => { if (!isPostSelected) e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                                            onMouseLeave={e => { if (!isPostSelected) e.currentTarget.style.background = "transparent"; }}
+                                          >
+                                            <MapPin size={12} color={isPostSelected ? "var(--color-accent)" : "var(--color-text-muted)"} /> {p.name}
+                                          </button>
+                                        );
+                                      })}
+                                      {posts.length === 0 && (
+                                        <div style={{ padding: "10px 14px", fontSize: "12px", color: "var(--color-text-muted)", fontStyle: "italic" }}>No posts configured for this site.</div>
+                                      )}
+
+                                      {/* Footer actions */}
+                                      <div style={{ borderTop: "1px solid var(--color-border)", display: "flex", gap: "0" }}>
+                                        <button
+                                          onClick={() => {
+                                            if (assigned) setActiveCellKey(null);
+                                          }}
+                                          style={{ flex: 1, padding: "10px 14px", background: "transparent", border: "none", borderRight: "1px solid var(--color-border)", color: "var(--color-success)", cursor: "pointer", fontSize: "12.5px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+                                          onMouseEnter={e => (e.currentTarget.style.background = "var(--color-success-subtle)")}
+                                          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                                        >
+                                          ✓ Done
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            setRoster(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "OFF" } }));
+                                            setRosterPosts(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "" } }));
+                                            setActiveCellKey(null);
+                                          }}
+                                          style={{ flex: 1, padding: "10px 14px", background: "transparent", border: "none", borderRight: "1px solid var(--color-border)", color: "var(--color-danger)", cursor: "pointer", fontSize: "12.5px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+                                          onMouseEnter={e => (e.currentTarget.style.background = "var(--color-danger-subtle)")}
+                                          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                                        >
+                                          <Ban size={12} /> Off
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            setRoster(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "" } }));
+                                            setRosterPosts(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "" } }));
+                                            setActiveCellKey(null);
+                                          }}
+                                          style={{ flex: 1, padding: "10px 14px", background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "12.5px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+                                          onMouseEnter={e => (e.currentTarget.style.background = "var(--color-bg-subtle)")}
+                                          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                                        >
+                                          <X size={12} /> Clear
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* ─── SUB-TAB 3: AUTO-SCHEDULE ─── */}
+              {shiftSubTab === "autoschedule" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Auto-Schedule Generator</h3>
+                    <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--color-text-muted)" }}>Set your staffing requirements and let the system generate a full weekly roster automatically.</p>
+                  </div>
+
+                  {/* Config panel */}
+                  <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", padding: "28px", boxShadow: "var(--color-card-shadow)", display: "flex", flexDirection: "column", gap: "24px" }}>
+                    <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "flex-end" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        <label style={labelStyle}>Week Starting</label>
+                        <input type="date" value={autoWeekStart} onChange={e => { setAutoWeekStart(e.target.value); setRosterWeekStart(e.target.value); }} style={{ ...inputStyle, width: "200px" }} />
+                      </div>
+                      <div style={{ fontSize: "13px", color: "var(--color-text-secondary)", padding: "10px 0" }}>
+                        <span style={{ fontWeight: 600 }}>{users.filter((u: any) => !u.onLeave).length}</span> guards available&nbsp;
+                        {users.filter((u: any) => u.onLeave).length > 0 && (
+                          <span style={{ color: "var(--color-warning)" }}>({users.filter((u: any) => u.onLeave).length} on leave excluded)</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                        <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>Required Guards per Shift</h4>
+                        <button onClick={() => setAutoRequirements(prev => [...prev, { templateId: templates[0]?.id ?? "", count: 1 }])}
+                          style={{ padding: "6px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                          <Plus size={13} /> Add Row
+                        </button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        {autoRequirements.map((req, ri) => (
+                          <div key={ri} style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                            <select value={req.templateId} onChange={e => setAutoRequirements(prev => prev.map((r, i) => i === ri ? { ...r, templateId: e.target.value } : r))}
+                              style={{ ...inputStyle, width: "220px", flex: 1 }}>
+                              {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.startTime}–{t.endTime})</option>)}
+                            </select>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <span style={{ fontSize: "13px", color: "var(--color-text-secondary)", whiteSpace: "nowrap" }}>Guards needed:</span>
+                              <input type="number" min={0} max={50} value={req.count} onChange={e => setAutoRequirements(prev => prev.map((r, i) => i === ri ? { ...r, count: parseInt(e.target.value) || 0 } : r))}
+                                style={{ ...inputStyle, width: "80px" }} />
+                            </div>
+                            <button onClick={() => setAutoRequirements(prev => prev.filter((_, i) => i !== ri))}
+                              style={{ padding: "8px", background: "transparent", border: "none", color: "var(--color-danger)", cursor: "pointer", display: "flex" }}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={{ borderTop: "1px solid var(--color-border)", paddingTop: "20px", display: "flex", gap: "12px" }}>
+                      <button onClick={handleGenerateRoster} disabled={isGenerating}
+                        style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", background: "linear-gradient(135deg, var(--color-accent) 0%, #7c3aed 100%)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: "pointer", fontSize: "14px", boxShadow: "0 4px 12px rgba(99,102,241,0.3)", transition: "opacity var(--transition-fast)" }}>
+                        <Wand2 size={18} /> {isGenerating ? "Generating..." : "Generate Weekly Roster"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Generated preview */}
+                  {autoResult && (
+                    <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "2px solid var(--color-success)", padding: "0", boxShadow: "0 0 0 4px var(--color-success-subtle)", overflow: "hidden" }}>
+                      <div style={{ padding: "16px 24px", background: "var(--color-success-subtle)", borderBottom: "1px solid var(--color-success)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <CheckCircle2 size={18} color="var(--color-success)" />
+                          <span style={{ fontWeight: 700, fontSize: "15px", color: "var(--color-success)" }}>Roster Generated — Review Before Applying</span>
+                        </div>
+                        <div style={{ display: "flex", gap: "10px" }}>
+                          <button onClick={handleApplyAutoRoster} style={{ padding: "8px 20px", background: "var(--color-success)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: "pointer", fontSize: "13px" }}>
+                            Apply to Roster
+                          </button>
+                          <button onClick={() => setAutoResult(null)} style={{ padding: "8px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13px" }}>
+                            Discard
+                          </button>
+                        </div>
+                      </div>
+                      <div style={{ overflowX: "auto", padding: "16px" }}>
+                        {Object.entries(autoResult).map(([userId, days]) => {
+                          const guard = users.find((u: any) => u.id === userId);
+                          if (!guard) return null;
+                          return (
+                            <div key={userId} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 0", borderBottom: "1px solid var(--color-border)" }}>
+                              <div style={{ width: "130px", flexShrink: 0, fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)" }}>{guard.firstName} {guard.lastName}</div>
+                              <div style={{ display: "flex", gap: "6px" }}>
+                                {DAYS.map((day, di) => {
+                                  const val = days[di];
+                                  const tmpl = templates.find(t => t.id === val);
+                                  return (
+                                    <div key={di} style={{ textAlign: "center", width: "80px" }}>
+                                      <div style={{ fontSize: "10px", color: "var(--color-text-muted)", marginBottom: "3px" }}>{day}</div>
+                                      <div style={{ padding: "5px 4px", borderRadius: "6px", background: val === "OFF" ? "var(--color-danger-subtle)" : tmpl ? `${tmpl.color}22` : "var(--color-bg-subtle)", color: val === "OFF" ? "var(--color-danger)" : tmpl ? tmpl.color : "var(--color-text-muted)", fontSize: "10.5px", fontWeight: 700 }}>
+                                        {val === "OFF" ? "OFF" : tmpl ? tmpl.name.split(" ")[0] : "–"}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ─── SUB-TAB 4: SHIFT COVERAGE ─── */}
+              {shiftSubTab === "coverage" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Shift Coverage Dashboard</h3>
+                      <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--color-text-muted)" }}>Monitor staffing levels across all shifts and days. Quickly spot gaps and conflicts.</p>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <label style={{ ...labelStyle, marginBottom: 0 }}>Week Starting</label>
+                      <input type="date" value={rosterWeekStart} onChange={e => setRosterWeekStart(e.target.value)} style={{ ...inputStyle, width: "180px", padding: "8px 12px" }} />
+                    </div>
+                  </div>
+
+                  {/* Coverage summary cards */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
+                    {coverageData.map(({ day, dayIndex, templateCoverage, total }) => {
+                      const rosterCount = Object.values(roster).filter(days => days[dayIndex] && days[dayIndex] !== "OFF").length;
+                      const hasGap = rosterCount === 0;
+                      return (
+                        <div key={day} style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: `1px solid ${hasGap ? "var(--color-danger)" : "var(--color-card-border)"}`, boxShadow: hasGap ? "0 0 0 3px var(--color-danger-subtle)" : "var(--color-card-shadow)", overflow: "hidden" }}>
+                          <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: hasGap ? "var(--color-danger-subtle)" : "var(--color-bg-subtle)" }}>
+                            <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--color-text-primary)" }}>{day} <span style={{ fontWeight: 400, color: "var(--color-text-muted)", fontSize: "12px" }}>{getRosterDate(dayIndex).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span></div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              {hasGap ? (
+                                <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-danger)", display: "flex", alignItems: "center", gap: "4px" }}>
+                                  <AlertTriangle size={13} /> NO COVER
+                                </span>
+                              ) : (
+                                <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-success)", display: "flex", alignItems: "center", gap: "4px" }}>
+                                  <CheckCircle2 size={13} /> {rosterCount} assigned
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                            {templates.map(t => {
+                              const assignedForShift = Object.values(roster).filter(days => days[dayIndex] === t.id).length;
+                              return (
+                                <div key={t.id}>
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)" }}>
+                                      <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: t.color, flexShrink: 0 }} />
+                                      {t.name}
+                                    </div>
+                                    <span style={{ fontSize: "12px", fontWeight: 700, color: assignedForShift === 0 ? "var(--color-text-muted)" : t.color }}>{assignedForShift} guards</span>
+                                  </div>
+                                  <div style={{ height: "6px", background: "var(--color-bg-subtle)", borderRadius: "4px", overflow: "hidden" }}>
+                                    <div style={{ height: "100%", width: `${Math.min(100, (assignedForShift / Math.max(1, users.length)) * 100)}%`, background: t.color, borderRadius: "4px", transition: "width 0.5s ease" }} />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                            {/* Off duty count */}
+                            <div style={{ paddingTop: "8px", borderTop: "1px solid var(--color-border)", fontSize: "12px", color: "var(--color-text-muted)", display: "flex", justifyContent: "space-between" }}>
+                              <span>Off Duty</span>
+                              <span style={{ fontWeight: 600 }}>{Object.values(roster).filter(days => days[dayIndex] === "OFF").length}</span>
+                            </div>
+                            <div style={{ fontSize: "12px", color: "var(--color-text-muted)", display: "flex", justifyContent: "space-between" }}>
+                              <span>Unassigned</span>
+                              <span style={{ fontWeight: 600 }}>{users.length - Object.values(roster).filter(days => days[dayIndex] !== undefined && days[dayIndex] !== "").length}</span>
+                            </div>
+                          </div>
+                        </div>
                       );
                     })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                  </div>
 
-          </div>
-        )}
+                  {/* Live shift records from the API */}
+                  {shifts.length > 0 && (
+                    <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
+                      <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Clock size={16} color="var(--color-accent)" />
+                        <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>Live Shift Records</h4>
+                        <span style={{ marginLeft: "auto", fontSize: "12px", color: "var(--color-text-muted)" }}>{shifts.length} shifts total</span>
+                      </div>
+                      <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                          <thead>
+                            <tr style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
+                              {["Date", "Guard", "Post", "Scheduled", "Status"].map(h => (
+                                <th key={h} style={{ padding: "10px 16px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", textAlign: "left" }}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {shifts.slice(0, 15).map((s: any, i: number) => {
+                              const style = getShiftStatusStyle(s.status);
+                              return (
+                                <tr key={s.id} style={{ borderBottom: i < Math.min(15, shifts.length) - 1 ? "1px solid var(--color-border)" : "none" }}
+                                  onMouseEnter={e => (e.currentTarget.style.background = "var(--color-bg-subtle)")}
+                                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                                >
+                                  <td style={{ padding: "12px 16px", fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)" }}>{new Date(s.startTime).toLocaleDateString()}</td>
+                                  <td style={{ padding: "12px 16px", fontSize: "13px" }}><div style={{ display: "flex", alignItems: "center", gap: "6px" }}><User size={12} />{s.user?.firstName} {s.user?.lastName}</div></td>
+                                  <td style={{ padding: "12px 16px", fontSize: "13px", color: "var(--color-text-secondary)" }}>{s.post?.name || "—"}</td>
+                                  <td style={{ padding: "12px 16px", fontSize: "12px", color: "var(--color-text-secondary)" }}>
+                                    {new Date(s.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – {s.endTime ? new Date(s.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                                  </td>
+                                  <td style={{ padding: "12px 16px" }}>
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "4px 10px", borderRadius: "20px", fontSize: "10.5px", fontWeight: 700, background: style.bg, color: style.color }}>
+                                      {style.icon} {s.status.replace("_", " ")}
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+            </div>
+          );
+        })()}
 
         {/* TAB 3: ATTENDANCE TRACKING */}
         {activeTab === "attendance" && (
