@@ -22,7 +22,7 @@ export default function SiteManagerDashboard() {
   };
 
   const greeting = user?.firstName ? `${getGreeting()}, ${user.firstName}` : "Welcome Back";
-  const companyName = user?.tenant?.name || "Gladiator Security";
+  const companyName = user?.tenant?.name || "Gladiator Pro";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>

@@ -20,7 +20,7 @@ export default function ManagerDashboard() {
   };
 
   const greeting = user?.firstName ? `${getGreeting()}, ${user.firstName}` : "Welcome Back";
-  const companyName = user?.tenant?.name || "Gladiator Security";
+  const companyName = user?.tenant?.name || "Gladiator Pro";
 
   useEffect(() => {
     const loadData = async () => {

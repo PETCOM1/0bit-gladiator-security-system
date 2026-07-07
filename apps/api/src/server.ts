@@ -100,7 +100,7 @@ const API = "/api/v1";
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
     status: "success",
-    message: "0-Bit Gladiator Security System API is online",
+    message: "Gladiator Pro Security System API is online",
     timestamp: new Date().toISOString(),
   });
 });
