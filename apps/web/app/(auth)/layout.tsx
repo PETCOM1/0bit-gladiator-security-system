@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { BRAND } from "@/shared/config/branding.config";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isCleanPage = pathname === "/login" || pathname === "/";
+
+  if (isCleanPage) {
+    return <>{children}</>;
+  }
+
   return (
     <div style={{ minHeight: "100vh", background: "#0a0f1a" }}>
       {/* Minimal top bar */}
