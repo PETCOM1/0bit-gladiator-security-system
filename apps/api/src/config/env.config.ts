@@ -21,7 +21,7 @@ const env = {
 
   // Mail — Resend
   RESEND_API_KEY: process.env.RESEND_API_KEY as string,
-  SENDER_EMAIL:   process.env.SENDER_EMAIL   || "noreply@phoque-orbit.co.za",
+  SENDER_EMAIL:   process.env.SENDER_EMAIL   || "noreply@gladiatorpro.co.za",
 
   // Google OAuth
   GOOGLE_CLIENT_ID:     process.env.GOOGLE_CLIENT_ID     as string,
