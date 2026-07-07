@@ -1,2 +1,5 @@
-import LandingPage from "@/features/marketing/pages/LandingPage";
-export default LandingPage;
+import { redirect } from "next/navigation";
+
+export default function Home() {
+  redirect("/login");
+}
