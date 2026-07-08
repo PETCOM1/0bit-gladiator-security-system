@@ -7,8 +7,8 @@ interface GladiatorLogoProps {
 }
 
 /**
- * Gladiator Pro inline SVG logo — a stylised gladiator helmet inside a shield.
- * Renders crisply at any size because it's pure vector, no external file needed.
+ * Gladiator Pro inline SVG logo — a classic Spartan/gladiator helmet.
+ * Renders crisply at any size because it's pure vector.
  */
 export const GladiatorLogo: React.FC<GladiatorLogoProps> = ({
   size = 30,
@@ -17,41 +17,54 @@ export const GladiatorLogo: React.FC<GladiatorLogoProps> = ({
 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 64 64"
+    viewBox="0 0 64 80"
     width={size}
-    height={size}
+    height={size * (80 / 64)}
     fill="none"
     className={className}
     style={style}
   >
-    {/* Shield body */}
+    {/* Crest / plume */}
     <path
-      d="M32 4C16 4 8 14 8 26v10c0 14 10 22 24 26 14-4 24-12 24-26V26C56 14 48 4 32 4Z"
+      d="M32 0 L27 16 Q32 13 37 16 Z"
       fill="#F59E0B"
-    />
-    {/* Shield inner cutout */}
-    <path
-      d="M32 9C19 9 13 17 13 27v8c0 12 8 19 19 22 11-3 19-10 19-22v-8C51 17 45 9 32 9Z"
-      fill="currentColor"
-      opacity="0.95"
     />
     {/* Helmet dome */}
     <path
-      d="M20 30c0-10 5-16 12-16s12 6 12 16v2H20Z"
+      d="M12 36 Q12 14 32 12 Q52 14 52 36 L52 48 Q52 62 44 68 L42 70 Q38 74 32 76 Q26 74 22 70 L20 68 Q12 62 12 48 Z"
       fill="#F59E0B"
     />
-    {/* Eye slits */}
-    <rect x="22" y="28" width="8" height="3" rx="0.5" fill="currentColor" opacity="0.95" />
-    <rect x="34" y="28" width="8" height="3" rx="0.5" fill="currentColor" opacity="0.95" />
-    {/* Nose guard */}
-    <path d="M30 28h4l-1 8h-2Z" fill="#F59E0B" />
-    {/* Crest */}
-    <path d="M28 14l4-8 4 8Z" fill="#F59E0B" />
-    <path d="M26 16l-2-6 4 4Z" fill="#F59E0B" />
-    <path d="M38 16l2-6-4 4Z" fill="#F59E0B" />
-    {/* Chin guard */}
-    <path d="M26 32l-2 8 8 4 8-4-2-8Z" fill="#F59E0B" />
-    <path d="M28 34l-2 5 6 3 6-3-2-5Z" fill="currentColor" opacity="0.95" />
+    {/* T-visor cutout — horizontal eye slit */}
+    <rect x="18" y="36" width="28" height="5" rx="1" fill="#0f172a" />
+    {/* T-visor cutout — vertical nose guard */}
+    <path
+      d="M29 36 L29 58 Q29 60 32 62 Q35 60 35 58 L35 36 Z"
+      fill="#0f172a"
+    />
+    {/* Left cheek guard detail */}
+    <path
+      d="M14 44 Q13 54 20 64"
+      stroke="#0f172a"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Right cheek guard detail */}
+    <path
+      d="M50 44 Q51 54 44 64"
+      stroke="#0f172a"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Brow line detail */}
+    <path
+      d="M16 33 Q32 28 48 33"
+      stroke="#0f172a"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
   </svg>
 );
 
