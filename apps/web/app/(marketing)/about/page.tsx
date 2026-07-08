@@ -1,4 +1,5 @@
 import { BRAND } from "@/shared/config/branding.config";
+import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 import Link from "next/link";
 
 const VALUES = [
@@ -77,8 +78,8 @@ export default function AboutPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
           {TEAM.map(({ name, role, bio }) => (
             <div key={role} style={{ padding: "32px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px" }}>
-              <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", color: "var(--color-accent)", marginBottom: "16px" }}>
-                {BRAND.logoMark}
+              <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-border)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+                <GladiatorLogo size={32} />
               </div>
               <div style={{ fontSize: "15px", fontWeight: 700, color: "#fff", marginBottom: "4px" }}>{name}</div>
               <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-accent)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.06em" }}>{role}</div>

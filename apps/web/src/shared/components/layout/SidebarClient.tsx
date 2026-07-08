@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/shared/context/AuthContext";
 import { NAV_CONFIG } from "@/shared/config/nav.config";
 import { BRAND } from "@/shared/config/branding.config";
+import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 import {
   LayoutDashboard, FolderKanban, Users, UserCircle,
   FileText, Receipt, UsersRound, Activity, ScrollText,
@@ -41,7 +42,8 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
   }, []);
 
   const tenantName = (user?.role === "SUPER_ADMIN" || user?.role === "ADMIN") ? BRAND.name : (user?.tenant?.name || BRAND.name);
-  const logoMark = (user?.role === "SUPER_ADMIN" || user?.role === "ADMIN") ? BRAND.logoMark : (user?.tenant?.name ? user.tenant.name.charAt(0).toUpperCase() : BRAND.logoMark);
+  const useFullLogo = (user?.role === "SUPER_ADMIN" || user?.role === "ADMIN") || !user?.tenant?.name;
+  const logoMark = useFullLogo ? null : user!.tenant!.name!.charAt(0).toUpperCase();
 
   const role     = (user?.role ?? "") as keyof typeof NAV_CONFIG;
   const navItems = NAV_CONFIG[role] ?? [];
@@ -139,24 +141,21 @@ export default function SidebarClient({ isOpen, onToggle }: Props) {
         overflow:       "hidden",
         justifyContent: isOpen ? "flex-start" : "center",
       }}>
-        <div style={{
-          width:          "30px",
-          height:         "30px",
-          borderRadius:   "var(--radius-md)",
-          background:     "linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))",
-          display:        "flex",
-          alignItems:     "center",
-          justifyContent: "center",
-          fontSize:       "13px",
-          fontWeight:     800,
-          color:          "#fff",
-          flexShrink:     0,
-          letterSpacing:  "-0.02em",
-          boxShadow:      "0 0 12px rgba(245, 158, 11, 0.4)",
-          border:         "1px solid rgba(255,255,255,0.15)",
-        }}>
-          {logoMark}
-        </div>
+        {useFullLogo ? (
+          <GladiatorLogo size={30} style={{ flexShrink: 0, filter: "drop-shadow(0 0 8px rgba(245, 158, 11, 0.4))" }} />
+        ) : (
+          <div style={{
+            width: "30px", height: "30px", borderRadius: "var(--radius-md)",
+            background: "linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: "13px", fontWeight: 800, color: "#fff", flexShrink: 0,
+            letterSpacing: "-0.02em",
+            boxShadow: "0 0 12px rgba(245, 158, 11, 0.4)",
+            border: "1px solid rgba(255,255,255,0.15)",
+          }}>
+            {logoMark}
+          </div>
+        )}
 
         {isOpen && (
           <span style={{

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Shield body -->
+  <path d="M32 4 C16 4, 8 14, 8 26 L8 36 C8 50, 18 58, 32 62 C46 58, 56 50, 56 36 L56 26 C56 14, 48 4, 32 4Z" fill="#F59E0B"/>
+  <!-- Shield inner cutout -->
+  <path d="M32 9 C19 9, 13 17, 13 27 L13 35 C13 47, 21 54, 32 57 C43 54, 51 47, 51 35 L51 27 C51 17, 45 9, 32 9Z" fill="#0f172a"/>
+  <!-- Helmet dome -->
+  <path d="M20 30 C20 20, 25 14, 32 14 C39 14, 44 20, 44 30 L44 32 L20 32Z" fill="#F59E0B"/>
+  <!-- Helmet visor slit - eyes -->
+  <path d="M22 28 L30 28 L30 31 L22 31Z" fill="#0f172a"/>
+  <path d="M34 28 L42 28 L42 31 L34 31Z" fill="#0f172a"/>
+  <!-- Nose guard -->
+  <path d="M30 28 L34 28 L33 36 L31 36Z" fill="#F59E0B"/>
+  <!-- Crest/plume base -->
+  <path d="M28 14 L32 6 L36 14Z" fill="#F59E0B"/>
+  <!-- Crest spikes -->
+  <path d="M26 16 L24 10 L28 14Z" fill="#F59E0B"/>
+  <path d="M38 16 L40 10 L36 14Z" fill="#F59E0B"/>
+  <!-- Chin guard -->
+  <path d="M26 32 L24 40 L32 44 L40 40 L38 32Z" fill="#F59E0B"/>
+  <!-- Chin detail -->
+  <path d="M28 34 L26 39 L32 42 L38 39 L36 34Z" fill="#0f172a"/>
+</svg>

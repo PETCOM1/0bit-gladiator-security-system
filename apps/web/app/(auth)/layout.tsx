@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BRAND } from "@/shared/config/branding.config";
+import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -25,12 +26,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       }}>
         {/* Logo / back home */}
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-          <div style={{
-            width: "28px", height: "28px", borderRadius: "7px",
-            background: "linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "14px", fontWeight: 900, color: "var(--color-accent-text)",
-          }}>{BRAND.logoMark}</div>
+          <GladiatorLogo size={28} style={{ filter: "drop-shadow(0 0 6px rgba(245, 158, 11, 0.3))" }} />
           <span style={{ fontSize: "16px", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>
             {BRAND.name}
           </span>

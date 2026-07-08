@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/shared/context/AuthContext";
 import { BRAND } from "@/shared/config/branding.config";
+import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 
 const ROLE_ROUTES: Record<string, string> = {
   SUPER_ADMIN: "/super-admin",
@@ -185,22 +186,7 @@ export default function LoginPage() {
         {/* Center Content */}
         <div style={{ maxWidth: "480px", margin: "auto 0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-            <div style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "14px",
-              background: "linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "26px",
-              fontWeight: 900,
-              color: "var(--color-accent-text)",
-              boxShadow: "0 0 24px rgba(245, 158, 11, 0.4)",
-              border: "1px solid rgba(255,255,255,0.15)",
-            }}>
-              {BRAND.logoMark}
-            </div>
+            <GladiatorLogo size={56} style={{ filter: "drop-shadow(0 0 16px rgba(245, 158, 11, 0.5))" }} />
             <span style={{
               fontSize: "28px",
               fontWeight: 900,

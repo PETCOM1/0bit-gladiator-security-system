@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BRAND } from "@/shared/config/branding.config";
+import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 
 export default function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
@@ -28,12 +29,7 @@ export default function MarketingNav() {
     }}>
       {/* Logo */}
       <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-        <div style={{
-          width: "32px", height: "32px", borderRadius: "8px",
-          background: "linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "16px", fontWeight: 900, color: "var(--color-accent-text)",
-        }}>{BRAND.logoMark}</div>
+        <GladiatorLogo size={32} style={{ filter: "drop-shadow(0 0 8px rgba(245, 158, 11, 0.4))" }} />
         <span style={{ fontSize: "18px", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>
           {BRAND.name}
         </span>
