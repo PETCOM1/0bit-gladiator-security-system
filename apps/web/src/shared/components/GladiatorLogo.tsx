@@ -7,7 +7,8 @@ interface GladiatorLogoProps {
 }
 
 /**
- * Gladiator Pro inline SVG logo — a classic Spartan/gladiator helmet.
+ * Gladiator Pro inline SVG logo — classic Corinthian gladiator helmet
+ * with brow line, T-visor, and rounded cheek guards.
  * Renders crisply at any size because it's pure vector.
  */
 export const GladiatorLogo: React.FC<GladiatorLogoProps> = ({
@@ -17,51 +18,65 @@ export const GladiatorLogo: React.FC<GladiatorLogoProps> = ({
 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 64 80"
+    viewBox="0 0 100 120"
     width={size}
-    height={size * (80 / 64)}
-    fill="none"
+    height={size * 1.2}
     className={className}
     style={style}
   >
-    {/* Crest / plume */}
+    {/* Crest — pointed blade shape rising from dome */}
     <path
-      d="M32 0 L27 16 Q32 13 37 16 Z"
+      d="M50 0 L44 22 Q50 18 56 22 Z"
       fill="#F59E0B"
     />
-    {/* Helmet dome */}
+    {/* Main helmet dome + face + chin — single gold silhouette */}
     <path
-      d="M12 36 Q12 14 32 12 Q52 14 52 36 L52 48 Q52 62 44 68 L42 70 Q38 74 32 76 Q26 74 22 70 L20 68 Q12 62 12 48 Z"
+      d="
+        M20 50
+        Q20 20 50 16
+        Q80 20 80 50
+        L80 65
+        Q80 82 70 92
+        L65 100
+        Q58 108 50 110
+        Q42 108 35 100
+        L30 92
+        Q20 82 20 65
+        Z
+      "
       fill="#F59E0B"
     />
-    {/* T-visor cutout — horizontal eye slit */}
-    <rect x="18" y="36" width="28" height="5" rx="1" fill="#0f172a" />
-    {/* T-visor cutout — vertical nose guard */}
+    {/* Brow line — dark arc across forehead */}
     <path
-      d="M29 36 L29 58 Q29 60 32 62 Q35 60 35 58 L35 36 Z"
+      d="M22 48 Q38 38 50 40 Q62 38 78 48"
+      stroke="#0f172a"
+      strokeWidth="3.5"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* T-visor — horizontal eye slit */}
+    <path
+      d="M26 54 L74 54 L74 62 Q62 58 50 60 Q38 58 26 62 Z"
       fill="#0f172a"
     />
-    {/* Left cheek guard detail */}
+    {/* T-visor — vertical nose/mouth slot */}
     <path
-      d="M14 44 Q13 54 20 64"
+      d="M44 54 L44 88 Q44 94 50 98 Q56 94 56 88 L56 54 Z"
+      fill="#0f172a"
+    />
+    {/* Left cheek guard contour */}
+    <path
+      d="M24 62 Q22 76 30 90"
       stroke="#0f172a"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       fill="none"
     />
-    {/* Right cheek guard detail */}
+    {/* Right cheek guard contour */}
     <path
-      d="M50 44 Q51 54 44 64"
+      d="M76 62 Q78 76 70 90"
       stroke="#0f172a"
-      strokeWidth="2"
-      strokeLinecap="round"
-      fill="none"
-    />
-    {/* Brow line detail */}
-    <path
-      d="M16 33 Q32 28 48 33"
-      stroke="#0f172a"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       fill="none"
     />
