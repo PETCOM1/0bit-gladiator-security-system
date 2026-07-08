@@ -148,6 +148,7 @@ function OperationsContent() {
   const [rosterPosts, setRosterPosts] = useState<Record<string, Record<number, string>>>({});
   const [activeCellKey, setActiveCellKey] = useState<string | null>(null);
   const [isSavingRoster, setIsSavingRoster] = useState(false);
+  const [hideAssignedRoster, setHideAssignedRoster] = useState(false);
 
   // Auto-Schedule state
   const [autoWeekStart, setAutoWeekStart] = useState<string>(rosterWeekStart);
@@ -813,6 +814,19 @@ function OperationsContent() {
                         <label style={{ ...labelStyle, marginBottom: 0 }}>Week Starting</label>
                         <input type="date" value={rosterWeekStart} onChange={e => setRosterWeekStart(e.target.value)} style={{ ...inputStyle, width: "160px", padding: "8px 12px" }} />
                       </div>
+                      <button 
+                        onClick={() => setHideAssignedRoster(prev => !prev)} 
+                        style={{ 
+                          display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", 
+                          background: hideAssignedRoster ? "rgba(245, 158, 11, 0.15)" : "transparent", 
+                          border: hideAssignedRoster ? "1px solid var(--color-accent)" : "1px solid var(--color-border)", 
+                          borderRadius: "var(--radius-md)", 
+                          color: hideAssignedRoster ? "var(--color-accent)" : "var(--color-text-secondary)", 
+                          cursor: "pointer", fontSize: "13px", fontWeight: 600, marginTop: "18px" 
+                        }}
+                      >
+                        <Eye size={14} /> {hideAssignedRoster ? "Showing Unassigned Only" : "Hide Assigned Guards"}
+                      </button>
                       <button onClick={() => { setRoster({}); setRosterPosts({}); }} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13px", fontWeight: 600, marginTop: "18px" }}>
                         <RefreshCw size={14} /> Clear
                       </button>
@@ -855,13 +869,22 @@ function OperationsContent() {
                         </tr>
                       </thead>
                       <tbody>
-                        {users.length === 0 ? (
-                          <tr><td colSpan={8} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "14px" }}>No guards loaded. Go to the Auto-Schedule tab to load guards first.</td></tr>
-                        ) : users.map((u: any, ui: number) => (
-                          <tr key={u.id} style={{ borderBottom: ui < users.length - 1 ? "1px solid var(--color-border)" : "none" }}
-                            onMouseEnter={e => (e.currentTarget.style.background = "var(--color-bg-subtle)")}
-                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                          >
+                        {(() => {
+                          const visibleUsers = users.filter((u: any) => {
+                            if (!hideAssignedRoster) return true;
+                            const userRoster = roster[u.id] || {};
+                            return !Object.values(userRoster).some(val => val !== "" && val !== "OFF");
+                          });
+
+                          if (visibleUsers.length === 0) {
+                            return <tr><td colSpan={8} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "14px" }}>No unassigned guards left. All are scheduled!</td></tr>;
+                          }
+
+                          return visibleUsers.map((u: any, ui: number) => (
+                            <tr key={u.id} style={{ borderBottom: ui < visibleUsers.length - 1 ? "1px solid var(--color-border)" : "none" }}
+                              onMouseEnter={e => (e.currentTarget.style.background = "var(--color-bg-subtle)")}
+                              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                            >
                             {/* Guard name column */}
                             <td style={{ padding: "14px 20px", whiteSpace: "nowrap" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -1034,7 +1057,7 @@ function OperationsContent() {
                               );
                             })}
                           </tr>
-                        ))}
+                        ))})()}
                       </tbody>
                     </table>
                   </div>
