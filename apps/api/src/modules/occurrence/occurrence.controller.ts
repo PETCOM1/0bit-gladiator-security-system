@@ -32,9 +32,20 @@ export const getEntries = catchAsync(async (req: Request, res: Response) => {
 
 export const createEntry = catchAsync(async (req: Request, res: Response) => {
   const tenantId = req.user!.tenantId;
-  const siteId = req.user!.role === Role.MANAGER ? req.body.siteId : req.user!.siteId;
   
-  if (!tenantId || !siteId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant/site context" });
+  let siteId = req.user!.role === Role.MANAGER ? req.body.siteId : req.user!.siteId;
+  
+  // Fallback: If siteId is not statically set on user, find their active in-progress shift
+  if (!siteId && req.user!.role === Role.USER) {
+    const activeShift = await prisma.shift.findFirst({
+      where: { userId: req.user!.userId, status: "IN_PROGRESS" }
+    });
+    if (activeShift) {
+      siteId = activeShift.siteId;
+    }
+  }
+  
+  if (!tenantId || !siteId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant/site context. Ensure you are clocked in to a shift." });
 
   const { entryText, category, description, incidentType, location, severity, image } = req.body;
 

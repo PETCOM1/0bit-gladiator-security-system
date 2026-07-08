@@ -6,9 +6,20 @@ import { catchAsync } from "../../utils/catchAsync.js";
 export const checkInVisitor = catchAsync(async (req: Request, res: Response) => {
   const { name, idNumber, company, personVisiting, vehicleReg, purpose, cellNumber, townVillage } = req.body;
   const tenantId = req.user!.tenantId;
-  const siteId = req.user!.role === "MANAGER" ? req.body.siteId : req.user!.siteId;
   
-  if (!tenantId || !siteId) return res.status(403).json({ message: "No tenant/site context" });
+  let siteId = req.user!.role === "MANAGER" ? req.body.siteId : req.user!.siteId;
+  
+  // Fallback: If siteId is not statically set on user, find their active in-progress shift
+  if (!siteId && req.user!.role === "USER") {
+    const activeShift = await prisma.shift.findFirst({
+      where: { userId: req.user!.userId, status: "IN_PROGRESS" }
+    });
+    if (activeShift) {
+      siteId = activeShift.siteId;
+    }
+  }
+  
+  if (!tenantId || !siteId) return res.status(403).json({ message: "No tenant/site context. Ensure you are clocked in to a shift." });
 
   const visitor = await prisma.visitor.create({
     data: { tenantId, siteId, loggedById: req.user!.userId, name, idNumber, company, personVisiting, vehicleReg, purpose, cellNumber, townVillage }
