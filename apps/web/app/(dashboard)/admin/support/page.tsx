@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { LifeBuoy, Search, MessageSquare, Clock, User, CheckCircle2, Smile, Paperclip, Send, ShieldAlert, Award } from "lucide-react";
+import { LifeBuoy, Search, MessageSquare, Clock, User, CheckCircle2, Smile, Paperclip, Send, ShieldAlert, Award, CornerUpLeft, X } from "lucide-react";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
 import { useAuth } from "@/shared/context/AuthContext";
 
@@ -12,6 +12,7 @@ export default function SupportHelpdeskPage() {
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [replyContent, setReplyContent] = useState("");
+  const [replyingToMessage, setReplyingToMessage] = useState<any>(null);
   const { user } = useAuth();
 
   // Mock emoji reactions state to make it interactive and alive
@@ -48,8 +49,13 @@ export default function SupportHelpdeskPage() {
     if (!replyContent.trim() || !selectedTicket) return;
     try {
       const { default: apiClient } = await import("@/api/client");
-      await apiClient.post(`/tickets/${selectedTicket.id}/reply`, { content: replyContent });
+      const formattedContent = replyingToMessage
+        ? `> *Replying to ${replyingToMessage.sender?.firstName || "User"}: "${replyingToMessage.content}"*\n\n${replyContent}`
+        : replyContent;
+
+      await apiClient.post(`/tickets/${selectedTicket.id}/reply`, { content: formattedContent });
       setReplyContent("");
+      setReplyingToMessage(null);
       fetchTicketDetails(selectedTicket.id);
       fetchTickets();
     } catch (err) {
@@ -182,7 +188,15 @@ export default function SupportHelpdeskPage() {
                       <h4 style={{ margin: "0 0 6px 0", fontWeight: 700 }}>Subject: {selectedTicket.subject}</h4>
                       {selectedTicket.description}
                     </div>
-                    <span style={{ fontSize: "11px", color: "var(--color-text-muted)", marginLeft: "4px" }}>{new Date(selectedTicket.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "2px" }}>
+                      <span style={{ fontSize: "11px", color: "var(--color-text-muted)", marginLeft: "4px" }}>{new Date(selectedTicket.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <button 
+                        onClick={() => setReplyingToMessage({ sender: selectedTicket.createdBy, content: selectedTicket.description })}
+                        style={{ display: "flex", alignItems: "center", gap: "4px", background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "11.5px", fontWeight: 600 }}
+                      >
+                        <CornerUpLeft size={13} /> Reply
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -211,6 +225,12 @@ export default function SupportHelpdeskPage() {
                           >
                             😊 <span>{reactions[msg.id] || 0}</span>
                           </button>
+                          <button 
+                            onClick={() => setReplyingToMessage(msg)}
+                            style={{ display: "flex", alignItems: "center", gap: "4px", background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
+                          >
+                            <CornerUpLeft size={13} /> Reply
+                          </button>
                           <span style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                       </div>
@@ -220,7 +240,23 @@ export default function SupportHelpdeskPage() {
               </div>
 
               {/* Chat Input Bar */}
-              <div style={{ padding: "16px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-card-bg)" }}>
+              <div style={{ padding: "16px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-card-bg)", display: "flex", flexDirection: "column", gap: "8px" }}>
+                {/* Replying To Preview Banner */}
+                {replyingToMessage && (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", padding: "8px 12px", borderRadius: "var(--radius-md)" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-accent)" }}>Replying to {replyingToMessage.sender?.firstName || "User"}</span>
+                      <span style={{ fontSize: "12.5px", color: "var(--color-text-secondary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "450px" }}>{replyingToMessage.content}</span>
+                    </div>
+                    <button 
+                      onClick={() => setReplyingToMessage(null)}
+                      style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", padding: "8px 12px" }}>
                   <button style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}>
                     <Smile size={20} />
