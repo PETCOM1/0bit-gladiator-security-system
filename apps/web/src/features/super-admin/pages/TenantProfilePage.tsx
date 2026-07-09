@@ -164,54 +164,111 @@ export default function TenantProfilePage() {
       </div>
 
       {/* Users / Admins Table */}
-      <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-        <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", gap: "12px" }}>
-          <Users size={18} color="var(--color-accent)" />
-          <h2 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Administrators & Key Personnel</h2>
-        </div>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
-                {["Name", "Email", "Role", "Status"].map(h => (
-                  <th key={h} style={{
-                    padding: "12px 24px", textAlign: "left", fontSize: "11px", fontWeight: 700,
-                    color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", background: "var(--color-bg-subtle)",
-                  }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(!tenant.users || tenant.users.length === 0) ? (
-                <tr>
-                  <td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "14px" }}>
-                    No users found for this tenant.
-                  </td>
-                </tr>
-              ) : (
-                tenant.users.map((u: any, i: number) => (
-                  <tr key={u.id} style={{ borderBottom: i < tenant.users.length - 1 ? "1px solid var(--color-border)" : "none" }}>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }}>{u.firstName} {u.lastName}</td>
-                    <td style={{ padding: "16px 24px", fontSize: "14px", color: "var(--color-text-secondary)" }}>{u.email}</td>
-                    <td style={{ padding: "16px 24px" }}>
-                      <span style={{ padding: "4px 8px", background: "var(--color-bg-subtle)", borderRadius: "4px", fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)" }}>{u.role}</span>
-                    </td>
-                    <td style={{ padding: "16px 24px" }}>
-                      <span style={{
-                        padding: "4px 10px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700,
-                        background: u.accountStatus === 'ACTIVE' ? "var(--color-success-subtle)" : "var(--color-warning-subtle)", 
-                        color: u.accountStatus === 'ACTIVE' ? "var(--color-success)" : "var(--color-warning)", textTransform: "uppercase"
-                      }}>
-                        {u.accountStatus}
-                      </span>
-                    </td>
+      {(() => {
+        const managers = (tenant.users || []).filter((u: any) => u.role === "MANAGER" || u.role === "ADMIN" || u.role === "SUPER_ADMIN");
+        const supervisors = (tenant.users || []).filter((u: any) => u.role === "SITE_MANAGER");
+        const guards = (tenant.users || []).filter((u: any) => u.role === "USER");
+        const others = (tenant.users || []).filter((u: any) => u.role !== "MANAGER" && u.role !== "ADMIN" && u.role !== "SUPER_ADMIN" && u.role !== "SITE_MANAGER" && u.role !== "USER");
+
+        const renderUserTable = (usersList: any[], emptyMessage: string) => {
+          if (usersList.length === 0) {
+            return (
+              <div style={{ padding: "20px 24px", color: "var(--color-text-muted)", fontSize: "13.5px", fontStyle: "italic" }}>
+                {emptyMessage}
+              </div>
+            );
+          }
+          return (
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
+                    {["Name", "Email", "Role", "Status"].map(h => (
+                      <th key={h} style={{
+                        padding: "10px 24px", textAlign: "left", fontSize: "10.5px", fontWeight: 700,
+                        color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", background: "var(--color-bg-subtle)",
+                      }}>{h}</th>
+                    ))}
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                </thead>
+                <tbody>
+                  {usersList.map((u: any, i: number) => (
+                    <tr key={u.id} style={{ borderBottom: i < usersList.length - 1 ? "1px solid var(--color-border)" : "none" }}>
+                      <td style={{ padding: "14px 24px", fontSize: "13.5px", fontWeight: 600, color: "var(--color-text-primary)" }}>{u.firstName} {u.lastName}</td>
+                      <td style={{ padding: "14px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>{u.email}</td>
+                      <td style={{ padding: "14px 24px" }}>
+                        <span style={{ padding: "3px 8px", background: "var(--color-bg-subtle)", borderRadius: "4px", fontSize: "11.5px", fontWeight: 600, color: "var(--color-text-secondary)", textTransform: "uppercase" }}>{u.role}</span>
+                      </td>
+                      <td style={{ padding: "14px 24px" }}>
+                        <span style={{
+                          padding: "3px 10px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700,
+                          background: u.accountStatus === 'ACTIVE' ? "var(--color-success-subtle)" : "var(--color-warning-subtle)", 
+                          color: u.accountStatus === 'ACTIVE' ? "var(--color-success)" : "var(--color-warning)", textTransform: "uppercase"
+                        }}>
+                          {u.accountStatus}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        };
+
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            {/* Managers Section */}
+            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
+              <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <Users size={16} color="var(--color-accent)" />
+                  <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Management & Admins</h2>
+                </div>
+                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{managers.length}</span>
+              </div>
+              {renderUserTable(managers, "No management personnel found.")}
+            </div>
+
+            {/* Supervisors Section */}
+            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
+              <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <Users size={16} color="var(--color-info)" />
+                  <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Site Supervisors</h2>
+                </div>
+                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{supervisors.length}</span>
+              </div>
+              {renderUserTable(supervisors, "No site supervisors found.")}
+            </div>
+
+            {/* Guards Section */}
+            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
+              <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <Users size={16} color="var(--color-success)" />
+                  <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>On-Site Security Guards</h2>
+                </div>
+                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{guards.length}</span>
+              </div>
+              {renderUserTable(guards, "No active security guards registered.")}
+            </div>
+
+            {others.length > 0 && (
+              <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
+                <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <Users size={16} color="var(--color-text-secondary)" />
+                    <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Other Personnel</h2>
+                  </div>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{others.length}</span>
+                </div>
+                {renderUserTable(others, "")}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Payment History Table */}
       <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
