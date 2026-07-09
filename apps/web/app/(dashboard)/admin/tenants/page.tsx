@@ -260,20 +260,22 @@ function TenantsListContent() {
       {/* Onboard Modal */}
       {isModalOpen && (
         <div style={{
-          position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          position: "fixed", inset: 0, background: "rgba(0, 0, 0, 0.4)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)",
           display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px"
         }}>
-          <div className="glass-panel animate-fade-in" style={{
+          <div className="animate-fade-in" style={{
+            background: "var(--color-card-bg)",
+            border: "1px solid var(--color-border)",
             borderRadius: "var(--radius-xl)",
-            boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "600px", maxHeight: "90vh",
+            boxShadow: "var(--color-card-shadow)", width: "100%", maxWidth: "600px", maxHeight: "90vh",
             display: "flex", flexDirection: "column", overflow: "hidden"
           }}>
             
             {/* Modal Header */}
-            <div style={{ padding: "24px", borderBottom: "1px solid var(--color-border)", flexShrink: 0 }}>
+            <div style={{ padding: "24px", borderBottom: "1px solid var(--color-border)", flexShrink: 0, background: "var(--color-bg-subtle)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Onboard New Tenant</h2>
-                <button onClick={() => setModalOpen(false)} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--color-text-muted)", cursor: "pointer", padding: "6px 10px", borderRadius: "var(--radius-sm)" }}>
+                <button onClick={() => setModalOpen(false)} style={{ background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", color: "var(--color-text-muted)", cursor: "pointer", padding: "6px 10px", borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <X size={16} />
                 </button>
               </div>
