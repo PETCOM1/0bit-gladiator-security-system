@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { 
   FolderKanban, Users, Calendar, Contact, ShieldAlert, CheckCircle2, 
   Search, Filter, Plus, X, Mail, User, Clock, Ban, MapPin, 
-  AlertTriangle, FileText, Eye, Shield
+  AlertTriangle, FileText, Eye, Shield, Edit2, Save, Building, Trash2
 } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
 import { exportIncidentReport } from "@/shared/utils/pdf";
@@ -137,6 +137,11 @@ function OperationsContent() {
 
   const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
 
+  // Site CRUD state
+  const [isCreatingSite, setIsCreatingSite] = useState(false);
+  const [editingSiteId, setEditingSiteId] = useState<string | null>(null);
+  const [siteForm, setSiteForm] = useState({ name: "", address: "" });
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -172,6 +177,37 @@ function OperationsContent() {
 
   const handleTabChange = (tabName: string) => {
     router.push(`/manager/operations?tab=${tabName}`);
+  };
+
+  // Site CRUD Handlers
+  const handleSaveSite = async (id?: string) => {
+    if (!siteForm.name.trim()) { alert("Site name is required."); return; }
+    try {
+      if (id) {
+        await managerService.updateSite(id, siteForm);
+      } else {
+        await managerService.createSite(siteForm);
+      }
+      setIsCreatingSite(false);
+      setEditingSiteId(null);
+      setSiteForm({ name: "", address: "" });
+      loadData();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save site.");
+    }
+  };
+
+  const handleDeleteSite = async (id: string) => {
+    if (!confirm("Are you sure you want to close this site? This cannot be undone.")) return;
+    try {
+      await managerService.deleteSite(id);
+      if (selectedSiteId === id) setSelectedSiteId(sites.find(s => s.id !== id)?.id || null);
+      loadData();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to close site.");
+    }
   };
 
   // Personnel Handlers
@@ -347,125 +383,139 @@ function OperationsContent() {
     }
   };
 
+  const selectedSite = sites.find(s => s.id === selectedSiteId);
+  const siteInputStyle = {
+    width: "100%", padding: "7px 10px", background: "var(--color-bg-subtle)",
+    border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)",
+    fontSize: "12.5px", color: "var(--color-text-primary)", outline: "none"
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
-      
-      {!selectedSiteId ? (
-        <>
-          {/* Sites Grid View */}
-          <div>
-            <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-              <FolderKanban size={24} color="var(--color-accent)" /> Guarding Sites
-            </h1>
-            <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-              Select a site workspace to manage officer rosters, check-in shifts, visitors, and occurrences.
-            </p>
-          </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: "0px", width: "100%" }}>
 
-          {/* Search bar */}
-          <div style={{ position: "relative", width: "100%", maxWidth: "400px" }}>
-            <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
-            <input 
-              type="text" 
-              placeholder="Search cohorts or institutions..." 
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              style={{
-                width: "100%", padding: "10px 14px 10px 38px", background: "var(--color-card-bg)",
-                border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)",
-                fontSize: "14.5px", color: "var(--color-text-primary)", outline: "none",
-                boxShadow: "var(--color-card-shadow)"
-              }}
-            />
-          </div>
+      {/* Page Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+        <div>
+          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px", margin: 0 }}>
+            <FolderKanban size={24} color="var(--color-accent)" /> Sites &amp; Operations
+          </h1>
+          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "6px" }}>
+            Select a site to manage its personnel, shifts, visitors, incidents &amp; occurrences.
+          </p>
+        </div>
+        <button
+          onClick={() => { setIsCreatingSite(true); setSiteForm({ name: "", address: "" }); }}
+          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", background: "var(--color-accent)", border: "none", borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600, color: "var(--color-accent-text)", cursor: "pointer", boxShadow: "0 4px 12px rgba(245,158,11,0.25)", flexShrink: 0 }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = "0.9")}
+          onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+        >
+          <Plus size={16} strokeWidth={2.5} /> Add Site
+        </button>
+      </div>
 
-          {/* Sites Cards Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px", width: "100%" }}>
-            {sites
-              .filter(site => !searchTerm || site.name.toLowerCase().includes(searchTerm.toLowerCase()) || (site.address && site.address.toLowerCase().includes(searchTerm.toLowerCase())))
-              .map(site => {
-                const siteShifts = shifts.filter(s => s.siteId === site.id);
-                const activeShiftsCount = siteShifts.filter(s => s.status === "IN_PROGRESS").length;
-                const siteUsersCount = users.filter(u => u.assignedSiteId === site.id || u.assignedSite?.id === site.id).length;
+      {/* Two-Column Split Layout */}
+      <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", width: "100%" }}>
 
-                return (
-                  <div 
-                    key={site.id} 
-                    style={{ 
-                      background: "var(--color-card-bg)", border: "1px solid var(--color-border)", 
-                      borderRadius: "var(--radius-xl)", padding: "24px", display: "flex", 
-                      flexDirection: "column", gap: "16px", boxShadow: "var(--color-card-shadow)",
-                      transition: "transform var(--transition-base), border var(--transition-base)"
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "var(--color-accent)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "var(--color-border)"; }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                      <h3 style={{ margin: 0, fontSize: "16.5px", fontWeight: 700, color: "var(--color-text-primary)" }}>{site.name}</h3>
-                      <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-success)", background: "var(--color-success-subtle)", padding: "2px 8px", borderRadius: "4px" }}>ACTIVE</span>
-                    </div>
+        {/* LEFT: Site List Panel */}
+        <div style={{ width: "260px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "6px", position: "sticky", top: "80px" }}>
+          <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px", paddingLeft: "4px" }}>Sites</div>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <MapPin size={15} color="var(--color-text-muted)" />
-                        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{site.address || "No address specified"}</span>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <Users size={15} color="var(--color-text-muted)" />
-                        <span>{siteUsersCount} Guards Assigned</span>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <Clock size={15} color="var(--color-text-muted)" />
-                        <span>{activeShiftsCount} Officers Live Shift</span>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", paddingTop: "14px", borderTop: "1px solid var(--color-border)", fontSize: "12.5px" }}>
-                      <span style={{ color: "var(--color-text-muted)" }}>Manager: {user?.firstName || "Supervisor"}</span>
-                      <button 
-                        onClick={() => setSelectedSiteId(site.id)}
-                        style={{ background: "transparent", border: "none", color: "var(--color-accent)", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
-                      >
-                        Enter Workspace &rarr;
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            {sites.length === 0 && (
-              <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", gridColumn: "1 / -1" }}>
-                No active sites registered.
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          {/* Sites Drill down Workspace View */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <button 
-              onClick={() => setSelectedSiteId(null)}
-              style={{
-                width: "fit-content", display: "flex", alignItems: "center", gap: "6px",
-                padding: "8px 14px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)",
-                borderRadius: "var(--radius-md)", fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)",
-                cursor: "pointer", transition: "all var(--transition-fast)"
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = "var(--color-border)"}
-              onMouseLeave={e => e.currentTarget.style.background = "var(--color-bg-subtle)"}
-            >
-              &larr; Back to Guarding Sites
-            </button>
-
-            <div>
-              <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "10px" }}>
-                {sites.find(s => s.id === selectedSiteId)?.name || "Workspace"}
-              </h1>
-              <p style={{ fontSize: "13.5px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-                Guarding Site Address: {sites.find(s => s.id === selectedSiteId)?.address || "Unspecified"}
-              </p>
+          {loading ? (
+            <div style={{ padding: "20px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px" }}>Loading...</div>
+          ) : sites.length === 0 ? (
+            <div style={{ padding: "20px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", background: "var(--color-card-bg)", borderRadius: "var(--radius-lg)", border: "1px dashed var(--color-border)" }}>
+              No sites yet. Click &#34;Add Site&#34; to create your first.
             </div>
-          </div>
+          ) : (
+            sites.map(site => {
+              const isSelected = selectedSiteId === site.id;
+              const isEditing = editingSiteId === site.id;
+              const siteUsersCount = users.filter(u => u.assignedSiteId === site.id || u.assignedSite?.id === site.id).length;
+              const activeShiftsCount = shifts.filter(s => (s.siteId === site.id) && s.status === "IN_PROGRESS").length;
+
+              return (
+                <div
+                  key={site.id}
+                  style={{
+                    background: isSelected ? "var(--color-accent-subtle)" : "var(--color-card-bg)",
+                    border: `1px solid ${isSelected ? "var(--color-accent)" : "var(--color-border)"}`,
+                    borderRadius: "var(--radius-lg)",
+                    padding: "12px 14px",
+                    cursor: isEditing ? "default" : "pointer",
+                    transition: "all var(--transition-fast)",
+                    boxShadow: isSelected ? "0 2px 12px rgba(245,158,11,0.12)" : "none"
+                  }}
+                  onClick={() => { if (!isEditing) setSelectedSiteId(site.id); }}
+                  onMouseEnter={e => { if (!isSelected && !isEditing) e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                  onMouseLeave={e => { if (!isSelected && !isEditing) e.currentTarget.style.background = "var(--color-card-bg)"; }}
+                >
+                  {isEditing ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }} onClick={e => e.stopPropagation()}>
+                      <input
+                        style={siteInputStyle} value={siteForm.name} autoFocus
+                        placeholder="Site name" onChange={e => setSiteForm({ ...siteForm, name: e.target.value })}
+                      />
+                      <input
+                        style={siteInputStyle} value={siteForm.address}
+                        placeholder="Address" onChange={e => setSiteForm({ ...siteForm, address: e.target.value })}
+                      />
+                      <div style={{ display: "flex", gap: "6px", marginTop: "4px" }}>
+                        <button
+                          onClick={() => handleSaveSite(site.id)}
+                          style={{ flex: 1, padding: "6px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}
+                        >
+                          <Save size={12} /> Save
+                        </button>
+                        <button
+                          onClick={() => { setEditingSiteId(null); setSiteForm({ name: "", address: "" }); }}
+                          style={{ padding: "6px 10px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "12px", color: "var(--color-text-secondary)" }}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "6px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, minWidth: 0 }}>
+                          <Building size={14} color={isSelected ? "var(--color-accent)" : "var(--color-text-muted)"} style={{ flexShrink: 0 }} />
+                          <span style={{ fontWeight: 700, fontSize: "13.5px", color: isSelected ? "var(--color-accent)" : "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{site.name}</span>
+                        </div>
+                        <div style={{ display: "flex", gap: "4px", flexShrink: 0 }}>
+                          <button
+                            onClick={e => { e.stopPropagation(); setEditingSiteId(site.id); setSiteForm({ name: site.name, address: site.address || "" }); }}
+                            title="Edit site"
+                            style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: "2px", display: "flex" }}
+                          ><Edit2 size={12} /></button>
+                          <button
+                            onClick={e => { e.stopPropagation(); handleDeleteSite(site.id); }}
+                            title="Delete site"
+                            style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--color-danger)", padding: "2px", display: "flex" }}
+                          ><Trash2 size={12} /></button>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: "11.5px", color: "var(--color-text-muted)", marginTop: "6px", display: "flex", gap: "10px" }}>
+                        <span>{siteUsersCount} guards</span>
+                        {activeShiftsCount > 0 && <span style={{ color: "var(--color-success)", fontWeight: 700 }}>● {activeShiftsCount} live</span>}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* RIGHT: Operations Workspace */}
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "20px" }}>
+          {!selectedSite ? (
+            <div style={{ flex: 1, background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "60px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", minHeight: "400px", boxShadow: "var(--color-card-shadow)" }}>
+              <MapPin size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
+              <p style={{ fontSize: "15px", fontWeight: 600, margin: "0 0 6px 0" }}>No site selected</p>
+              <p style={{ fontSize: "13px", margin: 0 }}>Choose a site from the left panel to manage its operations.</p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
           {/* Tab Navigation Menu */}
           <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)", gap: "8px", overflowX: "auto" }}>
@@ -1164,11 +1214,39 @@ function OperationsContent() {
               </div>
 
             </div>
-          </div>
-        )}
-
+          )}
+        </div>
       </div>
-        </>
+
+      {/* Add New Site Modal */}
+      {isCreatingSite && (
+        <div
+          onClick={() => setIsCreatingSite(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(11,15,25,0.6)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px" }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "460px" }}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ margin: 0, fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)" }}>Add New Site</h2>
+              <button onClick={() => setIsCreatingSite(false)} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: "4px" }}><X size={20} /></button>
+            </div>
+            <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "18px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Site Name</label>
+                <input autoFocus style={inputStyle} placeholder="E.g. Downtown Mall" value={siteForm.name} onChange={e => setSiteForm({ ...siteForm, name: e.target.value })} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Address / Location</label>
+                <input style={inputStyle} placeholder="123 Commerce St" value={siteForm.address} onChange={e => setSiteForm({ ...siteForm, address: e.target.value })} />
+              </div>
+            </div>
+            <div style={{ padding: "18px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              <button onClick={() => setIsCreatingSite(false)} style={{ padding: "10px 20px", background: "transparent", color: "var(--color-text-primary)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "14px", fontWeight: 600 }}>Cancel</button>
+              <button onClick={() => handleSaveSite()} style={{ padding: "10px 20px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                <Save size={15} /> Save Site
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Details & PDF Export Modal */}
