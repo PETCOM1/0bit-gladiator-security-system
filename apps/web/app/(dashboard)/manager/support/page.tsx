@@ -175,16 +175,27 @@ export default function SupportHelpdeskPage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>Status:</span>
-                  <select 
-                    value={selectedTicket.status} 
-                    onChange={e => handleStatusChange(e.target.value)}
-                    style={{ padding: "4px 10px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", fontSize: "12.5px", fontWeight: 600, color: "var(--color-text-primary)", cursor: "pointer" }}
-                  >
-                    <option value="OPEN">Open</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="RESOLVED">Resolved</option>
-                    <option value="CLOSED">Closed</option>
-                  </select>
+                  {user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" ? (
+                    <select 
+                      value={selectedTicket.status} 
+                      onChange={e => handleStatusChange(e.target.value)}
+                      style={{ padding: "4px 10px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", fontSize: "12.5px", fontWeight: 600, color: "var(--color-text-primary)", cursor: "pointer" }}
+                    >
+                      <option value="OPEN">Open</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="RESOLVED">Resolved</option>
+                      <option value="CLOSED">Closed</option>
+                    </select>
+                  ) : (
+                    <span style={{ 
+                      fontSize: "12px", fontWeight: 700, 
+                      color: selectedTicket.status === "OPEN" ? "var(--color-danger)" : selectedTicket.status === "RESOLVED" ? "var(--color-success)" : "var(--color-warning)", 
+                      background: selectedTicket.status === "OPEN" ? "var(--color-danger-subtle)" : selectedTicket.status === "RESOLVED" ? "var(--color-success-subtle)" : "var(--color-warning-subtle)", 
+                      padding: "4px 10px", borderRadius: "var(--radius-md)" 
+                    }}>
+                      {selectedTicket.status.replace(/_/g, " ")}
+                    </span>
+                  )}
                 </div>
               </div>
 
