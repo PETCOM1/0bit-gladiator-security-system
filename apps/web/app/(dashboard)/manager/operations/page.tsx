@@ -1102,6 +1102,15 @@ function OperationsContent() {
         )}
 
       </div>
+            </>
+          ) : (
+            <div style={{ flex: 1, background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", height: "240px", boxShadow: "var(--color-card-shadow)" }}>
+              <MapPin size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
+              <p style={{ fontSize: "15px", fontWeight: 600, margin: 0 }}>Select a site from the left sidebar to load operational control systems</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Details & PDF Export Modal */}
       {selectedEntry && (
@@ -1186,16 +1195,9 @@ function OperationsContent() {
                 Download PDF Report
               </button>
             </div>
-            </div>
-          </>
-        ) : (
-          <div style={{ flex: 1, background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", height: "240px", boxShadow: "var(--color-card-shadow)" }}>
-            <MapPin size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
-            <p style={{ fontSize: "15px", fontWeight: 600, margin: 0 }}>Select a site from the left sidebar to load operational control systems</p>
           </div>
-        )}
         </div>
-      </div>
+      )}
 
       {/* Zoom Modal */}
       {zoomImage && (
