@@ -14,6 +14,7 @@ export default function SupportHelpdeskPage() {
   const [replyContent, setReplyContent] = useState("");
   const [replyingToMessage, setReplyingToMessage] = useState<any>(null);
   const [activePickerMsgId, setActivePickerMsgId] = useState<string | null>(null);
+  const [showInputEmojiPicker, setShowInputEmojiPicker] = useState(false);
   const { user } = useAuth();
 
   // Mock emoji reactions state to make it interactive and alive
@@ -57,6 +58,7 @@ export default function SupportHelpdeskPage() {
       await apiClient.post(`/tickets/${selectedTicket.id}/reply`, { content: formattedContent });
       setReplyContent("");
       setReplyingToMessage(null);
+      setShowInputEmojiPicker(false);
       fetchTicketDetails(selectedTicket.id);
       fetchTickets();
     } catch (err) {
@@ -209,7 +211,7 @@ export default function SupportHelpdeskPage() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxWidth: "80%" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", maxWidth: "100%", overflow: "hidden" }}>
                       <span style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "180px" }}>{selectedTicket.createdBy?.firstName} {selectedTicket.createdBy?.lastName}</span>
-                      <span style={{ fontSize: "11px", background: "var(--color-info-subtle)", color: "var(--color-info)", padding: "1px 6px", borderRadius: "4px", fontSize: "10.5px", fontWeight: 700, flexShrink: 0 }}>COORDINATOR</span>
+                      <span style={{ background: "var(--color-info-subtle)", color: "var(--color-info)", padding: "1px 6px", borderRadius: "4px", fontSize: "10.5px", fontWeight: 700, flexShrink: 0 }}>COORDINATOR</span>
                     </div>
                     <div style={{ background: "#f0f4f8", color: "var(--color-text-primary)", padding: "14px 18px", borderRadius: "12px", borderTopLeftRadius: "2px", fontSize: "14px", lineHeight: 1.5, border: "1px solid var(--color-border)" }}>
                       <h4 style={{ margin: "0 0 6px 0", fontWeight: 700 }}>Subject: {selectedTicket.subject}</h4>

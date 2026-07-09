@@ -1212,12 +1212,14 @@ function OperationsContent() {
                   </button>
                 </div>
               </div>
-
             </div>
             </div>
           )}
         </div>
       </div>
+    )}
+  </div>
+</div>
 
       {/* Add New Site Modal */}
       {isCreatingSite && (
@@ -1354,9 +1356,6 @@ function OperationsContent() {
           </div>
         </div>
       )}
-    </div>
-    </div>
-    </div>
     </div>
   );
 }
