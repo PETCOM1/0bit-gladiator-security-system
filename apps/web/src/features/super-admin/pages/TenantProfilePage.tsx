@@ -12,11 +12,8 @@ export default function TenantProfilePage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  // Subsection Toggle States
-  const [managersOpen, setManagersOpen] = useState(true);
-  const [supervisorsOpen, setSupervisorsOpen] = useState(true);
-  const [guardsOpen, setGuardsOpen] = useState(true);
-  const [othersOpen, setOthersOpen] = useState(true);
+  // User Tab Category State
+  const [activeUserTab, setActiveUserTab] = useState<"managers" | "supervisors" | "guards" | "others">("managers");
 
   useEffect(() => {
     if (!params.id) return;
@@ -222,80 +219,58 @@ export default function TenantProfilePage() {
           );
         };
 
+        const tabStyle = (tab: typeof activeUserTab) => ({
+          padding: "14px 20px",
+          fontSize: "13.5px",
+          fontWeight: 600,
+          border: "none",
+          borderBottom: activeUserTab === tab ? "2px solid var(--color-accent)" : "2px solid transparent",
+          background: "transparent",
+          color: activeUserTab === tab ? "var(--color-text-primary)" : "var(--color-text-muted)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          transition: "all var(--transition-fast)",
+        });
+
+        const badgeStyle = {
+          fontSize: "11px",
+          fontWeight: 700,
+          padding: "2px 6px",
+          borderRadius: "10px",
+          background: "var(--color-bg-subtle)",
+          border: "1px solid var(--color-border)",
+          color: "var(--color-text-secondary)"
+        };
+
         return (
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            {/* Managers Section */}
-            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div 
-                onClick={() => setManagersOpen(!managersOpen)}
-                style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)", cursor: "pointer", userSelect: "none" }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <Users size={16} color="var(--color-accent)" />
-                  <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Management & Admins</h2>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{managers.length}</span>
-                  {managersOpen ? <ChevronUp size={16} color="var(--color-text-muted)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
-                </div>
-              </div>
-              {managersOpen && renderUserTable(managers, "No management personnel found.")}
+          <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            {/* Horizontal Tabs Bar */}
+            <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", padding: "0 12px", overflowX: "auto" }}>
+              <button onClick={() => setActiveUserTab("managers")} style={tabStyle("managers")}>
+                Managers <span style={badgeStyle}>{managers.length}</span>
+              </button>
+              <button onClick={() => setActiveUserTab("supervisors")} style={tabStyle("supervisors")}>
+                Supervisors <span style={badgeStyle}>{supervisors.length}</span>
+              </button>
+              <button onClick={() => setActiveUserTab("guards")} style={tabStyle("guards")}>
+                Guards <span style={badgeStyle}>{guards.length}</span>
+              </button>
+              {others.length > 0 && (
+                <button onClick={() => setActiveUserTab("others")} style={tabStyle("others")}>
+                  Others <span style={badgeStyle}>{others.length}</span>
+                </button>
+              )}
             </div>
 
-            {/* Supervisors Section */}
-            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div 
-                onClick={() => setSupervisorsOpen(!supervisorsOpen)}
-                style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)", cursor: "pointer", userSelect: "none" }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <Users size={16} color="var(--color-info)" />
-                  <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Site Supervisors</h2>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{supervisors.length}</span>
-                  {supervisorsOpen ? <ChevronUp size={16} color="var(--color-text-muted)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
-                </div>
-              </div>
-              {supervisorsOpen && renderUserTable(supervisors, "No site supervisors found.")}
+            {/* Selected Tab Content Table */}
+            <div style={{ padding: "12px 0" }}>
+              {activeUserTab === "managers" && renderUserTable(managers, "No management personnel found.")}
+              {activeUserTab === "supervisors" && renderUserTable(supervisors, "No site supervisors found.")}
+              {activeUserTab === "guards" && renderUserTable(guards, "No active security guards registered.")}
+              {activeUserTab === "others" && others.length > 0 && renderUserTable(others, "")}
             </div>
-
-            {/* Guards Section */}
-            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div 
-                onClick={() => setGuardsOpen(!guardsOpen)}
-                style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)", cursor: "pointer", userSelect: "none" }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <Users size={16} color="var(--color-success)" />
-                  <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>On-Site Security Guards</h2>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{guards.length}</span>
-                  {guardsOpen ? <ChevronUp size={16} color="var(--color-text-muted)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
-                </div>
-              </div>
-              {guardsOpen && renderUserTable(guards, "No active security guards registered.")}
-            </div>
-
-            {others.length > 0 && (
-              <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-                <div 
-                  onClick={() => setOthersOpen(!othersOpen)}
-                  style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)", cursor: "pointer", userSelect: "none" }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <Users size={16} color="var(--color-text-secondary)" />
-                    <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Other Personnel</h2>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{others.length}</span>
-                    {othersOpen ? <ChevronUp size={16} color="var(--color-text-muted)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
-                  </div>
-                </div>
-                {othersOpen && renderUserTable(others, "")}
-              </div>
-            )}
           </div>
         );
       })()}
