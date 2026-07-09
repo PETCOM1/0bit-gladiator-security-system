@@ -628,95 +628,94 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
               </form>
             )}
 
-             {/* Posts Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
-              {site.posts?.length === 0 && !isAddingPost ? (
-                <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", gridColumn: "1 / -1", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-lg)", border: "1px dashed var(--color-border)", fontSize: "13.5px" }}>
-                  No posts configured for this site.
-                </div>
-              ) : site.posts?.map((post: any) => {
-                const activeShift = site.shifts?.find((s: any) => s.status === "IN_PROGRESS" && s.postId === post.id);
-                const scheduledShift = site.shifts?.find((s: any) => s.status === "SCHEDULED" && s.postId === post.id && new Date(s.endTime) > new Date());
-                
-                const hasAssignment = activeShift || scheduledShift;
-                const assignedUser = activeShift?.user || scheduledShift?.user;
-                const assignmentStatus = activeShift ? "MANNED" : (scheduledShift ? "ASSIGNED" : "UNMANNED");
+            {/* Posts Table */}
+            <div style={{ background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)", overflow: "hidden" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                  <thead>
+                    <tr style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
+                      {["Post Name", "Status", "Assigned Officer", "Shift Time", "Created Date", ""].map(h => (
+                        <th key={h} style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {site.posts?.length === 0 && !isAddingPost ? (
+                      <tr>
+                        <td colSpan={6} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13.5px" }}>
+                          No posts configured for this site.
+                        </td>
+                      </tr>
+                    ) : site.posts?.map((post: any) => {
+                      const activeShift = site.shifts?.find((s: any) => s.status === "IN_PROGRESS" && s.postId === post.id);
+                      const scheduledShift = site.shifts?.find((s: any) => s.status === "SCHEDULED" && s.postId === post.id && new Date(s.endTime) > new Date());
+                      
+                      const hasAssignment = activeShift || scheduledShift;
+                      const assignedUser = activeShift?.user || scheduledShift?.user;
+                      const assignmentStatus = activeShift ? "MANNED" : (scheduledShift ? "ASSIGNED" : "UNMANNED");
 
-                return (
-                  <div 
-                    key={post.id} 
-                    style={{ 
-                      padding: "20px", 
-                      border: "1px solid var(--color-border)", 
-                      borderRadius: "var(--radius-xl)", 
-                      background: "var(--color-card-bg)", 
-                      display: "flex", 
-                      flexDirection: "column", 
-                      gap: "12px", 
-                      boxShadow: "var(--color-card-shadow)",
-                      transition: "transform var(--transition-base)",
-                      cursor: "default"
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                      <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)" }}>{post.name}</h4>
-                      <span style={{ 
-                        padding: "3px 8px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700, 
-                        background: assignmentStatus === "MANNED" ? "var(--color-success-subtle)" : (assignmentStatus === "ASSIGNED" ? "var(--color-warning-subtle)" : "var(--color-danger-subtle)"), 
-                        color: assignmentStatus === "MANNED" ? "var(--color-success)" : (assignmentStatus === "ASSIGNED" ? "var(--color-warning)" : "var(--color-danger)") 
-                      }}>
-                        {assignmentStatus}
-                      </span>
-                    </div>
-                    {hasAssignment && assignedUser && (
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
-                        <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--color-accent-subtle)", color: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "10px", border: "1px solid var(--color-accent-border)" }}>
-                          {(assignedUser.firstName?.[0] || "") + (assignedUser.lastName?.[0] || "")}
-                        </div>
-                        <div>
-                          <p style={{ margin: 0, fontSize: "13px", color: "var(--color-text-secondary)", fontWeight: 600 }}>
-                            {assignedUser.firstName} {assignedUser.lastName}
-                          </p>
-                          {scheduledShift && (
-                            <p style={{ margin: 0, fontSize: "11px", color: "var(--color-text-muted)", marginTop: "2px" }}>
-                              {new Date(scheduledShift.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(scheduledShift.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {!activeShift && (
-                      <button
-                        onClick={() => openAssignModal(post.id)}
-                        style={{
-                          marginTop: "8px",
-                          padding: "6px 12px",
-                          background: "var(--color-bg-subtle)",
-                          border: "1px solid var(--color-border)",
-                          borderRadius: "var(--radius-md)",
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          color: "var(--color-text-primary)",
-                          cursor: "pointer",
-                          transition: "all var(--transition-fast)",
-                          width: "fit-content"
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.background = "var(--color-border)"; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                      >
-                        {scheduledShift ? "Reassign Guard" : "Assign Guard"}
-                      </button>
-                    )}
-
-                    <p style={{ margin: 0, fontSize: "12px", color: "var(--color-text-muted)", marginTop: "auto", paddingTop: "8px", borderTop: "1px solid var(--color-border)" }}>
-                      Created {new Date(post.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                );
-              })}
+                      return (
+                        <tr key={post.id} style={{ borderBottom: "1px solid var(--color-border)", transition: "background var(--transition-fast)" }}>
+                          <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }}>{post.name}</td>
+                          <td style={{ padding: "16px 24px" }}>
+                            <span style={{ 
+                              padding: "4px 10px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700, 
+                              background: assignmentStatus === "MANNED" ? "var(--color-success-subtle)" : (assignmentStatus === "ASSIGNED" ? "var(--color-warning-subtle)" : "var(--color-danger-subtle)"), 
+                              color: assignmentStatus === "MANNED" ? "var(--color-success)" : (assignmentStatus === "ASSIGNED" ? "var(--color-warning)" : "var(--color-danger)") 
+                            }}>
+                              {assignmentStatus}
+                            </span>
+                          </td>
+                          <td style={{ padding: "16px 24px" }}>
+                            {hasAssignment && assignedUser ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--color-accent-subtle)", color: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "10px", border: "1px solid var(--color-accent-border)" }}>
+                                  {(assignedUser.firstName?.[0] || "") + (assignedUser.lastName?.[0] || "")}
+                                </div>
+                                <span style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--color-text-primary)" }}>{assignedUser.firstName} {assignedUser.lastName}</span>
+                              </div>
+                            ) : (
+                              <span style={{ color: "var(--color-text-muted)", fontSize: "13.5px" }}>—</span>
+                            )}
+                          </td>
+                          <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                            {scheduledShift ? (
+                              `${new Date(scheduledShift.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(scheduledShift.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                            ) : activeShift ? (
+                              "On Duty (Continuous)"
+                            ) : (
+                              <span style={{ color: "var(--color-text-muted)" }}>—</span>
+                            )}
+                          </td>
+                          <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-muted)" }}>{new Date(post.createdAt).toLocaleDateString()}</td>
+                          <td style={{ padding: "16px 24px", textAlign: "right" }}>
+                            {!activeShift && (
+                              <button
+                                onClick={() => openAssignModal(post.id)}
+                                style={{
+                                  padding: "6px 12px",
+                                  background: "var(--color-bg-subtle)",
+                                  border: "1px solid var(--color-border)",
+                                  borderRadius: "var(--radius-md)",
+                                  fontSize: "12px",
+                                  fontWeight: 600,
+                                  color: "var(--color-text-primary)",
+                                  cursor: "pointer",
+                                  transition: "all var(--transition-fast)"
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = "var(--color-border)"; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                              >
+                                {scheduledShift ? "Reassign Guard" : "Assign Guard"}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
