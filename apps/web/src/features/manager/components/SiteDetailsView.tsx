@@ -647,12 +647,13 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
                         </td>
                       </tr>
                     ) : site.posts?.map((post: any) => {
-                      const activeShift = site.shifts?.find((s: any) => s.status === "IN_PROGRESS" && s.postId === post.id);
-                      const scheduledShift = site.shifts?.find((s: any) => s.status === "SCHEDULED" && s.postId === post.id && new Date(s.endTime) > new Date());
+                      const activeShifts = (site.shifts || []).filter((s: any) => s.status === "IN_PROGRESS" && s.postId === post.id);
+                      const scheduledShifts = (site.shifts || []).filter((s: any) => s.status === "SCHEDULED" && s.postId === post.id && new Date(s.endTime) > new Date());
                       
-                      const hasAssignment = activeShift || scheduledShift;
-                      const assignedUser = activeShift?.user || scheduledShift?.user;
-                      const assignmentStatus = activeShift ? "MANNED" : (scheduledShift ? "ASSIGNED" : "UNMANNED");
+                      const hasAssignment = activeShifts.length > 0 || scheduledShifts.length > 0;
+                      const assignmentStatus = activeShifts.length > 0 
+                        ? `MANNED (${activeShifts.length})` 
+                        : (scheduledShifts.length > 0 ? `ASSIGNED (${scheduledShifts.length})` : "UNMANNED");
 
                       return (
                         <tr key={post.id} style={{ borderBottom: "1px solid var(--color-border)", transition: "background var(--transition-fast)" }}>
@@ -660,55 +661,73 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
                           <td style={{ padding: "16px 24px" }}>
                             <span style={{ 
                               padding: "4px 10px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700, 
-                              background: assignmentStatus === "MANNED" ? "var(--color-success-subtle)" : (assignmentStatus === "ASSIGNED" ? "var(--color-warning-subtle)" : "var(--color-danger-subtle)"), 
-                              color: assignmentStatus === "MANNED" ? "var(--color-success)" : (assignmentStatus === "ASSIGNED" ? "var(--color-warning)" : "var(--color-danger)") 
+                              background: activeShifts.length > 0 ? "var(--color-success-subtle)" : (scheduledShifts.length > 0 ? "var(--color-warning-subtle)" : "var(--color-danger-subtle)"), 
+                              color: activeShifts.length > 0 ? "var(--color-success)" : (scheduledShifts.length > 0 ? "var(--color-warning)" : "var(--color-danger)") 
                             }}>
                               {assignmentStatus}
                             </span>
                           </td>
                           <td style={{ padding: "16px 24px" }}>
-                            {hasAssignment && assignedUser ? (
-                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--color-accent-subtle)", color: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "10px", border: "1px solid var(--color-accent-border)" }}>
-                                  {(assignedUser.firstName?.[0] || "") + (assignedUser.lastName?.[0] || "")}
-                                </div>
-                                <span style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--color-text-primary)" }}>{assignedUser.firstName} {assignedUser.lastName}</span>
+                            {hasAssignment ? (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                {activeShifts.map((sh: any, sIdx: number) => (
+                                  <div key={sh.id || sIdx} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--color-accent-subtle)", color: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "10px", border: "1px solid var(--color-accent-border)", flexShrink: 0 }}>
+                                      {(sh.user?.firstName?.[0] || "") + (sh.user?.lastName?.[0] || "")}
+                                    </div>
+                                    <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                                      {sh.user?.firstName} {sh.user?.lastName} <span style={{ fontSize: "10px", color: "var(--color-success)", fontWeight: 700 }}>(LIVE)</span>
+                                    </span>
+                                  </div>
+                                ))}
+                                {scheduledShifts.map((sh: any, sIdx: number) => (
+                                  <div key={sh.id || sIdx} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--color-bg-subtle)", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "10px", border: "1px solid var(--color-border)", flexShrink: 0 }}>
+                                      {(sh.user?.firstName?.[0] || "") + (sh.user?.lastName?.[0] || "")}
+                                    </div>
+                                    <span style={{ fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)" }}>
+                                      {sh.user?.firstName} {sh.user?.lastName} <span style={{ fontSize: "10px", color: "var(--color-warning)", fontWeight: 700 }}>(PLAN)</span>
+                                    </span>
+                                  </div>
+                                ))}
                               </div>
                             ) : (
                               <span style={{ color: "var(--color-text-muted)", fontSize: "13.5px" }}>—</span>
                             )}
                           </td>
                           <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                            {scheduledShift ? (
-                              `${new Date(scheduledShift.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(scheduledShift.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                            ) : activeShift ? (
-                              "On Duty (Continuous)"
-                            ) : (
-                              <span style={{ color: "var(--color-text-muted)" }}>—</span>
-                            )}
+                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                              {activeShifts.map((sh: any, sIdx: number) => (
+                                <span key={sIdx}>On Duty (Continuous)</span>
+                              ))}
+                              {scheduledShifts.map((sh: any, sIdx: number) => (
+                                <span key={sIdx} style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>
+                                  {new Date(sh.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(sh.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              ))}
+                              {!hasAssignment && <span style={{ color: "var(--color-text-muted)" }}>—</span>}
+                            </div>
                           </td>
                           <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-muted)" }}>{new Date(post.createdAt).toLocaleDateString()}</td>
                           <td style={{ padding: "16px 24px", textAlign: "right" }}>
-                            {!activeShift && (
-                              <button
-                                onClick={() => openAssignModal(post.id)}
-                                style={{
-                                  padding: "6px 12px",
-                                  background: "var(--color-bg-subtle)",
-                                  border: "1px solid var(--color-border)",
-                                  borderRadius: "var(--radius-md)",
-                                  fontSize: "12px",
-                                  fontWeight: 600,
-                                  color: "var(--color-text-primary)",
-                                  cursor: "pointer",
-                                  transition: "all var(--transition-fast)"
-                                }}
-                                onMouseEnter={e => { e.currentTarget.style.background = "var(--color-border)"; }}
-                                onMouseLeave={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                              >
-                                {scheduledShift ? "Reassign Guard" : "Assign Guard"}
-                              </button>
-                            )}
+                            <button
+                              onClick={() => openAssignModal(post.id)}
+                              style={{
+                                padding: "6px 12px",
+                                background: "var(--color-bg-subtle)",
+                                border: "1px solid var(--color-border)",
+                                borderRadius: "var(--radius-md)",
+                                fontSize: "12px",
+                                fontWeight: 600,
+                                color: "var(--color-text-primary)",
+                                cursor: "pointer",
+                                transition: "all var(--transition-fast)"
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.background = "var(--color-border)"; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                            >
+                              Assign Guard
+                            </button>
                           </td>
                         </tr>
                       );
