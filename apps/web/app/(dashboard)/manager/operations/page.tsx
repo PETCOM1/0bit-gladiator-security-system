@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
 import { exportIncidentReport } from "@/shared/utils/pdf";
+import { useAuth } from "@/shared/context/AuthContext";
 
 const inputStyle = {
   padding: "10px 14px",
@@ -87,6 +88,7 @@ function OperationsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "personnel";
+  const { user } = useAuth();
 
   // Data sets state
   const [users, setUsers] = useState<any[]>([]);
@@ -347,84 +349,148 @@ function OperationsContent() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
-      {/* Title */}
-      <div>
-        <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-          <FolderKanban size={24} color="var(--color-accent)" /> Operations Control Console
-        </h1>
-        <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-          Consolidated operations center scoped by active guarding sites. Select a site to view operations details.
-        </p>
-      </div>
+      
+      {!selectedSiteId ? (
+        <>
+          {/* Sites Grid View */}
+          <div>
+            <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
+              <FolderKanban size={24} color="var(--color-accent)" /> Guarding Sites
+            </h1>
+            <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+              Select a site workspace to manage officer rosters, check-in shifts, visitors, and occurrences.
+            </p>
+          </div>
 
-      <div style={{ display: "flex", gap: "28px", alignItems: "flex-start", width: "100%" }}>
-        
-        {/* Left Side: Sites List Sidebar */}
-        <div style={{
-          width: "280px", flexShrink: 0, background: "var(--color-card-bg)",
-          borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)",
-          padding: "20px", display: "flex", flexDirection: "column", gap: "16px",
-          boxShadow: "var(--color-card-shadow)"
-        }}>
-          <h3 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-            <MapPin size={16} color="var(--color-accent)" /> Guarding Sites
-          </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {sites.map(site => {
-              const isSelected = selectedSiteId === site.id;
-              return (
-                <div
-                  key={site.id}
-                  onClick={() => { setSelectedSiteId(site.id); }}
-                  style={{
-                    padding: "12px 16px", borderRadius: "var(--radius-md)",
-                    border: isSelected ? "1px solid var(--color-accent)" : "1px solid var(--color-border)",
-                    background: isSelected ? "var(--color-accent-subtle)" : "var(--color-bg-subtle)",
-                    color: isSelected ? "var(--color-accent)" : "var(--color-text-primary)",
-                    cursor: "pointer", transition: "all var(--transition-fast)"
-                  }}
-                >
-                  <h4 style={{ margin: 0, fontSize: "13.5px", fontWeight: 700 }}>{site.name}</h4>
-                  <p style={{ margin: "4px 0 0 0", fontSize: "11px", color: isSelected ? "var(--color-accent)" : "var(--color-text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{site.address || "No address provided"}</p>
-                </div>
-              );
-            })}
+          {/* Search bar */}
+          <div style={{ position: "relative", width: "100%", maxWidth: "400px" }}>
+            <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
+            <input 
+              type="text" 
+              placeholder="Search cohorts or institutions..." 
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              style={{
+                width: "100%", padding: "10px 14px 10px 38px", background: "var(--color-card-bg)",
+                border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)",
+                fontSize: "14.5px", color: "var(--color-text-primary)", outline: "none",
+                boxShadow: "var(--color-card-shadow)"
+              }}
+            />
+          </div>
+
+          {/* Sites Cards Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px", width: "100%" }}>
+            {sites
+              .filter(site => !searchTerm || site.name.toLowerCase().includes(searchTerm.toLowerCase()) || (site.address && site.address.toLowerCase().includes(searchTerm.toLowerCase())))
+              .map(site => {
+                const siteShifts = shifts.filter(s => s.siteId === site.id);
+                const activeShiftsCount = siteShifts.filter(s => s.status === "IN_PROGRESS").length;
+                const siteUsersCount = users.filter(u => u.assignedSiteId === site.id || u.assignedSite?.id === site.id).length;
+
+                return (
+                  <div 
+                    key={site.id} 
+                    style={{ 
+                      background: "var(--color-card-bg)", border: "1px solid var(--color-border)", 
+                      borderRadius: "var(--radius-xl)", padding: "24px", display: "flex", 
+                      flexDirection: "column", gap: "16px", boxShadow: "var(--color-card-shadow)",
+                      transition: "transform var(--transition-base), border var(--transition-base)"
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "var(--color-accent)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "var(--color-border)"; }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <h3 style={{ margin: 0, fontSize: "16.5px", fontWeight: 700, color: "var(--color-text-primary)" }}>{site.name}</h3>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-success)", background: "var(--color-success-subtle)", padding: "2px 8px", borderRadius: "4px" }}>ACTIVE</span>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <MapPin size={15} color="var(--color-text-muted)" />
+                        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{site.address || "No address specified"}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Users size={15} color="var(--color-text-muted)" />
+                        <span>{siteUsersCount} Guards Assigned</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Clock size={15} color="var(--color-text-muted)" />
+                        <span>{activeShiftsCount} Officers Live Shift</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", paddingTop: "14px", borderTop: "1px solid var(--color-border)", fontSize: "12.5px" }}>
+                      <span style={{ color: "var(--color-text-muted)" }}>Manager: {user?.firstName || "Supervisor"}</span>
+                      <button 
+                        onClick={() => setSelectedSiteId(site.id)}
+                        style={{ background: "transparent", border: "none", color: "var(--color-accent)", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
+                      >
+                        Enter Workspace &rarr;
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             {sites.length === 0 && (
-              <div style={{ fontSize: "13px", color: "var(--color-text-muted)", textAlign: "center", padding: "16px" }}>
-                No sites registered.
+              <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", gridColumn: "1 / -1" }}>
+                No active sites registered.
               </div>
             )}
           </div>
-        </div>
+        </>
+      ) : (
+        <>
+          {/* Sites Drill down Workspace View */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <button 
+              onClick={() => setSelectedSiteId(null)}
+              style={{
+                width: "fit-content", display: "flex", alignItems: "center", gap: "6px",
+                padding: "8px 14px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-md)", fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)",
+                cursor: "pointer", transition: "all var(--transition-fast)"
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--color-border)"}
+              onMouseLeave={e => e.currentTarget.style.background = "var(--color-bg-subtle)"}
+            >
+              &larr; Back to Guarding Sites
+            </button>
 
-        {/* Right Side: Site Operations Detail Workspace */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "24px", minWidth: 0 }}>
-          {selectedSiteId ? (
-            <>
-              {/* Tab Navigation Menu */}
-              <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)", gap: "8px", overflowX: "auto" }}>
-                <button onClick={() => handleTabChange("personnel")} style={tabButtonStyle(activeTab === "personnel")}>
-                  <Users size={16} /> Site Officers
-                </button>
-                <button onClick={() => handleTabChange("shifts")} style={tabButtonStyle(activeTab === "shifts")}>
-                  <Calendar size={16} /> Shifts & Attendance
-                </button>
-                <button onClick={() => handleTabChange("visitors")} style={tabButtonStyle(activeTab === "visitors")}>
-                  <Contact size={16} /> Visitor Logs
-                </button>
-                <button onClick={() => handleTabChange("incidents")} style={tabButtonStyle(activeTab === "incidents")}>
-                  <ShieldAlert size={16} /> Incidents
-                </button>
-                <button onClick={() => handleTabChange("occurrence")} style={tabButtonStyle(activeTab === "occurrence")}>
-                  <CheckCircle2 size={16} /> Occurrence Book
-                </button>
-              </div>
+            <div>
+              <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "10px" }}>
+                {sites.find(s => s.id === selectedSiteId)?.name || "Workspace"}
+              </h1>
+              <p style={{ fontSize: "13.5px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+                Guarding Site Address: {sites.find(s => s.id === selectedSiteId)?.address || "Unspecified"}
+              </p>
+            </div>
+          </div>
 
-              {/* Main Tabs Container */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          {/* Tab Navigation Menu */}
+          <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)", gap: "8px", overflowX: "auto" }}>
+            <button onClick={() => handleTabChange("personnel")} style={tabButtonStyle(activeTab === "personnel")}>
+              <Users size={16} /> Site Officers
+            </button>
+            <button onClick={() => handleTabChange("shifts")} style={tabButtonStyle(activeTab === "shifts")}>
+              <Calendar size={16} /> Shifts & Attendance
+            </button>
+            <button onClick={() => handleTabChange("visitors")} style={tabButtonStyle(activeTab === "visitors")}>
+              <Contact size={16} /> Visitor Logs
+            </button>
+            <button onClick={() => handleTabChange("incidents")} style={tabButtonStyle(activeTab === "incidents")}>
+              <ShieldAlert size={16} /> Incidents
+            </button>
+            <button onClick={() => handleTabChange("occurrence")} style={tabButtonStyle(activeTab === "occurrence")}>
+              <CheckCircle2 size={16} /> Occurrence Book
+            </button>
+          </div>
 
-                {/* TAB 1: PERSONNEL MANAGEMENT */}
-                {activeTab === "personnel" && (
+          {/* Main Tabs Container */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+
+            {/* TAB 1: PERSONNEL MANAGEMENT */}
+            {activeTab === "personnel" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
               <div style={{ position: "relative" }}>
@@ -1102,15 +1168,8 @@ function OperationsContent() {
         )}
 
       </div>
-            </>
-          ) : (
-            <div style={{ flex: 1, background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", height: "240px", boxShadow: "var(--color-card-shadow)" }}>
-              <MapPin size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
-              <p style={{ fontSize: "15px", fontWeight: 600, margin: 0 }}>Select a site from the left sidebar to load operational control systems</p>
-            </div>
-          )}
-        </div>
-      </div>
+        </>
+      )}
 
       {/* Details & PDF Export Modal */}
       {selectedEntry && (

@@ -100,7 +100,7 @@ export default function SupportHelpdeskPage() {
   const filteredTickets = tickets.filter(t => {
     // Tenant Scope Isolation: non-platform-admins only see their own tenant's tickets
     const isPlatformAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
-    const userTenantId = user?.tenantId || user?.tenant?.id;
+    const userTenantId = user?.tenantId || (user?.tenant as any)?.id;
     const ticketTenantId = t.tenantId || t.tenant?.id;
     if (!isPlatformAdmin && ticketTenantId && ticketTenantId !== userTenantId) {
       return false;
