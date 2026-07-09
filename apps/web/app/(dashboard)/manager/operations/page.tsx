@@ -1214,6 +1214,7 @@ function OperationsContent() {
               </div>
 
             </div>
+            </div>
           )}
         </div>
       </div>
