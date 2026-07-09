@@ -208,23 +208,24 @@ export default function SupportHelpdeskPage() {
 
                 {/* Ticket messages */}
                 {selectedTicket.messages?.map((msg: any) => {
+                  const isMe = msg.senderId === user?.id || msg.sender?.id === user?.id;
                   const isStaff = msg.sender?.role === "ADMIN" || msg.sender?.role === "SUPER_ADMIN";
                   return (
-                    <div key={msg.id} style={{ display: "flex", gap: "12px", alignSelf: isStaff ? "flex-end" : "flex-start", flexDirection: isStaff ? "row-reverse" : "row" }}>
-                      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: isStaff ? "var(--color-accent-subtle)" : "var(--color-border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: isStaff ? "var(--color-accent)" : "var(--color-text-secondary)", fontSize: "13px" }}>
+                    <div key={msg.id} style={{ display: "flex", gap: "12px", alignSelf: isMe ? "flex-end" : "flex-start", flexDirection: isMe ? "row-reverse" : "row" }}>
+                      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: isMe ? "var(--color-accent-subtle)" : "var(--color-border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: isMe ? "var(--color-accent)" : "var(--color-text-secondary)", fontSize: "13px", flexShrink: 0 }}>
                         {msg.sender?.firstName?.[0] || "U"}
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxWidth: "80%", alignItems: isStaff ? "flex-end" : "flex-start", minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", maxWidth: "100%", overflow: "hidden" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxWidth: "80%", alignItems: isMe ? "flex-end" : "flex-start", minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", maxWidth: "100%", overflow: "hidden", flexDirection: isMe ? "row-reverse" : "row" }}>
                           <span style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "180px" }}>{msg.sender?.firstName} {msg.sender?.lastName}</span>
                           <span style={{ fontSize: "10.5px", background: isStaff ? "var(--color-accent-subtle)" : "var(--color-bg-subtle)", color: isStaff ? "var(--color-accent)" : "var(--color-text-secondary)", padding: "1px 6px", borderRadius: "4px", fontWeight: 700, flexShrink: 0 }}>
                             {isStaff ? "Support Staff" : "Manager"}
                           </span>
                         </div>
-                        <div style={{ background: "#f0f4f8", color: "var(--color-text-primary)", padding: "14px 18px", borderRadius: "12px", borderTopLeftRadius: isStaff ? "12px" : "2px", borderTopRightRadius: isStaff ? "2px" : "12px", fontSize: "14px", lineHeight: 1.5, border: "1px solid var(--color-border)", whiteSpace: "pre-wrap" }}>
+                        <div style={{ background: isMe ? "rgba(245, 158, 11, 0.08)" : "#f0f4f8", color: "var(--color-text-primary)", padding: "14px 18px", borderRadius: "12px", borderTopLeftRadius: isMe ? "12px" : "2px", borderTopRightRadius: isMe ? "2px" : "12px", fontSize: "14px", lineHeight: 1.5, border: isMe ? "1px solid rgba(245, 158, 11, 0.25)" : "1px solid var(--color-border)", whiteSpace: "pre-wrap" }}>
                           {msg.content}
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginTop: "4px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginTop: "4px", flexDirection: isMe ? "row-reverse" : "row" }}>
                           {/* Active Emojis List */}
                           {Object.entries(reactions[msg.id] || {}).map(([emoji, count]) => {
                             if (count <= 0) return null;
