@@ -16,8 +16,8 @@ export default function SupportHelpdeskPage() {
   const { user } = useAuth();
 
   // Mock emoji reactions state to make it interactive and alive
-  const [reactions, setReactions] = useState<Record<string, number>>({
-    "1": 6,
+  const [reactions, setReactions] = useState<Record<string, Record<string, number>>>({
+    "initial": { "😊": 6 },
   });
 
   const fetchTickets = async () => {
@@ -82,11 +82,17 @@ export default function SupportHelpdeskPage() {
     }
   };
 
-  const toggleReaction = (msgId: string) => {
-    setReactions(prev => ({
-      ...prev,
-      [msgId]: (prev[msgId] || 0) + 1
-    }));
+  const toggleReaction = (msgId: string, emoji: string) => {
+    setReactions(prev => {
+      const msgReactions = prev[msgId] || {};
+      return {
+        ...prev,
+        [msgId]: {
+          ...msgReactions,
+          [emoji]: (msgReactions[emoji] || 0) + 1
+        }
+      };
+    });
   };
 
   const filteredTickets = tickets.filter(t => {
@@ -218,13 +224,35 @@ export default function SupportHelpdeskPage() {
                         <div style={{ background: "#f0f4f8", color: "var(--color-text-primary)", padding: "14px 18px", borderRadius: "12px", borderTopLeftRadius: isStaff ? "12px" : "2px", borderTopRightRadius: isStaff ? "2px" : "12px", fontSize: "14px", lineHeight: 1.5, border: "1px solid var(--color-border)", whiteSpace: "pre-wrap" }}>
                           {msg.content}
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "2px" }}>
-                          <button 
-                            onClick={() => toggleReaction(msg.id)}
-                            style={{ display: "flex", alignItems: "center", gap: "4px", background: "white", border: "1px solid var(--color-border)", borderRadius: "12px", padding: "2px 8px", fontSize: "12px", cursor: "pointer", color: "var(--color-text-secondary)" }}
-                          >
-                            😊 <span>{reactions[msg.id] || 0}</span>
-                          </button>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginTop: "4px" }}>
+                          {/* Active Emojis List */}
+                          {Object.entries(reactions[msg.id] || {}).map(([emoji, count]) => {
+                            if (count <= 0) return null;
+                            return (
+                              <button 
+                                key={emoji}
+                                onClick={() => toggleReaction(msg.id, emoji)}
+                                style={{ display: "flex", alignItems: "center", gap: "4px", background: "white", border: "1px solid var(--color-border)", borderRadius: "12px", padding: "2px 8px", fontSize: "12px", cursor: "pointer", color: "var(--color-text-secondary)" }}
+                              >
+                                {emoji} <span>{count}</span>
+                              </button>
+                            );
+                          })}
+
+                          {/* Quick Emoji Picker Selector */}
+                          <div style={{ display: "flex", gap: "4px", background: "var(--color-bg-subtle)", borderRadius: "12px", padding: "2px 6px", border: "1px solid var(--color-border)" }}>
+                            {["👍", "😊", "❤️", "🔥", "🎉"].map(emoji => (
+                              <span 
+                                key={emoji} 
+                                onClick={() => toggleReaction(msg.id, emoji)}
+                                style={{ cursor: "pointer", fontSize: "13px", padding: "0 2px", transition: "transform 0.1s", userSelect: "none" }}
+                                onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.2)"; }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
+                              >
+                                {emoji}
+                              </span>
+                            ))}
+                          </div>
                           <button 
                             onClick={() => setReplyingToMessage(msg)}
                             style={{ display: "flex", alignItems: "center", gap: "4px", background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
