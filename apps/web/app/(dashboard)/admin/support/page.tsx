@@ -13,6 +13,7 @@ export default function SupportHelpdeskPage() {
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [replyContent, setReplyContent] = useState("");
   const [replyingToMessage, setReplyingToMessage] = useState<any>(null);
+  const [activePickerMsgId, setActivePickerMsgId] = useState<string | null>(null);
   const { user } = useAuth();
 
   // Mock emoji reactions state to make it interactive and alive
@@ -93,6 +94,7 @@ export default function SupportHelpdeskPage() {
         }
       };
     });
+    setActivePickerMsgId(null);
   };
 
   const filteredTickets = tickets.filter(t => {
@@ -225,7 +227,7 @@ export default function SupportHelpdeskPage() {
                         <div style={{ background: isMe ? "rgba(245, 158, 11, 0.08)" : "#f0f4f8", color: "var(--color-text-primary)", padding: "14px 18px", borderRadius: "12px", borderTopLeftRadius: isMe ? "12px" : "2px", borderTopRightRadius: isMe ? "2px" : "12px", fontSize: "14px", lineHeight: 1.5, border: isMe ? "1px solid rgba(245, 158, 11, 0.25)" : "1px solid var(--color-border)", whiteSpace: "pre-wrap" }}>
                           {msg.content}
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginTop: "4px", flexDirection: isMe ? "row-reverse" : "row" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginTop: "4px", flexDirection: isMe ? "row-reverse" : "row", position: "relative" }}>
                           {/* Active Emojis List */}
                           {Object.entries(reactions[msg.id] || {}).map(([emoji, count]) => {
                             if (count <= 0) return null;
@@ -240,20 +242,35 @@ export default function SupportHelpdeskPage() {
                             );
                           })}
 
-                          {/* Quick Emoji Picker Selector */}
-                          <div style={{ display: "flex", gap: "4px", background: "var(--color-bg-subtle)", borderRadius: "12px", padding: "2px 6px", border: "1px solid var(--color-border)" }}>
-                            {["👍", "😊", "❤️", "🔥", "🎉"].map(emoji => (
-                              <span 
-                                key={emoji} 
-                                onClick={() => toggleReaction(msg.id, emoji)}
-                                style={{ cursor: "pointer", fontSize: "13px", padding: "0 2px", transition: "transform 0.1s", userSelect: "none" }}
-                                onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.2)"; }}
-                                onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
-                              >
-                                {emoji}
-                              </span>
-                            ))}
-                          </div>
+                          {/* Trigger Emoji Picker Button */}
+                          <button
+                            onClick={() => setActivePickerMsgId(activePickerMsgId === msg.id ? null : msg.id)}
+                            style={{ display: "flex", alignItems: "center", background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: "4px" }}
+                          >
+                            <Smile size={16} />
+                          </button>
+
+                          {/* Absolute Dropdown Emoji Picker */}
+                          {activePickerMsgId === msg.id && (
+                            <div style={{
+                              position: "absolute", bottom: "100%", [isMe ? "right" : "left"]: 0, marginBottom: "6px",
+                              display: "flex", gap: "6px", background: "var(--color-card-bg)", borderRadius: "20px", padding: "4px 10px",
+                              border: "1px solid var(--color-border)", boxShadow: "var(--color-card-shadow)", zIndex: 100
+                            }}>
+                              {["👍", "😊", "❤️", "🔥", "🎉"].map(emoji => (
+                                <span 
+                                  key={emoji} 
+                                  onClick={() => toggleReaction(msg.id, emoji)}
+                                  style={{ cursor: "pointer", fontSize: "14px", padding: "2px", transition: "transform 0.1s", userSelect: "none" }}
+                                  onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.25)"; }}
+                                  onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
+                                >
+                                  {emoji}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
                           <button 
                             onClick={() => setReplyingToMessage(msg)}
                             style={{ display: "flex", alignItems: "center", gap: "4px", background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
