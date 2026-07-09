@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Building2, ArrowLeft, Mail, Phone, MapPin, Users, Activity, CheckCircle2, DollarSign, Ban, Play } from "lucide-react";
+import { Building2, ArrowLeft, Mail, Phone, MapPin, Users, Activity, CheckCircle2, DollarSign, Ban, Play, ChevronDown, ChevronUp } from "lucide-react";
 import { superAdminService } from "../services/tenant.service";
 
 export default function TenantProfilePage() {
@@ -11,6 +11,12 @@ export default function TenantProfilePage() {
   const [tenant, setTenant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+
+  // Subsection Toggle States
+  const [managersOpen, setManagersOpen] = useState(true);
+  const [supervisorsOpen, setSupervisorsOpen] = useState(true);
+  const [guardsOpen, setGuardsOpen] = useState(true);
+  const [othersOpen, setOthersOpen] = useState(true);
 
   useEffect(() => {
     if (!params.id) return;
@@ -220,50 +226,74 @@ export default function TenantProfilePage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {/* Managers Section */}
             <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)" }}>
+              <div 
+                onClick={() => setManagersOpen(!managersOpen)}
+                style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)", cursor: "pointer", userSelect: "none" }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <Users size={16} color="var(--color-accent)" />
                   <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Management & Admins</h2>
                 </div>
-                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{managers.length}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{managers.length}</span>
+                  {managersOpen ? <ChevronUp size={16} color="var(--color-text-muted)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
+                </div>
               </div>
-              {renderUserTable(managers, "No management personnel found.")}
+              {managersOpen && renderUserTable(managers, "No management personnel found.")}
             </div>
 
             {/* Supervisors Section */}
             <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)" }}>
+              <div 
+                onClick={() => setSupervisorsOpen(!supervisorsOpen)}
+                style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)", cursor: "pointer", userSelect: "none" }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <Users size={16} color="var(--color-info)" />
                   <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Site Supervisors</h2>
                 </div>
-                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{supervisors.length}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{supervisors.length}</span>
+                  {supervisorsOpen ? <ChevronUp size={16} color="var(--color-text-muted)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
+                </div>
               </div>
-              {renderUserTable(supervisors, "No site supervisors found.")}
+              {supervisorsOpen && renderUserTable(supervisors, "No site supervisors found.")}
             </div>
 
             {/* Guards Section */}
             <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)" }}>
+              <div 
+                onClick={() => setGuardsOpen(!guardsOpen)}
+                style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)", cursor: "pointer", userSelect: "none" }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <Users size={16} color="var(--color-success)" />
                   <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>On-Site Security Guards</h2>
                 </div>
-                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{guards.length}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{guards.length}</span>
+                  {guardsOpen ? <ChevronUp size={16} color="var(--color-text-muted)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
+                </div>
               </div>
-              {renderUserTable(guards, "No active security guards registered.")}
+              {guardsOpen && renderUserTable(guards, "No active security guards registered.")}
             </div>
 
             {others.length > 0 && (
               <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-                <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)" }}>
+                <div 
+                  onClick={() => setOthersOpen(!othersOpen)}
+                  style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-subtle)", cursor: "pointer", userSelect: "none" }}
+                >
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <Users size={16} color="var(--color-text-secondary)" />
                     <h2 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Other Personnel</h2>
                   </div>
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{others.length}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-muted)", background: "var(--color-border)", padding: "2px 8px", borderRadius: "10px" }}>{others.length}</span>
+                    {othersOpen ? <ChevronUp size={16} color="var(--color-text-muted)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
+                  </div>
                 </div>
-                {renderUserTable(others, "")}
+                {othersOpen && renderUserTable(others, "")}
               </div>
             )}
           </div>
