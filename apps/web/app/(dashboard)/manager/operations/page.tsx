@@ -133,28 +133,29 @@ function OperationsContent() {
   const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
+  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
+
   const loadData = async () => {
     setLoading(true);
     try {
-      if (activeTab === "personnel") {
-        const [userRes, siteRes] = await Promise.all([
-          managerService.getTenantUsers(),
-          managerService.getSites()
-        ]);
-        setUsers(userRes.data?.data?.users || []);
-        setSites(siteRes.data?.data?.sites || []);
-      } else if (activeTab === "shifts") {
-        const res = await managerService.getTenantShifts();
-        setShifts(res.data?.data?.shifts || []);
-      } else if (activeTab === "visitors") {
-        const res = await managerService.getVisitors();
-        setVisitors(res.data?.data?.visitors || []);
-      } else if (activeTab === "incidents") {
-        const res = await managerService.getIncidents();
-        setIncidents(res.data?.data?.incidents || []);
-      } else if (activeTab === "occurrence") {
-        const res = await managerService.getOccurrences();
-        setOccurrences(res.data?.data?.entries || []);
+      const [userRes, siteRes, shiftRes, visitorRes, incidentRes, occurrenceRes] = await Promise.all([
+        managerService.getTenantUsers(),
+        managerService.getSites(),
+        managerService.getTenantShifts(),
+        managerService.getVisitors(),
+        managerService.getIncidents(),
+        managerService.getOccurrences()
+      ]);
+      const loadedSites = siteRes.data?.data?.sites || [];
+      setUsers(userRes.data?.data?.users || []);
+      setSites(loadedSites);
+      setShifts(shiftRes.data?.data?.shifts || []);
+      setVisitors(visitorRes.data?.data?.visitors || []);
+      setIncidents(incidentRes.data?.data?.incidents || []);
+      setOccurrences(occurrenceRes.data?.data?.entries || []);
+      
+      if (loadedSites.length > 0 && !selectedSiteId) {
+        setSelectedSiteId(loadedSites[0].id);
       }
     } catch (err) {
       console.error("Failed to load operations data", err);
@@ -165,7 +166,7 @@ function OperationsContent() {
 
   useEffect(() => {
     loadData();
-  }, [activeTab]);
+  }, []);
 
   const handleTabChange = (tabName: string) => {
     router.push(`/manager/operations?tab=${tabName}`);
@@ -230,31 +231,37 @@ function OperationsContent() {
   };
 
   // Filtered lists
-  const filteredUsers = users.filter(u => 
-    `${u.firstName} ${u.lastName}`.toLowerCase().includes(personnelSearch.toLowerCase()) ||
-    u.email.toLowerCase().includes(personnelSearch.toLowerCase()) ||
-    u.role.toLowerCase().includes(personnelSearch.toLowerCase())
-  );
+  const filteredUsers = users
+    .filter(u => !selectedSiteId || u.assignedSiteId === selectedSiteId || u.assignedSite?.id === selectedSiteId)
+    .filter(u => 
+      `${u.firstName} ${u.lastName}`.toLowerCase().includes(personnelSearch.toLowerCase()) ||
+      u.email.toLowerCase().includes(personnelSearch.toLowerCase()) ||
+      u.role.toLowerCase().includes(personnelSearch.toLowerCase())
+    );
 
-  const filteredShifts = shifts.filter(s => {
-    const matchesSearch = 
-      (s.user && `${s.user.firstName} ${s.user.lastName}`.toLowerCase().includes(shiftSearch.toLowerCase())) ||
-      (s.site && s.site.name.toLowerCase().includes(shiftSearch.toLowerCase())) ||
-      (s.post && s.post.name.toLowerCase().includes(shiftSearch.toLowerCase()));
-    const matchesDuration = filterByDuration(s.startTime, shiftDuration);
-    return matchesSearch && matchesDuration;
-  });
+  const filteredShifts = shifts
+    .filter(s => !selectedSiteId || s.siteId === selectedSiteId || s.site?.id === selectedSiteId)
+    .filter(s => {
+      const matchesSearch = 
+        (s.user && `${s.user.firstName} ${s.user.lastName}`.toLowerCase().includes(shiftSearch.toLowerCase())) ||
+        (s.site && s.site.name.toLowerCase().includes(shiftSearch.toLowerCase())) ||
+        (s.post && s.post.name.toLowerCase().includes(shiftSearch.toLowerCase()));
+      const matchesDuration = filterByDuration(s.startTime, shiftDuration);
+      return matchesSearch && matchesDuration;
+    });
 
-  const filteredVisitors = visitors.filter(v => {
-    const matchesSearch = 
-      v.name.toLowerCase().includes(visitorSearch.toLowerCase()) ||
-      (v.idNumber && v.idNumber.toLowerCase().includes(visitorSearch.toLowerCase())) ||
-      (v.vehicleReg && v.vehicleReg.toLowerCase().includes(visitorSearch.toLowerCase())) ||
-      (v.purpose && v.purpose.toLowerCase().includes(visitorSearch.toLowerCase())) ||
-      (v.site?.name && v.site.name.toLowerCase().includes(visitorSearch.toLowerCase()));
-    const matchesDuration = filterVisitorByDuration(v.checkInTime, visitorDuration);
-    return matchesSearch && matchesDuration;
-  });
+  const filteredVisitors = visitors
+    .filter(v => !selectedSiteId || v.siteId === selectedSiteId || v.site?.id === selectedSiteId)
+    .filter(v => {
+      const matchesSearch = 
+        v.name.toLowerCase().includes(visitorSearch.toLowerCase()) ||
+        (v.idNumber && v.idNumber.toLowerCase().includes(visitorSearch.toLowerCase())) ||
+        (v.vehicleReg && v.vehicleReg.toLowerCase().includes(visitorSearch.toLowerCase())) ||
+        (v.purpose && v.purpose.toLowerCase().includes(visitorSearch.toLowerCase())) ||
+        (v.site?.name && v.site.name.toLowerCase().includes(visitorSearch.toLowerCase()));
+      const matchesDuration = filterVisitorByDuration(v.checkInTime, visitorDuration);
+      return matchesSearch && matchesDuration;
+    });
 
   const visitorTotalPages = Math.ceil(filteredVisitors.length / itemsPerPage) || 1;
   const paginatedVisitors = filteredVisitors.slice((visitorPage - 1) * itemsPerPage, visitorPage * itemsPerPage);
@@ -263,26 +270,30 @@ function OperationsContent() {
     setVisitorPage(1);
   }, [visitorSearch, visitorDuration]);
 
-  const filteredIncidents = incidents.filter(inc => {
-    const matchesSearch = 
-      inc.title.toLowerCase().includes(incidentSearch.toLowerCase()) ||
-      inc.description.toLowerCase().includes(incidentSearch.toLowerCase()) ||
-      (inc.site?.name && inc.site.name.toLowerCase().includes(incidentSearch.toLowerCase())) ||
-      (inc.reportedBy && `${inc.reportedBy.firstName} ${inc.reportedBy.lastName}`.toLowerCase().includes(incidentSearch.toLowerCase()));
-    const matchesStatus = incidentStatus === "ALL" || inc.status === incidentStatus;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredIncidents = incidents
+    .filter(inc => !selectedSiteId || inc.siteId === selectedSiteId || inc.site?.id === selectedSiteId)
+    .filter(inc => {
+      const matchesSearch = 
+        inc.title.toLowerCase().includes(incidentSearch.toLowerCase()) ||
+        inc.description.toLowerCase().includes(incidentSearch.toLowerCase()) ||
+        (inc.site?.name && inc.site.name.toLowerCase().includes(incidentSearch.toLowerCase())) ||
+        (inc.reportedBy && `${inc.reportedBy.firstName} ${inc.reportedBy.lastName}`.toLowerCase().includes(incidentSearch.toLowerCase()));
+      const matchesStatus = incidentStatus === "ALL" || inc.status === incidentStatus;
+      return matchesSearch && matchesStatus;
+    });
 
-  const filteredOccurrences = occurrences.filter(entry => {
-    const matchesSearch = 
-      entry.entryText.toLowerCase().includes(occurrenceSearch.toLowerCase()) ||
-      (entry.location && entry.location.toLowerCase().includes(occurrenceSearch.toLowerCase())) ||
-      (entry.user && `${entry.user.firstName} ${entry.user.lastName}`.toLowerCase().includes(occurrenceSearch.toLowerCase())) ||
-      (entry.site?.name && entry.site.name.toLowerCase().includes(occurrenceSearch.toLowerCase()));
-    const matchesCategory = occurrenceCategory === "ALL" || entry.category === occurrenceCategory;
-    const matchesDuration = filterByDuration(entry.createdAt, occurrenceDuration);
-    return matchesSearch && matchesCategory && matchesDuration;
-  });
+  const filteredOccurrences = occurrences
+    .filter(entry => !selectedSiteId || entry.siteId === selectedSiteId || entry.site?.id === selectedSiteId)
+    .filter(entry => {
+      const matchesSearch = 
+        entry.entryText.toLowerCase().includes(occurrenceSearch.toLowerCase()) ||
+        (entry.location && entry.location.toLowerCase().includes(occurrenceSearch.toLowerCase())) ||
+        (entry.user && `${entry.user.firstName} ${entry.user.lastName}`.toLowerCase().includes(occurrenceSearch.toLowerCase())) ||
+        (entry.site?.name && entry.site.name.toLowerCase().includes(occurrenceSearch.toLowerCase()));
+      const matchesCategory = occurrenceCategory === "ALL" || entry.category === occurrenceCategory;
+      const matchesDuration = filterByDuration(entry.createdAt, occurrenceDuration);
+      return matchesSearch && matchesCategory && matchesDuration;
+    });
 
   const occurrenceTotalPages = Math.ceil(filteredOccurrences.length / itemsPerPage) || 1;
   const paginatedOccurrences = filteredOccurrences.slice((occurrencePage - 1) * itemsPerPage, occurrencePage * itemsPerPage);
@@ -342,34 +353,78 @@ function OperationsContent() {
           <FolderKanban size={24} color="var(--color-accent)" /> Operations Control Console
         </h1>
         <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-          Consolidated operations center for security officers, attendance shifts, detailed visitor checks, and incident reports.
+          Consolidated operations center scoped by active guarding sites. Select a site to view operations details.
         </p>
       </div>
 
-      {/* Tab Navigation Menu */}
-      <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)", gap: "8px", overflowX: "auto" }}>
-        <button onClick={() => handleTabChange("personnel")} style={tabButtonStyle(activeTab === "personnel")}>
-          <Users size={16} /> Personnel
-        </button>
-        <button onClick={() => handleTabChange("shifts")} style={tabButtonStyle(activeTab === "shifts")}>
-          <Calendar size={16} /> Shifts & Attendance
-        </button>
-        <button onClick={() => handleTabChange("visitors")} style={tabButtonStyle(activeTab === "visitors")}>
-          <Contact size={16} /> Visitor Logs
-        </button>
-        <button onClick={() => handleTabChange("incidents")} style={tabButtonStyle(activeTab === "incidents")}>
-          <ShieldAlert size={16} /> Incident Reports
-        </button>
-        <button onClick={() => handleTabChange("occurrence")} style={tabButtonStyle(activeTab === "occurrence")}>
-          <CheckCircle2 size={16} /> Occurrence Book
-        </button>
-      </div>
+      <div style={{ display: "flex", gap: "28px", alignItems: "flex-start", width: "100%" }}>
+        
+        {/* Left Side: Sites List Sidebar */}
+        <div style={{
+          width: "280px", flexShrink: 0, background: "var(--color-card-bg)",
+          borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)",
+          padding: "20px", display: "flex", flexDirection: "column", gap: "16px",
+          boxShadow: "var(--color-card-shadow)"
+        }}>
+          <h3 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <MapPin size={16} color="var(--color-accent)" /> Guarding Sites
+          </h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {sites.map(site => {
+              const isSelected = selectedSiteId === site.id;
+              return (
+                <div
+                  key={site.id}
+                  onClick={() => { setSelectedSiteId(site.id); }}
+                  style={{
+                    padding: "12px 16px", borderRadius: "var(--radius-md)",
+                    border: isSelected ? "1px solid var(--color-accent)" : "1px solid var(--color-border)",
+                    background: isSelected ? "var(--color-accent-subtle)" : "var(--color-bg-subtle)",
+                    color: isSelected ? "var(--color-accent)" : "var(--color-text-primary)",
+                    cursor: "pointer", transition: "all var(--transition-fast)"
+                  }}
+                >
+                  <h4 style={{ margin: 0, fontSize: "13.5px", fontWeight: 700 }}>{site.name}</h4>
+                  <p style={{ margin: "4px 0 0 0", fontSize: "11px", color: isSelected ? "var(--color-accent)" : "var(--color-text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{site.address || "No address provided"}</p>
+                </div>
+              );
+            })}
+            {sites.length === 0 && (
+              <div style={{ fontSize: "13px", color: "var(--color-text-muted)", textAlign: "center", padding: "16px" }}>
+                No sites registered.
+              </div>
+            )}
+          </div>
+        </div>
 
-      {/* Main Tabs Container */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+        {/* Right Side: Site Operations Detail Workspace */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "24px", minWidth: 0 }}>
+          {selectedSiteId ? (
+            <>
+              {/* Tab Navigation Menu */}
+              <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)", gap: "8px", overflowX: "auto" }}>
+                <button onClick={() => handleTabChange("personnel")} style={tabButtonStyle(activeTab === "personnel")}>
+                  <Users size={16} /> Site Officers
+                </button>
+                <button onClick={() => handleTabChange("shifts")} style={tabButtonStyle(activeTab === "shifts")}>
+                  <Calendar size={16} /> Shifts & Attendance
+                </button>
+                <button onClick={() => handleTabChange("visitors")} style={tabButtonStyle(activeTab === "visitors")}>
+                  <Contact size={16} /> Visitor Logs
+                </button>
+                <button onClick={() => handleTabChange("incidents")} style={tabButtonStyle(activeTab === "incidents")}>
+                  <ShieldAlert size={16} /> Incidents
+                </button>
+                <button onClick={() => handleTabChange("occurrence")} style={tabButtonStyle(activeTab === "occurrence")}>
+                  <CheckCircle2 size={16} /> Occurrence Book
+                </button>
+              </div>
 
-        {/* TAB 1: PERSONNEL MANAGEMENT */}
-        {activeTab === "personnel" && (
+              {/* Main Tabs Container */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+
+                {/* TAB 1: PERSONNEL MANAGEMENT */}
+                {activeTab === "personnel" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
               <div style={{ position: "relative" }}>
@@ -1131,9 +1186,16 @@ function OperationsContent() {
                 Download PDF Report
               </button>
             </div>
+            </div>
+          </>
+        ) : (
+          <div style={{ flex: 1, background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", height: "240px", boxShadow: "var(--color-card-shadow)" }}>
+            <MapPin size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
+            <p style={{ fontSize: "15px", fontWeight: 600, margin: 0 }}>Select a site from the left sidebar to load operational control systems</p>
           </div>
+        )}
         </div>
-      )}
+      </div>
 
       {/* Zoom Modal */}
       {zoomImage && (
