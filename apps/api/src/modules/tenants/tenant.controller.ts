@@ -10,7 +10,7 @@ export const getTenants = catchAsync(async (req: Request, res: Response) => {
     orderBy: { name: 'asc' },
     include: {
       subscriptionTier: { select: { name: true, price: true } },
-      _count: { select: { users: true, sites: true, incidents: true } }
+      _count: { select: { users: true, sites: true, incidents: true, shifts: true, patrolLogs: true } }
     }
   });
   res.status(HttpStatus.OK).json({ status: "success", data: { tenants } });

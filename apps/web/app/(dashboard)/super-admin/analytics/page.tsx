@@ -107,8 +107,8 @@ export default function SuperAdminAnalyticsPage() {
         mrr: stats?.mrr || 0
       },
       tenants: formattedTenants,
-      features: FEATURE_USAGE,
-      devices: DEVICE_USAGE,
+      features: stats?.featureUsage || FEATURE_USAGE,
+      devices: stats?.deviceUsage || DEVICE_USAGE,
       tiers: tierStats.map(t => ({
         name: t.name,
         price: t.price,
@@ -279,7 +279,7 @@ export default function SuperAdminAnalyticsPage() {
               <div>
                 <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "16px" }}>Feature Engagement Rates</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  {FEATURE_USAGE.map((f, idx) => (
+                  {(stats?.featureUsage || FEATURE_USAGE).map((f: any, idx: number) => (
                     <div key={idx}>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "var(--color-text-secondary)", marginBottom: "6px" }}>
                         <span>{f.feature}</span>
@@ -297,7 +297,7 @@ export default function SuperAdminAnalyticsPage() {
               <div>
                 <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "16px" }}>Device Usage Share</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  {DEVICE_USAGE.map((d, idx) => (
+                  {(stats?.deviceUsage || DEVICE_USAGE).map((d: any, idx: number) => (
                     <div key={idx}>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "var(--color-text-secondary)", marginBottom: "6px" }}>
                         <span>{d.device}</span>

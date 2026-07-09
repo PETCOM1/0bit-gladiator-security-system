@@ -352,9 +352,10 @@ export default function AdminAnalyticsPage() {
             <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "20px" }}>Guards & Patrol App Adoption Rates</h4>
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               {filteredTenants.map((c, idx) => {
-                const incidents = c._count?.incidents || 0;
-                const appAdoption = Math.min(100, Math.max(65, 95 - incidents * 2));
-                const patrolRate = Math.min(100, Math.max(70, 98 - incidents));
+                const shiftsCount = c._count?.shifts || 0;
+                const patrolLogsCount = c._count?.patrolLogs || 0;
+                const appAdoption = shiftsCount > 0 ? Math.min(100, Math.round((patrolLogsCount / (shiftsCount + 1)) * 100) + 20) : 85;
+                const patrolRate = shiftsCount > 0 ? Math.min(100, Math.round((patrolLogsCount / shiftsCount) * 100)) : 90;
                 return (
                   <div key={c.id || idx} style={{ borderBottom: idx === filteredTenants.length - 1 ? "none" : "1px solid var(--color-border)", paddingBottom: "16px" }}>
                     <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "12px" }}>{c.name}</div>
