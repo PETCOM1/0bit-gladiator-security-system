@@ -16,10 +16,13 @@ const ROLE_ROUTES: Record<string, string> = {
 };
 
 const OAUTH_ERRORS: Record<string, string> = {
-  google_denied:  "Google sign-in was cancelled.",
-  suspended:      "Your account has been suspended. Please contact support.",
-  not_found:      "No account found. Please contact support.",
-  oauth_failed:   "Google sign-in failed. Please try again.",
+  google_denied:           "Google sign-in was cancelled.",
+  suspended:               "Your account has been suspended. Please contact support.",
+  not_found:               "No account found. Please contact support.",
+  oauth_failed:            "Google sign-in failed. Please try again.",
+  google_no_email:         "Your Google account has no email address we can use.",
+  google_invite_only:      "This platform is invite-only. Ask an admin to invite you before signing in.",
+  google_pending_approval: "Your account is awaiting admin approval.",
 };
 
 export default function LoginPage() {

@@ -113,13 +113,25 @@ export async function googleCallback(req: Request, res: Response) {
           },
         });
       } else {
-        // Brand-new user via Google — always allowed with USER role
+        // Brand-new user via Google — respect the same registration mode
+        // as password-based self-registration (see auth.controller.ts#register)
+        const setting = await prisma.systemSetting.findUnique({
+          where: { key: "registration_mode" },
+        });
+        const mode = setting?.value ?? "INVITE_ONLY";
+
+        if (mode === "INVITE_ONLY") {
+          return res.redirect(`${env.FRONTEND_URL}/login?error=google_invite_only`);
+        }
+
+        const status = mode === "SELF_REGISTER_AUTO" ? "ACTIVE" : "PENDING";
+
         user = await prisma.user.create({
           data: {
             email:              profile.email.toLowerCase(),
             password:           "",
             role:               "USER",
-            accountStatus:      "ACTIVE",
+            accountStatus:      status,
             firstName:          profile.given_name  ?? null,
             lastName:           profile.family_name ?? null,
             googleId:           profile.id,
@@ -147,6 +159,9 @@ export async function googleCallback(req: Request, res: Response) {
     }
     if (user.accountStatus === "DELETED") {
       return res.redirect(`${env.FRONTEND_URL}/login?error=not_found`);
+    }
+    if (user.accountStatus === "PENDING") {
+      return res.redirect(`${env.FRONTEND_URL}/login?error=google_pending_approval`);
     }
 
     await prisma.user.update({
