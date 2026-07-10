@@ -92,7 +92,7 @@ function InviteModal({ onClose, onSubmit }: {
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
           <div>
-            <h2 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Invite Manager</h2>
+            <h2 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Invite Staff Member</h2>
             <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "4px" }}>
               They'll receive an email to set their password.
             </p>
@@ -108,7 +108,7 @@ function InviteModal({ onClose, onSubmit }: {
             <input
               type="email" value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="manager@example.com"
+              placeholder="staff@example.com"
               required autoFocus
               style={inputStyle}
               onFocus={focusBorder} onBlur={blurBorder}
@@ -195,22 +195,22 @@ function ConfirmDialog({ title, message, confirmLabel, danger, onConfirm, onCanc
   );
 }
 
-// ─── Manager actions cell ──────────────────────────────────────────────────────
-function ManagerActionsCell({ manager, onStatusChange, onRefetch }: {
-  manager: TeamUser;
+// ─── Staff actions cell ─────────────────────────────────────────────────────────
+function StaffActionsCell({ staffMember, onStatusChange, onRefetch }: {
+  staffMember: TeamUser;
   onStatusChange: (id: string, status: string) => Promise<void>;
   onRefetch: () => void;
 }) {
   const [confirm, setConfirm] = useState<"suspend" | "activate" | null>(null);
 
-  const name = manager.displayName ||
-    [manager.firstName, manager.lastName].filter(Boolean).join(" ") ||
-    manager.email;
+  const name = staffMember.displayName ||
+    [staffMember.firstName, staffMember.lastName].filter(Boolean).join(" ") ||
+    staffMember.email;
 
   return (
     <>
       <div style={{ display: "flex", gap: "6px" }}>
-        {manager.accountStatus === "ACTIVE" && (
+        {staffMember.accountStatus === "ACTIVE" && (
           <button onClick={() => setConfirm("suspend")} style={{
             padding: "4px 12px", fontSize: "12px", fontWeight: 600,
             color: "var(--color-warning)", background: "var(--color-warning-subtle)",
@@ -219,7 +219,7 @@ function ManagerActionsCell({ manager, onStatusChange, onRefetch }: {
             Suspend
           </button>
         )}
-        {manager.accountStatus === "SUSPENDED" && (
+        {staffMember.accountStatus === "SUSPENDED" && (
           <button onClick={() => setConfirm("activate")} style={{
             padding: "4px 12px", fontSize: "12px", fontWeight: 600,
             color: "var(--color-accent)", background: "var(--color-accent-subtle)",
@@ -228,7 +228,7 @@ function ManagerActionsCell({ manager, onStatusChange, onRefetch }: {
             Activate
           </button>
         )}
-        {manager.accountStatus === "PENDING" && (
+        {staffMember.accountStatus === "PENDING" && (
           <span style={{ fontSize: "12px", color: "var(--color-text-muted)", fontStyle: "italic" }}>
             Invite pending
           </span>
@@ -237,19 +237,19 @@ function ManagerActionsCell({ manager, onStatusChange, onRefetch }: {
 
       {confirm === "suspend" && (
         <ConfirmDialog
-          title="Suspend manager?"
+          title="Suspend staff member?"
           message={`${name} will lose access immediately.`}
           confirmLabel="Suspend" danger
-          onConfirm={async () => { await onStatusChange(manager.id, "SUSPENDED"); setConfirm(null); onRefetch(); }}
+          onConfirm={async () => { await onStatusChange(staffMember.id, "SUSPENDED"); setConfirm(null); onRefetch(); }}
           onCancel={() => setConfirm(null)}
         />
       )}
       {confirm === "activate" && (
         <ConfirmDialog
-          title="Reactivate manager?"
+          title="Reactivate staff member?"
           message={`${name} will regain full access.`}
           confirmLabel="Activate"
-          onConfirm={async () => { await onStatusChange(manager.id, "ACTIVE"); setConfirm(null); onRefetch(); }}
+          onConfirm={async () => { await onStatusChange(staffMember.id, "ACTIVE"); setConfirm(null); onRefetch(); }}
           onCancel={() => setConfirm(null)}
         />
       )}
@@ -257,37 +257,37 @@ function ManagerActionsCell({ manager, onStatusChange, onRefetch }: {
   );
 }
 
-// ─── MANAGERS PAGE ─────────────────────────────────────────────────────────────
-export function ManagersPage() {
-  const [managers,   setManagers]   = useState<TeamUser[]>([]);
-  const [isLoading,  setIsLoading]  = useState(true);
-  const [error,      setError]      = useState<string | null>(null);
-  const [showInvite, setShowInvite] = useState(false);
+// ─── STAFF PAGE ─────────────────────────────────────────────────────────────────
+export function StaffPage() {
+  const [staffMembers, setStaffMembers] = useState<TeamUser[]>([]);
+  const [isLoading,    setIsLoading]    = useState(true);
+  const [error,        setError]        = useState<string | null>(null);
+  const [showInvite,   setShowInvite]   = useState(false);
 
-  const fetchManagers = useCallback(async () => {
+  const fetchStaff = useCallback(async () => {
     try {
       setIsLoading(true); setError(null);
-      const res = await adminService.getManagers();
-      setManagers(res.data?.managers ?? []);
+      const res = await adminService.getStaffMembers();
+      setStaffMembers(res.data?.staffMembers ?? []);
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? "Failed to load managers.");
+      setError(err?.response?.data?.message ?? "Failed to load staff members.");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  useEffect(() => { fetchManagers(); }, [fetchManagers]);
+  useEffect(() => { fetchStaff(); }, [fetchStaff]);
 
-  const handleInvite        = async (email: string) => { await adminService.inviteManager(email); await fetchManagers(); };
+  const handleInvite        = async (email: string) => { await adminService.inviteStaffMember(email); await fetchStaff(); };
   const handleStatusChange  = async (id: string, status: string) => { await adminService.updateUserStatus(id, status); };
 
-  const active    = managers.filter((m) => m.accountStatus === "ACTIVE").length;
-  const pending   = managers.filter((m) => m.accountStatus === "PENDING").length;
-  const suspended = managers.filter((m) => m.accountStatus === "SUSPENDED").length;
+  const active    = staffMembers.filter((m) => m.accountStatus === "ACTIVE").length;
+  const pending   = staffMembers.filter((m) => m.accountStatus === "PENDING").length;
+  const suspended = staffMembers.filter((m) => m.accountStatus === "SUSPENDED").length;
 
   const columns: Column<TeamUser>[] = [
     {
-      header: "Manager",
+      header: "Staff Member",
       render: (m) => {
         const name = m.displayName || [m.firstName, m.lastName].filter(Boolean).join(" ") || m.email;
         const initials = name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -322,7 +322,7 @@ export function ManagersPage() {
     {
       header: "Actions",
       render: (m) => (
-        <ManagerActionsCell manager={m} onStatusChange={handleStatusChange} onRefetch={fetchManagers} />
+        <StaffActionsCell staffMember={m} onStatusChange={handleStatusChange} onRefetch={fetchStaff} />
       )
     }
   ];
@@ -333,9 +333,9 @@ export function ManagersPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>Managers</h1>
+          <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>Staff Members</h1>
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-            Project managers who oversee client delivery
+            Platform staff who onboard and support new tenants
           </p>
         </div>
         <button
@@ -350,7 +350,7 @@ export function ManagersPage() {
           onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-accent-hover)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = "var(--color-accent)"; }}
         >
-          <UserPlus size={15} strokeWidth={2} /> Invite Manager
+          <UserPlus size={15} strokeWidth={2} /> Invite Staff Member
         </button>
       </div>
 
@@ -384,24 +384,24 @@ export function ManagersPage() {
       }}>
         {error ? (
           <div style={{ padding: "60px", textAlign: "center", color: "var(--color-danger)", fontSize: "14px" }}>{error}</div>
-        ) : managers.length === 0 && !isLoading ? (
+        ) : staffMembers.length === 0 && !isLoading ? (
           <div style={{ padding: "60px", textAlign: "center" }}>
-            <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "8px" }}>No managers yet</p>
-            <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginBottom: "20px" }}>Invite a manager to get started</p>
+            <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "8px" }}>No staff members yet</p>
+            <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginBottom: "20px" }}>Invite a staff member to get started</p>
             <button onClick={() => setShowInvite(true)} style={{
               padding: "10px 20px", background: "var(--color-accent)", border: "none",
               borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600,
               color: "var(--color-accent-text)", cursor: "pointer",
             }}>
-              Invite first manager
+              Invite first staff member
             </button>
           </div>
         ) : (
           <DataTable
-            data={managers}
+            data={staffMembers}
             columns={columns}
             loading={isLoading}
-            searchPlaceholder="Search managers by name or email..."
+            searchPlaceholder="Search staff by name or email..."
             searchKeys={["displayName", "firstName", "lastName", "email"]}
             filterOptions={[
               {

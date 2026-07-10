@@ -44,8 +44,8 @@ export const endpoints = {
     userStatus:   (id: string) => `/admin/users/${id}/status`,
     userRole:     (id: string) => `/admin/users/${id}/role`,
     userInvite:    "/admin/users/invite",
-    managers:      "/admin/managers",
-    managerInvite: "/admin/managers/invite",
+    staff:         "/admin/staff",
+    staffInvite:   "/admin/staff/invite",
   },
 
   // Projects

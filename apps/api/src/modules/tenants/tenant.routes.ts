@@ -5,16 +5,17 @@ import { Role } from "@repo/types";
 
 const router = Router();
 router.use(protect);
-router.use(restrictTo(Role.SUPER_ADMIN, Role.ADMIN));
 
 router.route("/")
-  .get(tenantController.getTenants)
-  .post(tenantController.createTenant);
+  .get(restrictTo(Role.SUPER_ADMIN, Role.ADMIN, Role.ACCOUNT_MANAGER), tenantController.getTenants)
+  .post(restrictTo(Role.SUPER_ADMIN, Role.ADMIN, Role.ACCOUNT_MANAGER), tenantController.createTenant);
 
 router.route("/:id")
-  .get(tenantController.getTenantById);
+  .get(restrictTo(Role.SUPER_ADMIN, Role.ADMIN, Role.ACCOUNT_MANAGER), tenantController.getTenantById);
 
+// Suspending/reactivating a live tenant stays an Admin-only action —
+// Staff Members can onboard tenants but not change status of existing ones.
 router.route("/:id/status")
-  .patch(tenantController.updateTenantStatus);
+  .patch(restrictTo(Role.SUPER_ADMIN, Role.ADMIN), tenantController.updateTenantStatus);
 
 export default router;

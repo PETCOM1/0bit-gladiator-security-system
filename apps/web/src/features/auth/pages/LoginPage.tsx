@@ -8,11 +8,12 @@ import { BRAND } from "@/shared/config/branding.config";
 import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 
 const ROLE_ROUTES: Record<string, string> = {
-  SUPER_ADMIN: "/super-admin",
-  ADMIN:       "/admin",
-  MANAGER:     "/manager",
-  SITE_MANAGER: "/site-manager",
-  GUARD:       "/guard",
+  SUPER_ADMIN:     "/super-admin",
+  ADMIN:           "/admin",
+  ACCOUNT_MANAGER: "/staff",
+  MANAGER:         "/manager",
+  SITE_MANAGER:    "/site-manager",
+  GUARD:           "/guard",
 };
 
 const OAUTH_ERRORS: Record<string, string> = {

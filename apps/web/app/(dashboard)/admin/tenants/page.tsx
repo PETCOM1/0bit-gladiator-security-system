@@ -34,7 +34,7 @@ const labelStyle: React.CSSProperties = {
   letterSpacing: "0.05em",
 };
 
-function TenantsListContent() {
+export function TenantsListContent() {
   const [tenants, setTenants] = useState<any[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [step, setStep] = useState(1);

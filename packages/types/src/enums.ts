@@ -1,9 +1,10 @@
 export enum Role {
-  SUPER_ADMIN = "SUPER_ADMIN",
-  ADMIN       = "ADMIN",
-  MANAGER     = "MANAGER",
-  SITE_MANAGER= "SITE_MANAGER",
-  GUARD       = "GUARD",
+  SUPER_ADMIN     = "SUPER_ADMIN",
+  ADMIN           = "ADMIN",
+  ACCOUNT_MANAGER = "ACCOUNT_MANAGER",
+  MANAGER         = "MANAGER",
+  SITE_MANAGER    = "SITE_MANAGER",
+  GUARD           = "GUARD",
 }
 
 export enum AccountStatus {

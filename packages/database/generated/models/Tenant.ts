@@ -53,6 +53,7 @@ export type TenantMinAggregateOutputType = {
   subscriptionStatus: string | null
   allowedUsers: number | null
   subscriptionId: string | null
+  createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -74,6 +75,7 @@ export type TenantMaxAggregateOutputType = {
   subscriptionStatus: string | null
   allowedUsers: number | null
   subscriptionId: string | null
+  createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -95,6 +97,7 @@ export type TenantCountAggregateOutputType = {
   subscriptionStatus: number
   allowedUsers: number
   subscriptionId: number
+  createdById: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -128,6 +131,7 @@ export type TenantMinAggregateInputType = {
   subscriptionStatus?: true
   allowedUsers?: true
   subscriptionId?: true
+  createdById?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -149,6 +153,7 @@ export type TenantMaxAggregateInputType = {
   subscriptionStatus?: true
   allowedUsers?: true
   subscriptionId?: true
+  createdById?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -170,6 +175,7 @@ export type TenantCountAggregateInputType = {
   subscriptionStatus?: true
   allowedUsers?: true
   subscriptionId?: true
+  createdById?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -278,6 +284,7 @@ export type TenantGroupByOutputType = {
   subscriptionStatus: string
   allowedUsers: number
   subscriptionId: string | null
+  createdById: string | null
   createdAt: Date
   updatedAt: Date
   _count: TenantCountAggregateOutputType | null
@@ -322,9 +329,11 @@ export type TenantWhereInput = {
   subscriptionStatus?: Prisma.StringFilter<"Tenant"> | string
   allowedUsers?: Prisma.IntFilter<"Tenant"> | number
   subscriptionId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  createdById?: Prisma.StringNullableFilter<"Tenant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   subscriptionTier?: Prisma.XOR<Prisma.SubscriptionTierNullableScalarRelationFilter, Prisma.SubscriptionTierWhereInput> | null
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   users?: Prisma.UserListRelationFilter
   sites?: Prisma.SiteListRelationFilter
   visitors?: Prisma.VisitorListRelationFilter
@@ -355,9 +364,11 @@ export type TenantOrderByWithRelationInput = {
   subscriptionStatus?: Prisma.SortOrder
   allowedUsers?: Prisma.SortOrder
   subscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   subscriptionTier?: Prisma.SubscriptionTierOrderByWithRelationInput
+  createdBy?: Prisma.UserOrderByWithRelationInput
   users?: Prisma.UserOrderByRelationAggregateInput
   sites?: Prisma.SiteOrderByRelationAggregateInput
   visitors?: Prisma.VisitorOrderByRelationAggregateInput
@@ -391,9 +402,11 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   subscriptionStatus?: Prisma.StringFilter<"Tenant"> | string
   allowedUsers?: Prisma.IntFilter<"Tenant"> | number
   subscriptionId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  createdById?: Prisma.StringNullableFilter<"Tenant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   subscriptionTier?: Prisma.XOR<Prisma.SubscriptionTierNullableScalarRelationFilter, Prisma.SubscriptionTierWhereInput> | null
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   users?: Prisma.UserListRelationFilter
   sites?: Prisma.SiteListRelationFilter
   visitors?: Prisma.VisitorListRelationFilter
@@ -424,6 +437,7 @@ export type TenantOrderByWithAggregationInput = {
   subscriptionStatus?: Prisma.SortOrder
   allowedUsers?: Prisma.SortOrder
   subscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantCountOrderByAggregateInput
@@ -453,6 +467,7 @@ export type TenantScalarWhereWithAggregatesInput = {
   subscriptionStatus?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   allowedUsers?: Prisma.IntWithAggregatesFilter<"Tenant"> | number
   subscriptionId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  createdById?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
 }
@@ -476,6 +491,7 @@ export type TenantCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -506,6 +522,7 @@ export type TenantUncheckedCreateInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -540,6 +557,7 @@ export type TenantUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -570,6 +588,7 @@ export type TenantUncheckedUpdateInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -602,6 +621,7 @@ export type TenantCreateManyInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -643,6 +663,7 @@ export type TenantUncheckedUpdateManyInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -684,6 +705,7 @@ export type TenantCountOrderByAggregateInput = {
   subscriptionStatus?: Prisma.SortOrder
   allowedUsers?: Prisma.SortOrder
   subscriptionId?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -710,6 +732,7 @@ export type TenantMaxOrderByAggregateInput = {
   subscriptionStatus?: Prisma.SortOrder
   allowedUsers?: Prisma.SortOrder
   subscriptionId?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -731,6 +754,7 @@ export type TenantMinOrderByAggregateInput = {
   subscriptionStatus?: Prisma.SortOrder
   allowedUsers?: Prisma.SortOrder
   subscriptionId?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -760,6 +784,20 @@ export type TenantCreateNestedOneWithoutUsersInput = {
   connect?: Prisma.TenantWhereUniqueInput
 }
 
+export type TenantCreateNestedManyWithoutCreatedByInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCreatedByInput, Prisma.TenantUncheckedCreateWithoutCreatedByInput> | Prisma.TenantCreateWithoutCreatedByInput[] | Prisma.TenantUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCreatedByInput | Prisma.TenantCreateOrConnectWithoutCreatedByInput[]
+  createMany?: Prisma.TenantCreateManyCreatedByInputEnvelope
+  connect?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+}
+
+export type TenantUncheckedCreateNestedManyWithoutCreatedByInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCreatedByInput, Prisma.TenantUncheckedCreateWithoutCreatedByInput> | Prisma.TenantCreateWithoutCreatedByInput[] | Prisma.TenantUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCreatedByInput | Prisma.TenantCreateOrConnectWithoutCreatedByInput[]
+  createMany?: Prisma.TenantCreateManyCreatedByInputEnvelope
+  connect?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+}
+
 export type TenantUpdateOneWithoutUsersNestedInput = {
   create?: Prisma.XOR<Prisma.TenantCreateWithoutUsersInput, Prisma.TenantUncheckedCreateWithoutUsersInput>
   connectOrCreate?: Prisma.TenantCreateOrConnectWithoutUsersInput
@@ -768,6 +806,34 @@ export type TenantUpdateOneWithoutUsersNestedInput = {
   delete?: Prisma.TenantWhereInput | boolean
   connect?: Prisma.TenantWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutUsersInput, Prisma.TenantUpdateWithoutUsersInput>, Prisma.TenantUncheckedUpdateWithoutUsersInput>
+}
+
+export type TenantUpdateManyWithoutCreatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCreatedByInput, Prisma.TenantUncheckedCreateWithoutCreatedByInput> | Prisma.TenantCreateWithoutCreatedByInput[] | Prisma.TenantUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCreatedByInput | Prisma.TenantCreateOrConnectWithoutCreatedByInput[]
+  upsert?: Prisma.TenantUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.TenantUpsertWithWhereUniqueWithoutCreatedByInput[]
+  createMany?: Prisma.TenantCreateManyCreatedByInputEnvelope
+  set?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+  disconnect?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+  delete?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+  connect?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+  update?: Prisma.TenantUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.TenantUpdateWithWhereUniqueWithoutCreatedByInput[]
+  updateMany?: Prisma.TenantUpdateManyWithWhereWithoutCreatedByInput | Prisma.TenantUpdateManyWithWhereWithoutCreatedByInput[]
+  deleteMany?: Prisma.TenantScalarWhereInput | Prisma.TenantScalarWhereInput[]
+}
+
+export type TenantUncheckedUpdateManyWithoutCreatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCreatedByInput, Prisma.TenantUncheckedCreateWithoutCreatedByInput> | Prisma.TenantCreateWithoutCreatedByInput[] | Prisma.TenantUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCreatedByInput | Prisma.TenantCreateOrConnectWithoutCreatedByInput[]
+  upsert?: Prisma.TenantUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.TenantUpsertWithWhereUniqueWithoutCreatedByInput[]
+  createMany?: Prisma.TenantCreateManyCreatedByInputEnvelope
+  set?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+  disconnect?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+  delete?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+  connect?: Prisma.TenantWhereUniqueInput | Prisma.TenantWhereUniqueInput[]
+  update?: Prisma.TenantUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.TenantUpdateWithWhereUniqueWithoutCreatedByInput[]
+  updateMany?: Prisma.TenantUpdateManyWithWhereWithoutCreatedByInput | Prisma.TenantUpdateManyWithWhereWithoutCreatedByInput[]
+  deleteMany?: Prisma.TenantScalarWhereInput | Prisma.TenantScalarWhereInput[]
 }
 
 export type TenantCreateNestedManyWithoutSubscriptionTierInput = {
@@ -969,6 +1035,7 @@ export type TenantCreateWithoutPaymentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -998,6 +1065,7 @@ export type TenantUncheckedCreateWithoutPaymentsInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -1047,6 +1115,7 @@ export type TenantUpdateWithoutPaymentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -1076,6 +1145,7 @@ export type TenantUncheckedUpdateWithoutPaymentsInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -1109,6 +1179,7 @@ export type TenantCreateWithoutUsersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutTenantInput
@@ -1138,6 +1209,7 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sites?: Prisma.SiteUncheckedCreateNestedManyWithoutTenantInput
@@ -1155,6 +1227,80 @@ export type TenantUncheckedCreateWithoutUsersInput = {
 export type TenantCreateOrConnectWithoutUsersInput = {
   where: Prisma.TenantWhereUniqueInput
   create: Prisma.XOR<Prisma.TenantCreateWithoutUsersInput, Prisma.TenantUncheckedCreateWithoutUsersInput>
+}
+
+export type TenantCreateWithoutCreatedByInput = {
+  id?: string
+  name: string
+  orgType?: string | null
+  registrationNumber?: string | null
+  physicalAddress?: string | null
+  countryRegion?: string | null
+  contactEmail?: string | null
+  contactPhone?: string | null
+  logoUrl?: string | null
+  expectedSites?: number | null
+  timeZone?: string | null
+  billingCycle?: $Enums.BillingCycle
+  subscriptionStatus?: string
+  allowedUsers?: number
+  subscriptionId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  users?: Prisma.UserCreateNestedManyWithoutTenantInput
+  sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
+  visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutTenantInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutTenantInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutTenantInput
+  patrolRoutes?: Prisma.PatrolRouteCreateNestedManyWithoutTenantInput
+  posts?: Prisma.PostCreateNestedManyWithoutTenantInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
+  tickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutCreatedByInput = {
+  id?: string
+  name: string
+  orgType?: string | null
+  registrationNumber?: string | null
+  physicalAddress?: string | null
+  countryRegion?: string | null
+  contactEmail?: string | null
+  contactPhone?: string | null
+  logoUrl?: string | null
+  expectedSites?: number | null
+  timeZone?: string | null
+  subscriptionTierId?: string | null
+  billingCycle?: $Enums.BillingCycle
+  subscriptionStatus?: string
+  allowedUsers?: number
+  subscriptionId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  sites?: Prisma.SiteUncheckedCreateNestedManyWithoutTenantInput
+  visitors?: Prisma.VisitorUncheckedCreateNestedManyWithoutTenantInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutTenantInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutTenantInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutTenantInput
+  patrolRoutes?: Prisma.PatrolRouteUncheckedCreateNestedManyWithoutTenantInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutTenantInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
+  tickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutCreatedByInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCreatedByInput, Prisma.TenantUncheckedCreateWithoutCreatedByInput>
+}
+
+export type TenantCreateManyCreatedByInputEnvelope = {
+  data: Prisma.TenantCreateManyCreatedByInput | Prisma.TenantCreateManyCreatedByInput[]
+  skipDuplicates?: boolean
 }
 
 export type TenantUpsertWithoutUsersInput = {
@@ -1187,6 +1333,7 @@ export type TenantUpdateWithoutUsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutTenantNestedInput
@@ -1216,6 +1363,7 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sites?: Prisma.SiteUncheckedUpdateManyWithoutTenantNestedInput
@@ -1228,6 +1376,47 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutTenantNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
   tickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUpsertWithWhereUniqueWithoutCreatedByInput = {
+  where: Prisma.TenantWhereUniqueInput
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutCreatedByInput, Prisma.TenantUncheckedUpdateWithoutCreatedByInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCreatedByInput, Prisma.TenantUncheckedCreateWithoutCreatedByInput>
+}
+
+export type TenantUpdateWithWhereUniqueWithoutCreatedByInput = {
+  where: Prisma.TenantWhereUniqueInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutCreatedByInput, Prisma.TenantUncheckedUpdateWithoutCreatedByInput>
+}
+
+export type TenantUpdateManyWithWhereWithoutCreatedByInput = {
+  where: Prisma.TenantScalarWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateManyMutationInput, Prisma.TenantUncheckedUpdateManyWithoutCreatedByInput>
+}
+
+export type TenantScalarWhereInput = {
+  AND?: Prisma.TenantScalarWhereInput | Prisma.TenantScalarWhereInput[]
+  OR?: Prisma.TenantScalarWhereInput[]
+  NOT?: Prisma.TenantScalarWhereInput | Prisma.TenantScalarWhereInput[]
+  id?: Prisma.StringFilter<"Tenant"> | string
+  name?: Prisma.StringFilter<"Tenant"> | string
+  orgType?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  registrationNumber?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  physicalAddress?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  countryRegion?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  contactEmail?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  contactPhone?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  logoUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  expectedSites?: Prisma.IntNullableFilter<"Tenant"> | number | null
+  timeZone?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  subscriptionTierId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  billingCycle?: Prisma.EnumBillingCycleFilter<"Tenant"> | $Enums.BillingCycle
+  subscriptionStatus?: Prisma.StringFilter<"Tenant"> | string
+  allowedUsers?: Prisma.IntFilter<"Tenant"> | number
+  subscriptionId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  createdById?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
 }
 
 export type TenantCreateWithoutSubscriptionTierInput = {
@@ -1248,6 +1437,7 @@ export type TenantCreateWithoutSubscriptionTierInput = {
   subscriptionId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -1277,6 +1467,7 @@ export type TenantUncheckedCreateWithoutSubscriptionTierInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -1318,30 +1509,6 @@ export type TenantUpdateManyWithWhereWithoutSubscriptionTierInput = {
   data: Prisma.XOR<Prisma.TenantUpdateManyMutationInput, Prisma.TenantUncheckedUpdateManyWithoutSubscriptionTierInput>
 }
 
-export type TenantScalarWhereInput = {
-  AND?: Prisma.TenantScalarWhereInput | Prisma.TenantScalarWhereInput[]
-  OR?: Prisma.TenantScalarWhereInput[]
-  NOT?: Prisma.TenantScalarWhereInput | Prisma.TenantScalarWhereInput[]
-  id?: Prisma.StringFilter<"Tenant"> | string
-  name?: Prisma.StringFilter<"Tenant"> | string
-  orgType?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  registrationNumber?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  physicalAddress?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  countryRegion?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  contactEmail?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  contactPhone?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  logoUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  expectedSites?: Prisma.IntNullableFilter<"Tenant"> | number | null
-  timeZone?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  subscriptionTierId?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  billingCycle?: Prisma.EnumBillingCycleFilter<"Tenant"> | $Enums.BillingCycle
-  subscriptionStatus?: Prisma.StringFilter<"Tenant"> | string
-  allowedUsers?: Prisma.IntFilter<"Tenant"> | number
-  subscriptionId?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
-}
-
 export type TenantCreateWithoutSitesInput = {
   id?: string
   name: string
@@ -1361,6 +1528,7 @@ export type TenantCreateWithoutSitesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutTenantInput
@@ -1390,6 +1558,7 @@ export type TenantUncheckedCreateWithoutSitesInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -1439,6 +1608,7 @@ export type TenantUpdateWithoutSitesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutTenantNestedInput
@@ -1468,6 +1638,7 @@ export type TenantUncheckedUpdateWithoutSitesInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -1501,6 +1672,7 @@ export type TenantCreateWithoutVisitorsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutTenantInput
@@ -1530,6 +1702,7 @@ export type TenantUncheckedCreateWithoutVisitorsInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -1579,6 +1752,7 @@ export type TenantUpdateWithoutVisitorsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutTenantNestedInput
@@ -1608,6 +1782,7 @@ export type TenantUncheckedUpdateWithoutVisitorsInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -1641,6 +1816,7 @@ export type TenantCreateWithoutIncidentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -1670,6 +1846,7 @@ export type TenantUncheckedCreateWithoutIncidentsInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -1719,6 +1896,7 @@ export type TenantUpdateWithoutIncidentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -1748,6 +1926,7 @@ export type TenantUncheckedUpdateWithoutIncidentsInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -1781,6 +1960,7 @@ export type TenantCreateWithoutShiftsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -1810,6 +1990,7 @@ export type TenantUncheckedCreateWithoutShiftsInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -1859,6 +2040,7 @@ export type TenantUpdateWithoutShiftsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -1888,6 +2070,7 @@ export type TenantUncheckedUpdateWithoutShiftsInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -1921,6 +2104,7 @@ export type TenantCreateWithoutPostsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -1950,6 +2134,7 @@ export type TenantUncheckedCreateWithoutPostsInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -1999,6 +2184,7 @@ export type TenantUpdateWithoutPostsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -2028,6 +2214,7 @@ export type TenantUncheckedUpdateWithoutPostsInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -2061,6 +2248,7 @@ export type TenantCreateWithoutOccurrenceBooksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -2090,6 +2278,7 @@ export type TenantUncheckedCreateWithoutOccurrenceBooksInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -2139,6 +2328,7 @@ export type TenantUpdateWithoutOccurrenceBooksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -2168,6 +2358,7 @@ export type TenantUncheckedUpdateWithoutOccurrenceBooksInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -2201,6 +2392,7 @@ export type TenantCreateWithoutPatrolRoutesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -2230,6 +2422,7 @@ export type TenantUncheckedCreateWithoutPatrolRoutesInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -2279,6 +2472,7 @@ export type TenantUpdateWithoutPatrolRoutesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -2308,6 +2502,7 @@ export type TenantUncheckedUpdateWithoutPatrolRoutesInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -2341,6 +2536,7 @@ export type TenantCreateWithoutPatrolLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -2370,6 +2566,7 @@ export type TenantUncheckedCreateWithoutPatrolLogsInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -2419,6 +2616,7 @@ export type TenantUpdateWithoutPatrolLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -2448,6 +2646,7 @@ export type TenantUncheckedUpdateWithoutPatrolLogsInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -2481,6 +2680,7 @@ export type TenantCreateWithoutTicketsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptionTier?: Prisma.SubscriptionTierCreateNestedOneWithoutTenantsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutTenantsOnboardedInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   sites?: Prisma.SiteCreateNestedManyWithoutTenantInput
   visitors?: Prisma.VisitorCreateNestedManyWithoutTenantInput
@@ -2510,6 +2710,7 @@ export type TenantUncheckedCreateWithoutTicketsInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
@@ -2559,6 +2760,7 @@ export type TenantUpdateWithoutTicketsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -2588,6 +2790,7 @@ export type TenantUncheckedUpdateWithoutTicketsInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -2600,6 +2803,112 @@ export type TenantUncheckedUpdateWithoutTicketsInput = {
   posts?: Prisma.PostUncheckedUpdateManyWithoutTenantNestedInput
   occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutTenantNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateManyCreatedByInput = {
+  id?: string
+  name: string
+  orgType?: string | null
+  registrationNumber?: string | null
+  physicalAddress?: string | null
+  countryRegion?: string | null
+  contactEmail?: string | null
+  contactPhone?: string | null
+  logoUrl?: string | null
+  expectedSites?: number | null
+  timeZone?: string | null
+  subscriptionTierId?: string | null
+  billingCycle?: $Enums.BillingCycle
+  subscriptionStatus?: string
+  allowedUsers?: number
+  subscriptionId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type TenantUpdateWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  orgType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  physicalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryRegion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expectedSites?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timeZone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingCycle?: Prisma.EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subscriptionTier?: Prisma.SubscriptionTierUpdateOneWithoutTenantsNestedInput
+  users?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
+  visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutTenantNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutTenantNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutTenantNestedInput
+  patrolRoutes?: Prisma.PatrolRouteUpdateManyWithoutTenantNestedInput
+  posts?: Prisma.PostUpdateManyWithoutTenantNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
+  tickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  orgType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  physicalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryRegion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expectedSites?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timeZone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionTierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingCycle?: Prisma.EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  sites?: Prisma.SiteUncheckedUpdateManyWithoutTenantNestedInput
+  visitors?: Prisma.VisitorUncheckedUpdateManyWithoutTenantNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutTenantNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutTenantNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutTenantNestedInput
+  patrolRoutes?: Prisma.PatrolRouteUncheckedUpdateManyWithoutTenantNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutTenantNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
+  tickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateManyWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  orgType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  physicalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryRegion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expectedSites?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timeZone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionTierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingCycle?: Prisma.EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TenantCreateManySubscriptionTierInput = {
@@ -2618,6 +2927,7 @@ export type TenantCreateManySubscriptionTierInput = {
   subscriptionStatus?: string
   allowedUsers?: number
   subscriptionId?: string | null
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2640,6 +2950,7 @@ export type TenantUpdateWithoutSubscriptionTierInput = {
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutTenantsOnboardedNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   sites?: Prisma.SiteUpdateManyWithoutTenantNestedInput
   visitors?: Prisma.VisitorUpdateManyWithoutTenantNestedInput
@@ -2669,6 +2980,7 @@ export type TenantUncheckedUpdateWithoutSubscriptionTierInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -2700,6 +3012,7 @@ export type TenantUncheckedUpdateManyWithoutSubscriptionTierInput = {
   subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   allowedUsers?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2842,9 +3155,11 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   subscriptionStatus?: boolean
   allowedUsers?: boolean
   subscriptionId?: boolean
+  createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   subscriptionTier?: boolean | Prisma.Tenant$subscriptionTierArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Tenant$createdByArgs<ExtArgs>
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   sites?: boolean | Prisma.Tenant$sitesArgs<ExtArgs>
   visitors?: boolean | Prisma.Tenant$visitorsArgs<ExtArgs>
@@ -2876,9 +3191,11 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   subscriptionStatus?: boolean
   allowedUsers?: boolean
   subscriptionId?: boolean
+  createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   subscriptionTier?: boolean | Prisma.Tenant$subscriptionTierArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Tenant$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
 export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2898,9 +3215,11 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   subscriptionStatus?: boolean
   allowedUsers?: boolean
   subscriptionId?: boolean
+  createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   subscriptionTier?: boolean | Prisma.Tenant$subscriptionTierArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Tenant$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
 export type TenantSelectScalar = {
@@ -2920,13 +3239,15 @@ export type TenantSelectScalar = {
   subscriptionStatus?: boolean
   allowedUsers?: boolean
   subscriptionId?: boolean
+  createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "orgType" | "registrationNumber" | "physicalAddress" | "countryRegion" | "contactEmail" | "contactPhone" | "logoUrl" | "expectedSites" | "timeZone" | "subscriptionTierId" | "billingCycle" | "subscriptionStatus" | "allowedUsers" | "subscriptionId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "orgType" | "registrationNumber" | "physicalAddress" | "countryRegion" | "contactEmail" | "contactPhone" | "logoUrl" | "expectedSites" | "timeZone" | "subscriptionTierId" | "billingCycle" | "subscriptionStatus" | "allowedUsers" | "subscriptionId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   subscriptionTier?: boolean | Prisma.Tenant$subscriptionTierArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Tenant$createdByArgs<ExtArgs>
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   sites?: boolean | Prisma.Tenant$sitesArgs<ExtArgs>
   visitors?: boolean | Prisma.Tenant$visitorsArgs<ExtArgs>
@@ -2942,15 +3263,18 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   subscriptionTier?: boolean | Prisma.Tenant$subscriptionTierArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Tenant$createdByArgs<ExtArgs>
 }
 export type TenantIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   subscriptionTier?: boolean | Prisma.Tenant$subscriptionTierArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Tenant$createdByArgs<ExtArgs>
 }
 
 export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Tenant"
   objects: {
     subscriptionTier: Prisma.$SubscriptionTierPayload<ExtArgs> | null
+    createdBy: Prisma.$UserPayload<ExtArgs> | null
     users: Prisma.$UserPayload<ExtArgs>[]
     sites: Prisma.$SitePayload<ExtArgs>[]
     visitors: Prisma.$VisitorPayload<ExtArgs>[]
@@ -2980,6 +3304,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     subscriptionStatus: string
     allowedUsers: number
     subscriptionId: string | null
+    createdById: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tenant"]>
@@ -3377,6 +3702,7 @@ readonly fields: TenantFieldRefs;
 export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   subscriptionTier<T extends Prisma.Tenant$subscriptionTierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$subscriptionTierArgs<ExtArgs>>): Prisma.Prisma__SubscriptionTierClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionTierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  createdBy<T extends Prisma.Tenant$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   users<T extends Prisma.Tenant$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sites<T extends Prisma.Tenant$sitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$sitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   visitors<T extends Prisma.Tenant$visitorsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$visitorsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VisitorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3433,6 +3759,7 @@ export interface TenantFieldRefs {
   readonly subscriptionStatus: Prisma.FieldRef<"Tenant", 'String'>
   readonly allowedUsers: Prisma.FieldRef<"Tenant", 'Int'>
   readonly subscriptionId: Prisma.FieldRef<"Tenant", 'String'>
+  readonly createdById: Prisma.FieldRef<"Tenant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
 }
@@ -3852,6 +4179,25 @@ export type Tenant$subscriptionTierArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.SubscriptionTierInclude<ExtArgs> | null
   where?: Prisma.SubscriptionTierWhereInput
+}
+
+/**
+ * Tenant.createdBy
+ */
+export type Tenant$createdByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

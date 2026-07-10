@@ -35,7 +35,7 @@ export async function runMigrationsAndSeed(): Promise<void> {
     // ── Enums ────────────────────────────────────────────────────────────────
     await client.query(`
       DO $$ BEGIN
-        CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'MANAGER', 'SITE_MANAGER', 'GUARD');
+        CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'ACCOUNT_MANAGER', 'MANAGER', 'SITE_MANAGER', 'GUARD');
       EXCEPTION WHEN duplicate_object THEN null; END $$;
     `);
 
@@ -51,6 +51,24 @@ export async function runMigrationsAndSeed(): Promise<void> {
     await client.query(`
       DO $$ BEGIN
         ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'GUARD';
+      EXCEPTION WHEN undefined_object THEN null; WHEN duplicate_object THEN null; END $$;
+    `);
+
+    // Add ACCOUNT_MANAGER to existing ENUM — platform staff who onboard and
+    // support new tenants, distinct from a tenant's own MANAGER. Briefly
+    // renamed to STAFF_MEMBER during development; rename back if that value
+    // exists on this database. Postgres raises invalid_parameter_value
+    // (22023) — not undefined_object — when the source label is already
+    // gone, which is the common case after the first successful rename;
+    // treat that as a safe no-op too.
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TYPE "Role" RENAME VALUE 'STAFF_MEMBER' TO 'ACCOUNT_MANAGER';
+      EXCEPTION WHEN undefined_object THEN null; WHEN invalid_parameter_value THEN null; END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'ACCOUNT_MANAGER';
       EXCEPTION WHEN undefined_object THEN null; WHEN duplicate_object THEN null; END $$;
     `);
 
@@ -215,6 +233,7 @@ export async function runMigrationsAndSeed(): Promise<void> {
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "dateOfBirth" TIMESTAMP(3);`);
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phone"       TEXT;`);
     await client.query(`ALTER TABLE "Tenant" ADD COLUMN IF NOT EXISTS "subscriptionTierId" TEXT;`);
+    await client.query(`ALTER TABLE "Tenant" ADD COLUMN IF NOT EXISTS "createdById" TEXT;`);
 
     // ── Indexes ──────────────────────────────────────────────────────────────
     await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key"    ON "User"("email");`);
@@ -232,6 +251,7 @@ export async function runMigrationsAndSeed(): Promise<void> {
     await client.query(`CREATE INDEX        IF NOT EXISTS "SupportTicket_status_idx" ON "SupportTicket"("status");`);
     await client.query(`CREATE INDEX        IF NOT EXISTS "TicketMessage_ticketId_idx" ON "TicketMessage"("ticketId");`);
     await client.query(`CREATE INDEX        IF NOT EXISTS "Tenant_subscriptionTierId_idx" ON "Tenant"("subscriptionTierId");`);
+    await client.query(`CREATE INDEX        IF NOT EXISTS "Tenant_createdById_idx" ON "Tenant"("createdById");`);
 
     // ── Foreign keys (safe to re-run — DO block catches duplicate) ───────────
     await client.query(`
@@ -286,6 +306,12 @@ export async function runMigrationsAndSeed(): Promise<void> {
       DO $$ BEGIN
         ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_subscriptionTierId_fkey"
           FOREIGN KEY ("subscriptionTierId") REFERENCES "SubscriptionTier"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_createdById_fkey"
+          FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
       EXCEPTION WHEN duplicate_object THEN null; END $$;
     `);
 

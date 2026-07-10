@@ -362,6 +362,7 @@ export type UserWhereInput = {
   site?: Prisma.XOR<Prisma.SiteNullableScalarRelationFilter, Prisma.SiteWhereInput> | null
   invitedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   invitees?: Prisma.UserListRelationFilter
+  tenantsOnboarded?: Prisma.TenantListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
   shifts?: Prisma.ShiftListRelationFilter
@@ -405,6 +406,7 @@ export type UserOrderByWithRelationInput = {
   site?: Prisma.SiteOrderByWithRelationInput
   invitedBy?: Prisma.UserOrderByWithRelationInput
   invitees?: Prisma.UserOrderByRelationAggregateInput
+  tenantsOnboarded?: Prisma.TenantOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
   shifts?: Prisma.ShiftOrderByRelationAggregateInput
@@ -451,6 +453,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   site?: Prisma.XOR<Prisma.SiteNullableScalarRelationFilter, Prisma.SiteWhereInput> | null
   invitedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   invitees?: Prisma.UserListRelationFilter
+  tenantsOnboarded?: Prisma.TenantListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
   shifts?: Prisma.ShiftListRelationFilter
@@ -557,6 +560,7 @@ export type UserCreateInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -597,6 +601,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -637,6 +642,7 @@ export type UserUpdateInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -677,6 +683,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -987,6 +994,12 @@ export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
 }
 
+export type UserCreateNestedOneWithoutTenantsOnboardedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTenantsOnboardedInput, Prisma.UserUncheckedCreateWithoutTenantsOnboardedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTenantsOnboardedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserCreateNestedManyWithoutTenantInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutTenantInput, Prisma.UserUncheckedCreateWithoutTenantInput> | Prisma.UserCreateWithoutTenantInput[] | Prisma.UserUncheckedCreateWithoutTenantInput[]
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutTenantInput | Prisma.UserCreateOrConnectWithoutTenantInput[]
@@ -999,6 +1012,16 @@ export type UserUncheckedCreateNestedManyWithoutTenantInput = {
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutTenantInput | Prisma.UserCreateOrConnectWithoutTenantInput[]
   createMany?: Prisma.UserCreateManyTenantInputEnvelope
   connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateOneWithoutTenantsOnboardedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTenantsOnboardedInput, Prisma.UserUncheckedCreateWithoutTenantsOnboardedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTenantsOnboardedInput
+  upsert?: Prisma.UserUpsertWithoutTenantsOnboardedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTenantsOnboardedInput, Prisma.UserUpdateWithoutTenantsOnboardedInput>, Prisma.UserUncheckedUpdateWithoutTenantsOnboardedInput>
 }
 
 export type UserUpdateManyWithoutTenantNestedInput = {
@@ -1197,6 +1220,7 @@ export type UserCreateWithoutInviteesInput = {
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -1236,6 +1260,7 @@ export type UserUncheckedCreateWithoutInviteesInput = {
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -1280,6 +1305,7 @@ export type UserCreateWithoutInvitedByInput = {
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -1319,6 +1345,7 @@ export type UserUncheckedCreateWithoutInvitedByInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -1379,6 +1406,7 @@ export type UserUpdateWithoutInviteesInput = {
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -1418,6 +1446,7 @@ export type UserUncheckedUpdateWithoutInviteesInput = {
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -1507,6 +1536,7 @@ export type UserCreateWithoutAuditLogsInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
@@ -1546,6 +1576,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
@@ -1601,6 +1632,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
@@ -1640,6 +1672,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
@@ -1679,6 +1712,7 @@ export type UserCreateWithoutNotificationsInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
@@ -1718,6 +1752,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
@@ -1773,6 +1808,7 @@ export type UserUpdateWithoutNotificationsInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
@@ -1812,6 +1848,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
@@ -1820,6 +1857,91 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutTenantsOnboardedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  onLeave?: boolean
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutTenantsOnboardedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  onLeave?: boolean
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutTenantsOnboardedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTenantsOnboardedInput, Prisma.UserUncheckedCreateWithoutTenantsOnboardedInput>
 }
 
 export type UserCreateWithoutTenantInput = {
@@ -1850,6 +1972,7 @@ export type UserCreateWithoutTenantInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -1889,6 +2012,7 @@ export type UserUncheckedCreateWithoutTenantInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -1908,6 +2032,97 @@ export type UserCreateOrConnectWithoutTenantInput = {
 export type UserCreateManyTenantInputEnvelope = {
   data: Prisma.UserCreateManyTenantInput | Prisma.UserCreateManyTenantInput[]
   skipDuplicates?: boolean
+}
+
+export type UserUpsertWithoutTenantsOnboardedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTenantsOnboardedInput, Prisma.UserUncheckedUpdateWithoutTenantsOnboardedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTenantsOnboardedInput, Prisma.UserUncheckedCreateWithoutTenantsOnboardedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTenantsOnboardedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTenantsOnboardedInput, Prisma.UserUncheckedUpdateWithoutTenantsOnboardedInput>
+}
+
+export type UserUpdateWithoutTenantsOnboardedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  onLeave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTenantsOnboardedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  onLeave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutTenantInput = {
@@ -1954,6 +2169,7 @@ export type UserCreateWithoutSiteInput = {
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -1993,6 +2209,7 @@ export type UserUncheckedCreateWithoutSiteInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -2059,6 +2276,7 @@ export type UserCreateWithoutVisitorsLoggedInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -2098,6 +2316,7 @@ export type UserUncheckedCreateWithoutVisitorsLoggedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -2153,6 +2372,7 @@ export type UserUpdateWithoutVisitorsLoggedInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -2192,6 +2412,7 @@ export type UserUncheckedUpdateWithoutVisitorsLoggedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -2231,6 +2452,7 @@ export type UserCreateWithoutIncidentsReportedInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -2270,6 +2492,7 @@ export type UserUncheckedCreateWithoutIncidentsReportedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -2325,6 +2548,7 @@ export type UserUpdateWithoutIncidentsReportedInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -2364,6 +2588,7 @@ export type UserUncheckedUpdateWithoutIncidentsReportedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -2403,6 +2628,7 @@ export type UserCreateWithoutShiftsInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
@@ -2442,6 +2668,7 @@ export type UserUncheckedCreateWithoutShiftsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
@@ -2497,6 +2724,7 @@ export type UserUpdateWithoutShiftsInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
@@ -2536,6 +2764,7 @@ export type UserUncheckedUpdateWithoutShiftsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
@@ -2575,6 +2804,7 @@ export type UserCreateWithoutOccurrenceBooksInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -2614,6 +2844,7 @@ export type UserUncheckedCreateWithoutOccurrenceBooksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -2669,6 +2900,7 @@ export type UserUpdateWithoutOccurrenceBooksInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -2708,6 +2940,7 @@ export type UserUncheckedUpdateWithoutOccurrenceBooksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -2747,6 +2980,7 @@ export type UserCreateWithoutPatrolLogsInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -2786,6 +3020,7 @@ export type UserUncheckedCreateWithoutPatrolLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -2841,6 +3076,7 @@ export type UserUpdateWithoutPatrolLogsInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -2880,6 +3116,7 @@ export type UserUncheckedUpdateWithoutPatrolLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -2919,6 +3156,7 @@ export type UserCreateWithoutTicketsCreatedInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -2958,6 +3196,7 @@ export type UserUncheckedCreateWithoutTicketsCreatedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -3013,6 +3252,7 @@ export type UserUpdateWithoutTicketsCreatedInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -3052,6 +3292,7 @@ export type UserUncheckedUpdateWithoutTicketsCreatedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -3091,6 +3332,7 @@ export type UserCreateWithoutTicketMessagesInput = {
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -3130,6 +3372,7 @@ export type UserUncheckedCreateWithoutTicketMessagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -3185,6 +3428,7 @@ export type UserUpdateWithoutTicketMessagesInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -3224,6 +3468,7 @@ export type UserUncheckedUpdateWithoutTicketMessagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -3291,6 +3536,7 @@ export type UserUpdateWithoutInvitedByInput = {
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -3330,6 +3576,7 @@ export type UserUncheckedUpdateWithoutInvitedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -3427,6 +3674,7 @@ export type UserUpdateWithoutTenantInput = {
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -3466,6 +3714,7 @@ export type UserUncheckedUpdateWithoutTenantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -3563,6 +3812,7 @@ export type UserUpdateWithoutSiteInput = {
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -3602,6 +3852,7 @@ export type UserUncheckedUpdateWithoutSiteInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -3649,6 +3900,7 @@ export type UserUncheckedUpdateManyWithoutSiteInput = {
 
 export type UserCountOutputType = {
   invitees: number
+  tenantsOnboarded: number
   auditLogs: number
   notifications: number
   shifts: number
@@ -3662,6 +3914,7 @@ export type UserCountOutputType = {
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   invitees?: boolean | UserCountOutputTypeCountInviteesArgs
+  tenantsOnboarded?: boolean | UserCountOutputTypeCountTenantsOnboardedArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   shifts?: boolean | UserCountOutputTypeCountShiftsArgs
@@ -3688,6 +3941,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountInviteesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTenantsOnboardedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TenantWhereInput
 }
 
 /**
@@ -3786,6 +4046,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   site?: boolean | Prisma.User$siteArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
   invitees?: boolean | Prisma.User$inviteesArgs<ExtArgs>
+  tenantsOnboarded?: boolean | Prisma.User$tenantsOnboardedArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   shifts?: boolean | Prisma.User$shiftsArgs<ExtArgs>
@@ -3900,6 +4161,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   site?: boolean | Prisma.User$siteArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
   invitees?: boolean | Prisma.User$inviteesArgs<ExtArgs>
+  tenantsOnboarded?: boolean | Prisma.User$tenantsOnboardedArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   shifts?: boolean | Prisma.User$shiftsArgs<ExtArgs>
@@ -3929,6 +4191,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     site: Prisma.$SitePayload<ExtArgs> | null
     invitedBy: Prisma.$UserPayload<ExtArgs> | null
     invitees: Prisma.$UserPayload<ExtArgs>[]
+    tenantsOnboarded: Prisma.$TenantPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
     shifts: Prisma.$ShiftPayload<ExtArgs>[]
@@ -4365,6 +4628,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   site<T extends Prisma.User$siteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$siteArgs<ExtArgs>>): Prisma.Prisma__SiteClient<runtime.Types.Result.GetResult<Prisma.$SitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   invitedBy<T extends Prisma.User$invitedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$invitedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   invitees<T extends Prisma.User$inviteesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$inviteesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tenantsOnboarded<T extends Prisma.User$tenantsOnboardedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tenantsOnboardedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shifts<T extends Prisma.User$shiftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4909,6 +5173,30 @@ export type User$inviteesArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
+}
+
+/**
+ * User.tenantsOnboarded
+ */
+export type User$tenantsOnboardedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tenant
+   */
+  select?: Prisma.TenantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tenant
+   */
+  omit?: Prisma.TenantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TenantInclude<ExtArgs> | null
+  where?: Prisma.TenantWhereInput
+  orderBy?: Prisma.TenantOrderByWithRelationInput | Prisma.TenantOrderByWithRelationInput[]
+  cursor?: Prisma.TenantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TenantScalarFieldEnum | Prisma.TenantScalarFieldEnum[]
 }
 
 /**

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   adminDashboard, listUsers, inviteUser, updateUserStatus, updateUserRole,
-  inviteManager, listManagers, adminActivity,
+  inviteStaffMember, listStaffMembers, adminActivity,
 } from "./admin.controller.js";
 import { protect }   from "../../middleware/auth.middleware.js";
 import { authorize } from "../../middleware/role.middleware.js";
@@ -20,8 +20,8 @@ router.post("/users/invite",      inviteUser);
 router.patch("/users/:id/status", updateUserStatus);
 router.patch("/users/:id/role",   updateUserRole);
 
-// Managers
-router.get("/managers",           listManagers);
-router.post("/managers/invite",   inviteManager);
+// Staff members
+router.get("/staff",         listStaffMembers);
+router.post("/staff/invite", inviteStaffMember);
 
 export default router;

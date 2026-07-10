@@ -10,6 +10,7 @@ datasource db {
 enum Role {
   SUPER_ADMIN
   ADMIN
+  ACCOUNT_MANAGER
   MANAGER
   SITE_MANAGER
   GUARD
@@ -134,6 +135,7 @@ model User {
   invitedById       String?
   invitedBy         User?          @relation("UserInvites", fields: [invitedById], references: [id])
   invitees          User[]         @relation("UserInvites")
+  tenantsOnboarded  Tenant[]       @relation("TenantOnboardedBy")
   auditLogs         AuditLog[]
   notifications     Notification[]
   shifts            Shift[]
@@ -223,6 +225,9 @@ model Tenant {
   subscriptionStatus String           @default("TRIAL")
   allowedUsers       Int              @default(50)
   subscriptionId     String?
+
+  createdById        String?
+  createdBy          User?    @relation("TenantOnboardedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

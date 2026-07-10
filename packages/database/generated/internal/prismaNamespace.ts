@@ -1907,6 +1907,7 @@ export const TenantScalarFieldEnum = {
   subscriptionStatus: 'subscriptionStatus',
   allowedUsers: 'allowedUsers',
   subscriptionId: 'subscriptionId',
+  createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

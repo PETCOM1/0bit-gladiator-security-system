@@ -20,8 +20,8 @@ export const adminService = {
     return data;
   },
 
-  async getManagers(): Promise<{ data: { managers: TeamUser[] } }> {
-    const { data } = await apiClient.get(endpoints.admin.managers);
+  async getStaffMembers(): Promise<{ data: { staffMembers: TeamUser[] } }> {
+    const { data } = await apiClient.get(endpoints.admin.staff);
     return data;
   },
 
@@ -30,8 +30,8 @@ export const adminService = {
     return data;
   },
 
-  async inviteManager(email: string) {
-    const { data } = await apiClient.post(endpoints.admin.managerInvite, { email });
+  async inviteStaffMember(email: string) {
+    const { data } = await apiClient.post(endpoints.admin.staffInvite, { email });
     return data;
   },
 

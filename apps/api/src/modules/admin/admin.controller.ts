@@ -146,9 +146,14 @@ export const inviteUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// ── Invite manager (role: MANAGER) ────────────────────────────────────────────
+// ── Invite staff member (role: ACCOUNT_MANAGER) ────────────────────────────────
+// "Staff Members" is the admin page/section for platform staff accounts —
+// currently only ACCOUNT_MANAGER (onboards and supports new tenants), but
+// kept as its own distinct role so future staff types (e.g. support staff)
+// can be added as additional roles surfaced on the same page, rather than
+// being lumped into one generic role.
 
-export const inviteManager = catchAsync(async (req: Request, res: Response) => {
+export const inviteStaffMember = catchAsync(async (req: Request, res: Response) => {
   const { email, firstName, lastName } = req.body;
   if (!email) throw new AppError("Email is required", HttpStatus.BAD_REQUEST);
 
@@ -158,11 +163,11 @@ export const inviteManager = catchAsync(async (req: Request, res: Response) => {
   const code    = Math.random().toString(36).slice(2, 10).toUpperCase();
   const expires = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
-  const manager = await prisma.user.create({
+  const staffMember = await prisma.user.create({
     data: {
       email,
       password:            "",
-      role:                "MANAGER",
+      role:                "ACCOUNT_MANAGER",
       accountStatus:       "PENDING",
       firstName:           firstName ?? null,
       lastName:            lastName  ?? null,
@@ -173,25 +178,25 @@ export const inviteManager = catchAsync(async (req: Request, res: Response) => {
   });
 
   const inviteLink = `${process.env.FRONTEND_URL}/set-password?token=${code}&email=${encodeURIComponent(email)}`;
-  await sendInviteEmail(email, inviteLink, firstName ?? "Manager");
+  await sendInviteEmail(email, inviteLink, firstName ?? "Staff Member");
 
   await prisma.auditLog.create({
-    data: { userId: req.user!.userId, action: "MANAGER_INVITED", meta: { email } },
+    data: { userId: req.user!.userId, action: "ACCOUNT_MANAGER_INVITED", meta: { email } },
   });
   req.auditLogged = true;
 
   return res.status(HttpStatus.CREATED).json({
     status:  "success",
-    message: "Manager invited successfully",
-    data:    { id: manager.id, email: manager.email },
+    message: "Staff member invited successfully",
+    data:    { id: staffMember.id, email: staffMember.email },
   });
 });
 
-// ── List managers ──────────────────────────────────────────────────────────────
+// ── List staff members ──────────────────────────────────────────────────────────
 
-export const listManagers = catchAsync(async (_req: Request, res: Response) => {
-  const managers = await prisma.user.findMany({
-    where:   { role: "MANAGER", accountStatus: { not: "DELETED" } },
+export const listStaffMembers = catchAsync(async (_req: Request, res: Response) => {
+  const staffMembers = await prisma.user.findMany({
+    where:   { role: "ACCOUNT_MANAGER", accountStatus: { not: "DELETED" } },
     select:  {
       id: true, email: true, firstName: true, lastName: true,
       displayName: true, accountStatus: true, createdAt: true, lastActiveAt: true,
@@ -199,7 +204,7 @@ export const listManagers = catchAsync(async (_req: Request, res: Response) => {
     orderBy: { createdAt: "desc" },
   });
 
-  return res.status(HttpStatus.OK).json({ status: "success", data: { managers } });
+  return res.status(HttpStatus.OK).json({ status: "success", data: { staffMembers } });
 });
 
 // ── Update user status ─────────────────────────────────────────────────────────

@@ -15,11 +15,15 @@ export const NAV_CONFIG: Record<string, NavItem[]> = {
   ADMIN: [
     { href: "/admin",           label: "Dashboard", icon: "LayoutDashboard" },
     { href: "/admin/tenants",   label: "Tenants",   icon: "Building2"       },
+    { href: "/admin/staff",     label: "Staff Members", icon: "Users"       },
     { href: "/admin/analytics", label: "Analytics", icon: "BarChart"        },
     { href: "/admin/activity",  label: "Activity Log",  icon: "Activity"    },
     { href: "/admin/plans",     label: "Plans",     icon: "ScrollText"      },
     { href: "/admin/support",   label: "Helpdesk",  icon: "UserCircle"      },
     { href: "/admin/settings",  label: "Settings",  icon: "Settings"        },
+  ],
+  ACCOUNT_MANAGER: [
+    { href: "/staff", label: "Tenants", icon: "Building2" },
   ],
   MANAGER: [
     { href: "/manager",           label: "Dashboard",  icon: "LayoutDashboard" },

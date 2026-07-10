@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import { prisma } from "@repo/database";
-import { HttpStatus } from "@repo/types";
+import { HttpStatus, Role } from "@repo/types";
 import { catchAsync } from "../../utils/catchAsync.js";
 import { sendInviteEmail } from "../../services/mail.service.js";
 import { AppError } from "../../utils/appError.js";
 
 export const getTenants = catchAsync(async (req: Request, res: Response) => {
+  // Staff Members only see tenants they've personally onboarded — full
+  // platform visibility stays with Admin/Super Admin.
+  const isAccountManager = req.user!.role === Role.ACCOUNT_MANAGER;
+
   const tenants = await prisma.tenant.findMany({
+    where:   isAccountManager ? { createdById: req.user!.userId } : undefined,
     orderBy: { name: 'asc' },
     include: {
       subscriptionTier: { select: { name: true, price: true } },
@@ -35,6 +40,10 @@ export const getTenantById = catchAsync(async (req: Request, res: Response) => {
     return res.status(HttpStatus.NOT_FOUND).json({ message: "Tenant not found" });
   }
 
+  if (req.user!.role === Role.ACCOUNT_MANAGER && tenant.createdById !== req.user!.userId) {
+    return res.status(HttpStatus.FORBIDDEN).json({ message: "You can only view tenants you onboarded" });
+  }
+
   res.status(HttpStatus.OK).json({ status: "success", data: { tenant } });
 });
 
@@ -60,9 +69,10 @@ export const createTenant = catchAsync(async (req: Request, res: Response) => {
         contactEmail, contactPhone, 
         expectedSites: expectedSites ? parseInt(expectedSites) : null, 
         timeZone,
-        subscriptionTierId, billingCycle, 
+        subscriptionTierId, billingCycle,
         allowedUsers: allowedUsers ? parseInt(allowedUsers) : 50,
         subscriptionStatus: "TRIAL",
+        createdById: req.user!.userId,
       }
     });
 
