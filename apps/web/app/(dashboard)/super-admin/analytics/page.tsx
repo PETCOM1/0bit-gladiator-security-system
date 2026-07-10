@@ -56,7 +56,7 @@ export default function SuperAdminAnalyticsPage() {
     }));
   }, [tenants]);
 
-  // Derived user counts by role (Supervisors = SITE_MANAGER, Managers = MANAGER, Guards = USER)
+  // Derived user counts by role (Supervisors = SITE_MANAGER, Managers = MANAGER, Guards = GUARD)
   const roleDistribution = useMemo(() => {
     const guards = stats?.totalGuards || 0;
     const managers = tenants.length; 
@@ -179,7 +179,7 @@ export default function SuperAdminAnalyticsPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "24px" }}>
             {/* User Roles */}
             <div style={{ ...cardStyle, borderLeft: "4px solid var(--color-accent)" }}>
-              <span style={{ fontSize: "12px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Guards (Role: USER)</span>
+              <span style={{ fontSize: "12px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Guards (Role: GUARD)</span>
               <span style={{ fontSize: "32px", fontWeight: 800, color: "var(--color-text-primary)" }}>{roleDistribution.guards}</span>
               <span style={{ fontSize: "12px", color: "var(--color-success)" }}>● Live guarding force</span>
             </div>

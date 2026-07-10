@@ -35,7 +35,7 @@ export async function runMigrationsAndSeed(): Promise<void> {
     // ── Enums ────────────────────────────────────────────────────────────────
     await client.query(`
       DO $$ BEGIN
-        CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'MANAGER', 'SITE_MANAGER', 'USER');
+        CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'MANAGER', 'SITE_MANAGER', 'GUARD');
       EXCEPTION WHEN duplicate_object THEN null; END $$;
     `);
 
@@ -43,6 +43,14 @@ export async function runMigrationsAndSeed(): Promise<void> {
     await client.query(`
       DO $$ BEGIN
         ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'SITE_MANAGER';
+      EXCEPTION WHEN undefined_object THEN null; WHEN duplicate_object THEN null; END $$;
+    `);
+
+    // Add GUARD to existing ENUM — security guards previously shared the
+    // generic USER role with no dedicated value of their own.
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'GUARD';
       EXCEPTION WHEN undefined_object THEN null; WHEN duplicate_object THEN null; END $$;
     `);
 
@@ -70,7 +78,7 @@ export async function runMigrationsAndSeed(): Promise<void> {
         "id"                   TEXT          NOT NULL,
         "email"                TEXT          NOT NULL,
         "password"             TEXT          NOT NULL,
-        "role"                 "Role"        NOT NULL DEFAULT 'USER',
+        "role"                 "Role"        NOT NULL DEFAULT 'GUARD',
         "accountStatus"        "AccountStatus" NOT NULL DEFAULT 'PENDING',
         "firstName"            TEXT,
         "lastName"             TEXT,
@@ -283,6 +291,9 @@ export async function runMigrationsAndSeed(): Promise<void> {
 
     console.log("✅ [MIGRATE] Schema ready");
 
+    // ── Data migration: security guards used to share the generic USER role ──
+    await client.query(`UPDATE "User" SET "role" = 'GUARD' WHERE "role" = 'USER';`);
+
     // ── Seed system settings ─────────────────────────────────────────────────
     await client.query(`
       INSERT INTO "SystemSetting" ("id", "key", "value", "createdAt", "updatedAt")
@@ -371,10 +382,10 @@ export async function runMigrationsAndSeed(): Promise<void> {
       ON CONFLICT ("email") DO NOTHING;
     `, [defaultPassword, tenantId, siteId]);
 
-    // Security Guard (User)
+    // Security Guard
     await client.query(`
       INSERT INTO "User" ("id", "email", "password", "role", "accountStatus", "firstName", "lastName", "tenantId", "siteId", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid()::text, 'guard@example.com', $1, 'USER', 'ACTIVE', 'Security', 'Guard', $2, $3, NOW(), NOW())
+      VALUES (gen_random_uuid()::text, 'guard@example.com', $1, 'GUARD', 'ACTIVE', 'Security', 'Guard', $2, $3, NOW(), NOW())
       ON CONFLICT ("email") DO NOTHING;
     `, [defaultPassword, tenantId, siteId]);
 

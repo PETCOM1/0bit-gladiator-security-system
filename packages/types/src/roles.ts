@@ -25,7 +25,7 @@ export const ROLE_PERMISSIONS: Record<UserRoleType, PermissionType[]> = {
     PERMISSIONS.VIEW_INVOICES,
     PERMISSIONS.MANAGE_DOCUMENTS,
   ],
-  USER: [
+  GUARD: [
     PERMISSIONS.VIEW_OWN_PROJECT,
   ],
   SITE_MANAGER: [

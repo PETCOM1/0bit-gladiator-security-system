@@ -275,11 +275,11 @@ async function main() {
     // Guard 1 (assigned to Site Alpha)
     await prisma.user.upsert({
       where: { email: comp.guard1Email },
-      update: { role: "USER", tenantId: tenant.id, siteId: siteAlpha.id },
+      update: { role: "GUARD", tenantId: tenant.id, siteId: siteAlpha.id },
       create: {
         email: comp.guard1Email,
         password: passwordHash,
-        role: "USER",
+        role: "GUARD",
         accountStatus: "ACTIVE",
         firstName: "Guard A1",
         lastName: "Active",
@@ -292,11 +292,11 @@ async function main() {
     // Guard 2 (assigned to Site Alpha)
     await prisma.user.upsert({
       where: { email: guard2Email },
-      update: { role: "USER", tenantId: tenant.id, siteId: siteAlpha.id },
+      update: { role: "GUARD", tenantId: tenant.id, siteId: siteAlpha.id },
       create: {
         email: guard2Email,
         password: passwordHash,
-        role: "USER",
+        role: "GUARD",
         accountStatus: "ACTIVE",
         firstName: "Guard A2",
         lastName: "Duty",
@@ -309,11 +309,11 @@ async function main() {
     // Guard 3 (assigned to Site Beta)
     await prisma.user.upsert({
       where: { email: guard3Email },
-      update: { role: "USER", tenantId: tenant.id, siteId: siteBeta.id },
+      update: { role: "GUARD", tenantId: tenant.id, siteId: siteBeta.id },
       create: {
         email: guard3Email,
         password: passwordHash,
-        role: "USER",
+        role: "GUARD",
         accountStatus: "ACTIVE",
         firstName: "Guard B1",
         lastName: "OnDuty",

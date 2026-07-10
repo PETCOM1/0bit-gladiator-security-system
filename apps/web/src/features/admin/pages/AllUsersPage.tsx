@@ -45,9 +45,9 @@ function StatusBadge({ status }: { status: string }) {
 function RoleBadge({ role }: { role: string }) {
   const map: Record<string, React.CSSProperties> = {
     MANAGER: { background: "var(--color-info-subtle)", color: "var(--color-info)", border: "1px solid rgba(59,130,246,0.25)"     },
-    USER:    { background: "var(--color-bg-subtle)",   color: "var(--color-text-secondary)", border: "1px solid var(--color-border)" },
+    GUARD:   { background: "var(--color-bg-subtle)",   color: "var(--color-text-secondary)", border: "1px solid var(--color-border)" },
   };
-  const s = map[role] ?? map.USER;
+  const s = map[role] ?? map.GUARD;
   return (
     <span style={{ ...s, display: "inline-flex", alignItems: "center", padding: "2px 10px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 600 }}>
       {role.charAt(0) + role.slice(1).toLowerCase()}
@@ -182,7 +182,7 @@ function UserActionsCell({ user, onStatusChange, onRoleChange }: {
             Activate
           </button>
         )}
-        {user.role === "USER" && user.accountStatus === "ACTIVE" && (
+        {user.role === "GUARD" && user.accountStatus === "ACTIVE" && (
           <button onClick={() => setConfirm("promote")} style={{ padding: "4px 10px", fontSize: "12px", fontWeight: 500, color: "var(--color-info)", background: "var(--color-info-subtle)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
             → Manager
           </button>
@@ -197,14 +197,14 @@ function UserActionsCell({ user, onStatusChange, onRoleChange }: {
       {confirm === "suspend"  && <ConfirmDialog title="Suspend user?"       message={`${displayName} will lose access immediately.`}                       confirmLabel="Suspend"  danger onConfirm={async () => { await onStatusChange(user.id, "SUSPENDED"); setConfirm(null); }} onCancel={() => setConfirm(null)} />}
       {confirm === "activate" && <ConfirmDialog title="Activate user?"      message={`${displayName} will regain full access.`}                            confirmLabel="Activate"       onConfirm={async () => { await onStatusChange(user.id, "ACTIVE");    setConfirm(null); }} onCancel={() => setConfirm(null)} />}
       {confirm === "promote"  && <ConfirmDialog title="Promote to manager?" message={`${displayName} will become a manager with expanded permissions.`}    confirmLabel="Promote"        onConfirm={async () => { await onRoleChange(user.id, "MANAGER");  setConfirm(null); }} onCancel={() => setConfirm(null)} />}
-      {confirm === "demote"   && <ConfirmDialog title="Change to user?"     message={`${displayName} will lose manager permissions.`}                      confirmLabel="Change"         onConfirm={async () => { await onRoleChange(user.id, "USER");     setConfirm(null); }} onCancel={() => setConfirm(null)} />}
+      {confirm === "demote"   && <ConfirmDialog title="Change to guard?"    message={`${displayName} will lose manager permissions.`}                      confirmLabel="Change"         onConfirm={async () => { await onRoleChange(user.id, "GUARD");     setConfirm(null); }} onCancel={() => setConfirm(null)} />}
     </>
   );
 }
 
 // ── ALL USERS PAGE ─────────────────────────────────────────────────────────────
 
-type RoleTab = "ALL" | "MANAGER" | "USER";
+type RoleTab = "ALL" | "MANAGER" | "GUARD";
 
 export function AllUsersPage() {
   const [users,      setUsers]      = useState<TeamUser[]>([]);
@@ -245,7 +245,7 @@ export function AllUsersPage() {
   const tabs: { key: RoleTab; label: string }[] = [
     { key: "ALL",     label: `All (${users.length})` },
     { key: "MANAGER", label: `Managers (${users.filter((u) => u.role === "MANAGER").length})` },
-    { key: "USER",    label: `Users (${users.filter((u) => u.role === "USER").length})` },
+    { key: "GUARD",    label: `Guards (${users.filter((u) => u.role === "GUARD").length})` },
   ];
 
   const filtered = activeTab === "ALL" ? users : users.filter((u) => u.role === activeTab);

@@ -198,7 +198,7 @@ export default function AuditLogPage() {
                   { label: "Admin", value: "ADMIN" },
                   { label: "Manager", value: "MANAGER" },
                   { label: "Site Manager", value: "SITE_MANAGER" },
-                  { label: "User / Guard", value: "USER" },
+                  { label: "Guard", value: "GUARD" },
                 ],
               },
             ]}

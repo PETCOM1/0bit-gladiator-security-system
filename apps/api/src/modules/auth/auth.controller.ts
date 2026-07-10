@@ -31,7 +31,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   const match = await authService.verifyPassword(password, user.password);
   if (!match) throw new AppError("Invalid credentials", HttpStatus.UNAUTHORIZED);
 
-  if (clientType === "mobile" && user.role !== Role.USER) {
+  if (clientType === "mobile" && user.role !== Role.GUARD) {
     throw new AppError("Only security guards are allowed to log into the mobile app", HttpStatus.FORBIDDEN);
   }
 
@@ -223,7 +223,7 @@ export const register = catchAsync(async (req: Request, res: Response) => {
     data: {
       email:         email.trim().toLowerCase(),
       password:      hashed,
-      role:          "USER",
+      role:          "GUARD",
       accountStatus: status,
       firstName:     firstName ?? null,
       lastName:      lastName  ?? null,

@@ -13,7 +13,7 @@ export const managerService = {
 
   // Users & Personnel
   getTenantUsers: () => apiClient.get("/users/tenant"),
-  inviteUser: (data: { email: string; firstName: string; lastName: string; role: "SITE_MANAGER" | "USER"; siteId?: string }) => apiClient.post("/users/invite", data),
+  inviteUser: (data: { email: string; firstName: string; lastName: string; role: "SITE_MANAGER" | "GUARD"; siteId?: string }) => apiClient.post("/users/invite", data),
   updateUserRole: (id: string, role: string) => apiClient.patch(`/users/${id}/role`, { role }),
   assignUserToSite: (id: string, siteId: string) => apiClient.patch(`/users/${id}/site`, { siteId }),
   disableUser: (id: string) => apiClient.patch(`/users/${id}/status`),

@@ -170,8 +170,8 @@ export default function TenantProfilePage() {
       {(() => {
         const managers = (tenant.users || []).filter((u: any) => u.role === "MANAGER" || u.role === "ADMIN" || u.role === "SUPER_ADMIN");
         const supervisors = (tenant.users || []).filter((u: any) => u.role === "SITE_MANAGER");
-        const guards = (tenant.users || []).filter((u: any) => u.role === "USER");
-        const others = (tenant.users || []).filter((u: any) => u.role !== "MANAGER" && u.role !== "ADMIN" && u.role !== "SUPER_ADMIN" && u.role !== "SITE_MANAGER" && u.role !== "USER");
+        const guards = (tenant.users || []).filter((u: any) => u.role === "GUARD");
+        const others = (tenant.users || []).filter((u: any) => u.role !== "MANAGER" && u.role !== "ADMIN" && u.role !== "SUPER_ADMIN" && u.role !== "SITE_MANAGER" && u.role !== "GUARD");
 
         const renderUserTable = (usersList: any[], emptyMessage: string) => {
           if (usersList.length === 0) {

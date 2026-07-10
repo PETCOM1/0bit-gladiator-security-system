@@ -10,19 +10,19 @@ import { sendInviteEmail } from "../../services/mail.service.js";
 export const adminDashboard = catchAsync(async (_req: Request, res: Response) => {
   const [totalUsers, totalManagers, pendingUsers, activeUsers, recentSignups, recentActivity] =
     await Promise.all([
-      prisma.user.count({ where: { role: "USER",    accountStatus: { not: "DELETED" } } }),
+      prisma.user.count({ where: { role: "GUARD",    accountStatus: { not: "DELETED" } } }),
       prisma.user.count({ where: { role: "MANAGER", accountStatus: { not: "DELETED" } } }),
-      prisma.user.count({ where: { role: "USER",    accountStatus: "PENDING" } }),
-      prisma.user.count({ where: { role: "USER",    accountStatus: "ACTIVE"  } }),
+      prisma.user.count({ where: { role: "GUARD",    accountStatus: "PENDING" } }),
+      prisma.user.count({ where: { role: "GUARD",    accountStatus: "ACTIVE"  } }),
       prisma.user.findMany({
-        where:   { role: "USER" },
+        where:   { role: "GUARD" },
         orderBy: { createdAt: "desc" },
         take:    5,
         select:  { id: true, email: true, displayName: true, firstName: true, lastName: true,
                    accountStatus: true, createdAt: true },
       }),
       prisma.auditLog.findMany({
-        where:   { user: { role: { in: ["USER", "MANAGER"] } } },
+        where:   { user: { role: { in: ["GUARD", "MANAGER"] } } },
         orderBy: { createdAt: "desc" },
         take:    8,
         include: { user: { select: { email: true, displayName: true, firstName: true, lastName: true } } },
@@ -44,12 +44,12 @@ export const listUsers = catchAsync(async (req: Request, res: Response) => {
   const roleQ  = (req.query.role as string)?.toUpperCase();
   const status = req.query.status as string | undefined;
 
-  const validRoles = ["USER", "MANAGER"];
+  const validRoles = ["GUARD", "MANAGER"];
   if (roleQ && !validRoles.includes(roleQ))
     throw new AppError("Invalid role filter", HttpStatus.BAD_REQUEST);
 
   const where: any = {
-    role:          roleQ ? { equals: roleQ } : { in: ["USER", "MANAGER"] },
+    role:          roleQ ? { equals: roleQ } : { in: ["GUARD", "MANAGER"] },
     accountStatus: status ? { equals: status } : { not: "DELETED" },
   };
 
@@ -82,7 +82,7 @@ export const adminActivity = catchAsync(async (req: Request, res: Response) => {
   const action = req.query.action as string | undefined;
 
   const where: any = {
-    user: { role: { in: ["USER", "MANAGER", "ADMIN"] } },
+    user: { role: { in: ["GUARD", "MANAGER", "ADMIN"] } },
   };
   if (action) where.action = { contains: action.toUpperCase() };
 
@@ -121,7 +121,7 @@ export const inviteUser = catchAsync(async (req: Request, res: Response) => {
     data: {
       email,
       password:            "",
-      role:                "USER",
+      role:                "GUARD",
       accountStatus:       "PENDING",
       firstName:           firstName ?? null,
       lastName:            lastName  ?? null,
@@ -226,7 +226,7 @@ export const updateUserRole = catchAsync(async (req: Request, res: Response) => 
   const { id }   = req.params;
   const { role } = req.body;
 
-  const allowedRoles = [Role.USER, Role.MANAGER];
+  const allowedRoles = [Role.GUARD, Role.MANAGER];
   if (!allowedRoles.includes(role))
     throw new AppError("Admins can only assign USER or MANAGER roles", HttpStatus.BAD_REQUEST);
 

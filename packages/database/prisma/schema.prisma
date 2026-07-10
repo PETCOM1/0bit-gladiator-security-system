@@ -12,7 +12,7 @@ enum Role {
   ADMIN
   MANAGER
   SITE_MANAGER
-  USER
+  GUARD
 }
 
 enum AccountStatus {
@@ -103,7 +103,7 @@ model User {
   id            String        @id @default(cuid())
   email         String        @unique
   password      String
-  role          Role          @default(USER)
+  role          Role          @default(GUARD)
   accountStatus AccountStatus @default(PENDING)
   onLeave       Boolean       @default(false)
 

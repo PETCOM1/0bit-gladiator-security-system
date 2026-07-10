@@ -37,11 +37,11 @@ const ROLE_STYLES: Record<string, React.CSSProperties> = {
   SUPER_ADMIN: { background: "var(--color-danger-subtle)",  color: "var(--color-danger)",  border: "1px solid rgba(239,68,68,0.25)"   },
   ADMIN:       { background: "var(--color-warning-subtle)", color: "var(--color-warning)", border: "1px solid rgba(245,158,11,0.25)"  },
   MANAGER:     { background: "var(--color-info-subtle)",    color: "var(--color-info)",    border: "1px solid rgba(59,130,246,0.25)"  },
-  USER:        { background: "var(--color-bg-subtle)",      color: "var(--color-text-secondary)", border: "1px solid var(--color-border)" },
+  GUARD:       { background: "var(--color-bg-subtle)",      color: "var(--color-text-secondary)", border: "1px solid var(--color-border)" },
 };
 
 function RoleBadge({ role }: { role: string }) {
-  const s = ROLE_STYLES[role] ?? ROLE_STYLES.USER;
+  const s = ROLE_STYLES[role] ?? ROLE_STYLES.GUARD;
   return (
     <span style={{ ...s, display: "inline-flex", alignItems: "center", padding: "3px 12px", borderRadius: "var(--radius-pill)", fontSize: "11.5px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
       {role?.replace(/_/g, " ")}
@@ -210,7 +210,7 @@ export function AdminActivityPage() {
               options: [
                 { label: "Admin",       value: "ADMIN"       },
                 { label: "Manager",     value: "MANAGER"     },
-                { label: "User",        value: "USER"        },
+                { label: "Guard",       value: "GUARD"        },
                 { label: "Super Admin", value: "SUPER_ADMIN" },
               ],
             },

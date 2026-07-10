@@ -3,7 +3,7 @@ export enum Role {
   ADMIN       = "ADMIN",
   MANAGER     = "MANAGER",
   SITE_MANAGER= "SITE_MANAGER",
-  USER        = "USER",
+  GUARD       = "GUARD",
 }
 
 export enum AccountStatus {

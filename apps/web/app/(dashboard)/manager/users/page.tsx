@@ -28,7 +28,7 @@ export default function TenantStaffManagementPage() {
   
   // Form states
   const [inviteForm, setInviteForm] = useState({
-    email: "", firstName: "", lastName: "", role: "USER" as "SITE_MANAGER" | "USER", siteId: ""
+    email: "", firstName: "", lastName: "", role: "GUARD" as "SITE_MANAGER" | "GUARD", siteId: ""
   });
   
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
@@ -63,7 +63,7 @@ export default function TenantStaffManagementPage() {
     try {
       await managerService.inviteUser(inviteForm);
       setIsInviting(false);
-      setInviteForm({ email: "", firstName: "", lastName: "", role: "USER", siteId: "" });
+      setInviteForm({ email: "", firstName: "", lastName: "", role: "GUARD", siteId: "" });
       loadData();
       alert("Invitation sent successfully!");
     } catch (err: any) {
@@ -223,7 +223,7 @@ export default function TenantStaffManagementPage() {
         </div>
         <button
           onClick={() => {
-            setInviteForm({ email: "", firstName: "", lastName: "", role: "USER", siteId: sites[0]?.id || "" });
+            setInviteForm({ email: "", firstName: "", lastName: "", role: "GUARD", siteId: sites[0]?.id || "" });
             setIsInviting(true);
           }}
           style={{ 
@@ -308,7 +308,7 @@ export default function TenantStaffManagementPage() {
               <select style={selectStyle} value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
                 <option value="ALL">All Roles</option>
                 <option value="SITE_MANAGER">Site Managers</option>
-                <option value="USER">Security Officers</option>
+                <option value="GUARD">Security Officers</option>
               </select>
 
               <select style={selectStyle} value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)}>
@@ -533,7 +533,7 @@ export default function TenantStaffManagementPage() {
                       value={selectedStaff.role}
                       onChange={(e) => handleRoleChange(selectedStaff.id, e.target.value)}
                     >
-                      <option value="USER">Security Officer (Guard)</option>
+                      <option value="GUARD">Security Officer (Guard)</option>
                       <option value="SITE_MANAGER">Site Manager</option>
                     </select>
                   </div>
@@ -637,7 +637,7 @@ export default function TenantStaffManagementPage() {
                   <div>
                     <label style={{ display: "block", fontSize: "12.5px", fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: "6px" }}>Designated Role</label>
                     <select required style={{...inputStyle, cursor: "pointer"}} value={inviteForm.role} onChange={e => setInviteForm({...inviteForm, role: e.target.value as any})}>
-                      <option value="USER">Security Officer (Guard)</option>
+                      <option value="GUARD">Security Officer (Guard)</option>
                       <option value="SITE_MANAGER">Site Manager</option>
                     </select>
                   </div>

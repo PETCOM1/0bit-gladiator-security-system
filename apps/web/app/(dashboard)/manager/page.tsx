@@ -39,7 +39,7 @@ export default function ManagerDashboard() {
         const [sitesRes, incidentsRes, guardsRes] = await Promise.all([
           apiClient.get("/sites"),
           apiClient.get("/incidents?limit=5"),
-          apiClient.get("/users?role=USER&limit=5")
+          apiClient.get("/users?role=GUARD&limit=5")
         ]);
 
         setMonitoredSites(sitesRes.data?.data?.sites || []);

@@ -102,7 +102,7 @@ function OperationsContent() {
   // Personnel Form State
   const [isInviting, setIsInviting] = useState(false);
   const [inviteForm, setInviteForm] = useState({
-    email: "", firstName: "", lastName: "", role: "USER" as "SITE_MANAGER" | "USER", siteId: ""
+    email: "", firstName: "", lastName: "", role: "GUARD" as "SITE_MANAGER" | "GUARD", siteId: ""
   });
 
   // Filters & Pagination States
@@ -216,7 +216,7 @@ function OperationsContent() {
     try {
       await managerService.inviteUser(inviteForm);
       setIsInviting(false);
-      setInviteForm({ email: "", firstName: "", lastName: "", role: "USER", siteId: "" });
+      setInviteForm({ email: "", firstName: "", lastName: "", role: "GUARD", siteId: "" });
       loadData();
       alert("Invitation sent successfully!");
     } catch (err: any) {
@@ -601,7 +601,7 @@ function OperationsContent() {
                             style={{ padding: "4px 8px", fontSize: "12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", fontWeight: 600, color: "var(--color-text-primary)", cursor: "pointer" }}
                           >
                             <option value="SITE_MANAGER">Site Manager</option>
-                            <option value="USER">Security Officer</option>
+                            <option value="GUARD">Security Officer</option>
                           </select>
                         </td>
                         <td style={{ padding: "16px 24px" }}>
@@ -684,7 +684,7 @@ function OperationsContent() {
                         <div>
                           <label style={labelStyle}>Role</label>
                           <select required style={selectStyle} value={inviteForm.role} onChange={e => setInviteForm({...inviteForm, role: e.target.value as any})}>
-                            <option value="USER">Security Officer (Guard)</option>
+                            <option value="GUARD">Security Officer (Guard)</option>
                             <option value="SITE_MANAGER">Site Manager</option>
                           </select>
                         </div>

@@ -14,7 +14,7 @@ const ROLE_ROUTES: Record<string, string> = {
   SUPER_ADMIN: "/super-admin",
   ADMIN:       "/admin",
   MANAGER:     "/manager",
-  USER:        "/user",
+  GUARD:       "/guard",
 };
 
 const authService = new AuthService();
@@ -130,7 +130,7 @@ export async function googleCallback(req: Request, res: Response) {
           data: {
             email:              profile.email.toLowerCase(),
             password:           "",
-            role:               "USER",
+            role:               "GUARD",
             accountStatus:      status,
             firstName:          profile.given_name  ?? null,
             lastName:           profile.family_name ?? null,

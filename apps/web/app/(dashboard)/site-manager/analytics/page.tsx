@@ -103,7 +103,7 @@ export default function SiteManagerAnalyticsPage() {
   // Derived Guard Duty Monitoring List
   const guardMonitoringList = useMemo(() => {
     if (!site?.users) return [];
-    const guardsOnly = site.users.filter((u: any) => u.role === "USER");
+    const guardsOnly = site.users.filter((u: any) => u.role === "GUARD");
     
     return guardsOnly.map((guard: any) => {
       const activeShift = filteredShifts.find((s: any) => s.userId === guard.id && s.status === "IN_PROGRESS");

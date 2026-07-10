@@ -37,11 +37,11 @@ export const NAV_CONFIG: Record<string, NavItem[]> = {
     { href: "/site-manager/analytics",  label: "Analytics",   icon: "BarChart"        },
     { href: "/site-manager/support",    label: "Support",     icon: "LifeBuoy"        },
   ],
-  USER: [
-    { href: "/user", label: "Dashboard", icon: "LayoutDashboard" },
-    { href: "/user/attendance", label: "Attendance", icon: "ClipboardCheck" },
-    { href: "/user/shifts", label: "My Shifts", icon: "Calendar" },
-    { href: "/user/visitors", label: "Visitors", icon: "Contact" },
-    { href: "/user/compliance", label: "Occurrence Book", icon: "CheckCircle2" },
+  GUARD: [
+    { href: "/guard", label: "Dashboard", icon: "LayoutDashboard" },
+    { href: "/guard/attendance", label: "Attendance", icon: "ClipboardCheck" },
+    { href: "/guard/shifts", label: "My Shifts", icon: "Calendar" },
+    { href: "/guard/visitors", label: "Visitors", icon: "Contact" },
+    { href: "/guard/compliance", label: "Occurrence Book", icon: "CheckCircle2" },
   ],
 };

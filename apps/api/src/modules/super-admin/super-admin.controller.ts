@@ -30,7 +30,7 @@ export const platformStats = catchAsync(async (_req: Request, res: Response) => 
       select: { subscriptionTier: { select: { price: true } } } 
     }),
     prisma.site.count(),
-    prisma.user.count({ where: { role: "USER", accountStatus: { not: "DELETED" } } }),
+    prisma.user.count({ where: { role: "GUARD", accountStatus: { not: "DELETED" } } }),
     prisma.incident.count(),
     prisma.tenant.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
     prisma.patrolLog.count(),

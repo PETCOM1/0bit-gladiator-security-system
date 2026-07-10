@@ -114,7 +114,7 @@ export default function ManagerAnalyticsPage() {
 
   // Derived guards list
   const guardPerformanceList = useMemo(() => {
-    const guardsOnly = tenantUsers.filter(u => u.role === "USER");
+    const guardsOnly = tenantUsers.filter(u => u.role === "GUARD");
     return guardsOnly.map(guard => {
       const guardShifts = filteredShifts.filter(s => s.userId === guard.id);
       const completed = guardShifts.filter(s => s.status === "COMPLETED").length;
@@ -147,7 +147,7 @@ export default function ManagerAnalyticsPage() {
   const drilldownData = useMemo(() => {
     const company = user?.displayName || "Gladiator Pro Group";
     const mappedSites = sites.map(site => {
-      const siteGuards = tenantUsers.filter(u => u.siteId === site.id && u.role === "USER");
+      const siteGuards = tenantUsers.filter(u => u.siteId === site.id && u.role === "GUARD");
       const guardsWithIncidents = siteGuards.map(guard => {
         const guardIncidents = filteredIncidents.filter(i => i.siteId === site.id && i.reportedById === guard.id);
         return {
@@ -171,7 +171,7 @@ export default function ManagerAnalyticsPage() {
   // Computed KPIs based on date filter
   const liveKPIs = useMemo(() => {
     const totalSites = sites.length;
-    const activeGuards = tenantUsers.filter(u => u.role === "USER" && u.accountStatus === "ACTIVE").length;
+    const activeGuards = tenantUsers.filter(u => u.role === "GUARD" && u.accountStatus === "ACTIVE").length;
     const openIncidents = filteredIncidents.filter(i => i.status === "OPEN" || i.status === "INVESTIGATING").length;
     const closedIncidents = filteredIncidents.filter(i => i.status === "RESOLVED" || i.status === "CLOSED").length;
     

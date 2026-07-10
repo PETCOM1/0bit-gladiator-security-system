@@ -92,7 +92,7 @@ export const inviteUser = catchAsync(async (req: Request, res: Response) => {
   const targetSiteId = req.user!.role === "SITE_MANAGER" ? req.user!.siteId : (siteId || req.user!.siteId);
 
   // Prevent creating ADMIN or SUPER_ADMIN
-  const targetRole = role === "SITE_MANAGER" ? "SITE_MANAGER" : "USER";
+  const targetRole = role === "SITE_MANAGER" ? "SITE_MANAGER" : "GUARD";
 
   const code    = Math.random().toString(36).slice(2, 10).toUpperCase();
   const expires = new Date(Date.now() + 48 * 60 * 60 * 1000);
@@ -134,7 +134,7 @@ export const getTenantUsers = catchAsync(async (req: Request, res: Response) => 
   if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
 
   const users = await prisma.user.findMany({
-    where: { tenantId, role: { in: ["SITE_MANAGER", "USER"] }, accountStatus: { not: "DELETED" }, ...(siteId && { siteId }) },
+    where: { tenantId, role: { in: ["SITE_MANAGER", "GUARD"] }, accountStatus: { not: "DELETED" }, ...(siteId && { siteId }) },
     select: { ...PROFILE_SELECT, site: { select: { id: true, name: true } } },
     orderBy: { createdAt: "desc" }
   });
@@ -148,7 +148,7 @@ export const updateUserRole = catchAsync(async (req: Request, res: Response) => 
   const { role } = req.body;
 
   if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
-  if (!["SITE_MANAGER", "USER"].includes(role)) return res.status(HttpStatus.BAD_REQUEST).json({ message: "Invalid role" });
+  if (!["SITE_MANAGER", "GUARD"].includes(role)) return res.status(HttpStatus.BAD_REQUEST).json({ message: "Invalid role" });
 
   const user = await prisma.user.findFirst({ where: { id, tenantId } });
   if (!user) return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });

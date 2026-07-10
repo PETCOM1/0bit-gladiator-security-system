@@ -92,7 +92,7 @@ export const getTenantShifts = catchAsync(async (req: Request, res: Response) =>
   if (siteId) {
     whereClause.siteId = siteId;
   }
-  if (req.user!.role === Role.USER) {
+  if (req.user!.role === Role.GUARD) {
     whereClause.userId = req.user!.userId;
   }
 

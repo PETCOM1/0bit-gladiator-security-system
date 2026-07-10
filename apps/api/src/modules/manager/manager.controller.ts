@@ -13,7 +13,7 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
 
   const [totalSites, totalOfficers, visitorsToday, incidentsToday, openIncidents, activeShifts] = await Promise.all([
     prisma.site.count({ where: { tenantId } }),
-    prisma.user.count({ where: { tenantId, role: { in: ["SITE_MANAGER", "USER"] }, accountStatus: "ACTIVE" } }),
+    prisma.user.count({ where: { tenantId, role: { in: ["SITE_MANAGER", "GUARD"] }, accountStatus: "ACTIVE" } }),
     prisma.visitor.count({ where: { tenantId, checkInTime: { gte: today } } }),
     prisma.incident.count({ where: { tenantId, createdAt: { gte: today } } }),
     prisma.incident.count({ where: { tenantId, status: { in: ["OPEN", "INVESTIGATING"] } } }),

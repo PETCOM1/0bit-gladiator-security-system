@@ -10,7 +10,7 @@ export const checkInVisitor = catchAsync(async (req: Request, res: Response) => 
   let siteId = req.user!.role === "MANAGER" ? req.body.siteId : req.user!.siteId;
   
   // Fallback: If siteId is not statically set on user, find their active in-progress shift
-  if (!siteId && req.user!.role === "USER") {
+  if (!siteId && req.user!.role === "GUARD") {
     const activeShift = await prisma.shift.findFirst({
       where: { userId: req.user!.userId, status: "IN_PROGRESS" }
     });

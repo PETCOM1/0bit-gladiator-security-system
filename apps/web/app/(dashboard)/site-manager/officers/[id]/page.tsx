@@ -354,7 +354,7 @@ export default function SiteManagerPersonnelProfilePage() {
                   value={user.role}
                   onChange={(e) => handleRoleChange(e.target.value)}
                 >
-                  <option value="USER">Security Officer</option>
+                  <option value="GUARD">Security Officer</option>
                   <option value="SITE_MANAGER">Site Manager</option>
                 </select>
               </div>
