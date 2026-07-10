@@ -5,6 +5,7 @@ import { Role }      from "@repo/types";
 import {
   platformStats, listAdmins, inviteAdmin,
   removeAdmin, getSettings, updateSetting, auditLog,
+  listAllUsers, hardDeleteUser,
 } from "./super-admin.controller.js";
 
 const router = Router();
@@ -53,6 +54,28 @@ router.post("/admins/invite", authorize([Role.SUPER_ADMIN]), inviteAdmin);
  *       - cookieAuth: []
  */
 router.delete("/admins/:id", authorize([Role.SUPER_ADMIN]), removeAdmin);
+
+/**
+ * @openapi
+ * /api/v1/super-admin/users:
+ *   get:
+ *     tags: [SuperAdmin]
+ *     summary: List all platform users, any role or tenant
+ *     security:
+ *       - cookieAuth: []
+ */
+router.get("/users", authorize([Role.SUPER_ADMIN]), listAllUsers);
+
+/**
+ * @openapi
+ * /api/v1/super-admin/users/{id}:
+ *   delete:
+ *     tags: [SuperAdmin]
+ *     summary: Permanently delete a user (not a status change)
+ *     security:
+ *       - cookieAuth: []
+ */
+router.delete("/users/:id", authorize([Role.SUPER_ADMIN]), hardDeleteUser);
 
 /**
  * @openapi

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prisma } from "@repo/database";
+import { prisma, Prisma } from "@repo/database";
 import { HttpStatus } from "@repo/types";
 import { catchAsync } from "../../utils/catchAsync.js";
 import { AppError }   from "../../utils/appError.js";
@@ -162,6 +162,94 @@ export const removeAdmin = catchAsync(async (req: Request, res: Response) => {
   req.auditLogged = true;
 
   return res.status(HttpStatus.OK).json({ status: "success", message: "Admin removed" });
+});
+
+// ── List all platform users (any role, any tenant) ─────────────────────────────
+
+export const listAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const page   = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit  = 50;
+  const skip   = (page - 1) * limit;
+  const roleQ  = (req.query.role as string)?.toUpperCase();
+  const status = req.query.status as string | undefined;
+  const search = req.query.search as string | undefined;
+
+  const where: any = {
+    ...(roleQ   ? { role: roleQ } : {}),
+    ...(status  ? { accountStatus: status } : { accountStatus: { not: "DELETED" } }),
+    ...(search  ? {
+      OR: [
+        { email:       { contains: search, mode: "insensitive" } },
+        { firstName:   { contains: search, mode: "insensitive" } },
+        { lastName:    { contains: search, mode: "insensitive" } },
+        { displayName: { contains: search, mode: "insensitive" } },
+      ],
+    } : {}),
+  };
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      select: {
+        id: true, email: true, role: true,
+        firstName: true, lastName: true, displayName: true,
+        accountStatus: true, createdAt: true, lastActiveAt: true,
+        tenant: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.user.count({ where }),
+  ]);
+
+  return res.status(HttpStatus.OK).json({
+    status: "success",
+    data:   { users, pagination: { total, page, pages: Math.ceil(total / limit) } },
+  });
+});
+
+// ── Permanently delete a user ───────────────────────────────────────────────────
+// A real hard delete, not a status change. Records the user personally owns
+// (audit logs, notifications, shifts, patrol logs) are cascade-deleted with
+// them. Records they authored as part of operational history (incidents,
+// visitor logs, occurrence book entries, support tickets) are protected by a
+// foreign key RESTRICT — deletion fails for any user with that kind of
+// activity, rather than silently destroying that history. Suspend those
+// accounts instead.
+
+export const hardDeleteUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (id === req.user!.userId) {
+    throw new AppError("You cannot permanently delete your own account", HttpStatus.BAD_REQUEST);
+  }
+
+  const target = await prisma.user.findUnique({ where: { id } });
+  if (!target) throw new AppError("User not found", HttpStatus.NOT_FOUND);
+
+  try {
+    await prisma.user.delete({ where: { id } });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
+      throw new AppError(
+        "This user has activity records (incidents, visitor logs, occurrence entries, or support tickets) and cannot be permanently deleted. Suspend the account instead.",
+        HttpStatus.CONFLICT,
+      );
+    }
+    throw err;
+  }
+
+  await prisma.auditLog.create({
+    data: {
+      userId: req.user!.userId,
+      action: "USER_HARD_DELETED",
+      meta:   { deletedUserId: target.id, email: target.email, role: target.role },
+    },
+  });
+  req.auditLogged = true;
+
+  return res.status(HttpStatus.OK).json({ status: "success", message: "User permanently deleted" });
 });
 
 // ── Full audit log ─────────────────────────────────────────────────────────────

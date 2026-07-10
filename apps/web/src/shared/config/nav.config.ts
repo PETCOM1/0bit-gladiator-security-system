@@ -8,6 +8,7 @@ export const NAV_CONFIG: Record<string, NavItem[]> = {
   SUPER_ADMIN: [
     { href: "/super-admin",        label: "Dashboard", icon: "LayoutDashboard" },
     { href: "/super-admin/admins", label: "Admins",    icon: "Users"           },
+    { href: "/super-admin/users",  label: "Users",     icon: "UsersRound"      },
     { href: "/super-admin/analytics", label: "Analytics", icon: "BarChart"     },
     { href: "/super-admin/audit",  label: "Audit Log", icon: "ScrollText"      },
     { href: "/super-admin/system", label: "System",    icon: "Settings"        },

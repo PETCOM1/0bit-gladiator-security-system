@@ -2,6 +2,9 @@ import apiClient from "@/api/client";
 
 export const superAdminService = {
   getStats: () => apiClient.get("/super-admin/stats"),
+  getUsers: (params?: { role?: string; status?: string; search?: string; page?: number }) =>
+    apiClient.get("/super-admin/users", { params }),
+  hardDeleteUser: (id: string) => apiClient.delete(`/super-admin/users/${id}`),
   getTenants: () => apiClient.get("/tenants"),
   getTenantById: (id: string) => apiClient.get(`/tenants/${id}`),
   createTenant: (data: any) => apiClient.post("/tenants", data),
