@@ -45,6 +45,14 @@ export const managerService = {
   createOccurrence: (data: { entryText: string; category?: string; siteId?: string; location?: string; severity?: string; image?: string }) => apiClient.post("/occurrences", data),
 
   // Profile & Settings
-  updateTenantProfile: (data: { name: string }) => apiClient.patch("/manager/profile", data),
+  updateTenantProfile: (data: { 
+    name: string; 
+    contactEmail?: string | null;
+    contactPhone?: string | null;
+    registrationNumber?: string | null;
+    orgType?: string | null;
+    physicalAddress?: string | null;
+    countryRegion?: string | null;
+  }) => apiClient.patch("/manager/profile", data),
   getTenantAuditLogs: () => apiClient.get("/manager/audit"),
 };

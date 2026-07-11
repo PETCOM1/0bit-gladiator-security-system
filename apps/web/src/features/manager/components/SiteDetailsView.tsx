@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { managerService } from "@/features/manager/services/manager.service";
-import { MapPin, Users, ShieldAlert, Contact, Calendar, Info, ArrowLeft, Plus, CheckCircle2 } from "lucide-react";
+import { MapPin, Users, ShieldAlert, Contact, Calendar, Info, ArrowLeft, Plus, CheckCircle2, Search, Filter, Clock, X } from "lucide-react";
 
 interface Props {
   siteId: string;
@@ -15,12 +15,22 @@ const inputStyle = {
   background: "var(--color-bg-subtle)",
   border: "1px solid var(--color-border)",
   borderRadius: "var(--radius-md)",
-  fontSize: "14px",
+  fontSize: "13.5px",
   color: "var(--color-text-primary)",
   outline: "none",
-  transition: "border var(--transition-fast)",
-  width: "100%",
-  boxSizing: "border-box" as const
+  transition: "border-color 0.2s",
+  width: "100%"
+};
+
+const selectStyle = {
+  padding: "8px 12px",
+  background: "var(--color-card-bg)",
+  border: "1px solid var(--color-border)",
+  borderRadius: "var(--radius-md)",
+  fontSize: "13px",
+  color: "var(--color-text-secondary)",
+  outline: "none",
+  cursor: "pointer"
 };
 
 const labelStyle = {
@@ -41,14 +51,102 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
   const [newPostName, setNewPostName] = useState("");
   const [isAddingPost, setIsAddingPost] = useState(false);
 
-  // Assignment Modal States
-  const [assignPostId, setAssignPostId] = useState<string | null>(null);
-  const [assignUserId, setAssignUserId] = useState("");
-  const [assignStartTime, setAssignStartTime] = useState("");
-  const [assignEndTime, setAssignEndTime] = useState("");
-  const [isAssigning, setIsAssigning] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [shiftPreset, setShiftPreset] = useState("morning");
+
+
+  // Personnel Filters & Pagination States
+  const [personnelSearch, setPersonnelSearch] = useState("");
+  const [personnelRole, setPersonnelRole] = useState("ALL");
+  const [personnelStatus, setPersonnelStatus] = useState("ALL");
+  const [personnelPage, setPersonnelPage] = useState(1);
+
+  const filteredPersonnel = useMemo(() => {
+    if (!site?.users) return [];
+    return site.users.filter((u: any) => {
+      const matchesSearch = 
+        `${u.firstName} ${u.lastName}`.toLowerCase().includes(personnelSearch.toLowerCase()) ||
+        (u.email || "").toLowerCase().includes(personnelSearch.toLowerCase());
+      const matchesRole = personnelRole === "ALL" || u.role === personnelRole;
+      const matchesStatus = 
+        personnelStatus === "ALL" || 
+        (personnelStatus === "ON_LEAVE" && u.onLeave) || 
+        (personnelStatus === "ACTIVE" && !u.onLeave);
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [site?.users, personnelSearch, personnelRole, personnelStatus]);
+
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(filteredPersonnel.length / itemsPerPage) || 1;
+  
+  const paginatedPersonnel = useMemo(() => {
+    const startIdx = (personnelPage - 1) * itemsPerPage;
+    return filteredPersonnel.slice(startIdx, startIdx + itemsPerPage);
+  }, [filteredPersonnel, personnelPage]);
+
+  useEffect(() => {
+    setPersonnelPage(1);
+  }, [personnelSearch, personnelRole, personnelStatus]);
+
+  // Shift Filters & Pagination States
+  const [shiftSearch, setShiftSearch] = useState("");
+  const [shiftStatusFilter, setShiftStatusFilter] = useState("ALL");
+  const [shiftPostFilter, setShiftPostFilter] = useState("ALL");
+  const [shiftPage, setShiftPage] = useState(1);
+
+  const filteredShifts = useMemo(() => {
+    if (!site?.shifts) return [];
+    return site.shifts.filter((s: any) => {
+      const matchesSearch = 
+        `${s.user?.firstName || ""} ${s.user?.lastName || ""}`.toLowerCase().includes(shiftSearch.toLowerCase()) ||
+        (s.post?.name || "").toLowerCase().includes(shiftSearch.toLowerCase());
+      
+      const isShiftMissed = s.status === "SCHEDULED" && new Date(s.startTime).getTime() < Date.now();
+      const matchesStatus = 
+        shiftStatusFilter === "ALL" || 
+        (shiftStatusFilter === "MISSED" && isShiftMissed) ||
+        (shiftStatusFilter === s.status && (!isShiftMissed || s.status !== "SCHEDULED"));
+        
+      const matchesPost = shiftPostFilter === "ALL" || s.postId === shiftPostFilter;
+
+      return matchesSearch && matchesStatus && matchesPost;
+    });
+  }, [site?.shifts, shiftSearch, shiftStatusFilter, shiftPostFilter]);
+
+  const shiftsPerPage = 10;
+  const totalShiftPages = Math.ceil(filteredShifts.length / shiftsPerPage) || 1;
+  
+  const paginatedShifts = useMemo(() => {
+    const startIdx = (shiftPage - 1) * shiftsPerPage;
+    return filteredShifts.slice(startIdx, startIdx + shiftsPerPage);
+  }, [filteredShifts, shiftPage]);
+
+  const shiftStats = useMemo(() => {
+    if (!site?.shifts) return { total: 0, active: 0, scheduled: 0, completed: 0, missed: 0 };
+    const total = site.shifts.length;
+    const active = site.shifts.filter((s: any) => s.status === "IN_PROGRESS").length;
+    const completed = site.shifts.filter((s: any) => s.status === "COMPLETED").length;
+    const missed = site.shifts.filter((s: any) => s.status === "SCHEDULED" && new Date(s.startTime).getTime() < Date.now()).length;
+    const scheduled = site.shifts.filter((s: any) => s.status === "SCHEDULED" && new Date(s.startTime).getTime() >= Date.now()).length;
+
+    return { total, active, scheduled, completed, missed };
+  }, [site?.shifts]);
+
+  const postCoverageList = useMemo(() => {
+    if (!site?.posts || !site?.shifts) return [];
+    return site.posts.map((p: any) => {
+      const activeShift = site.shifts.find((s: any) => s.postId === p.id && s.status === "IN_PROGRESS");
+      return {
+        post: p,
+        isCovered: !!activeShift,
+        activeGuard: activeShift ? activeShift.user : null,
+        activeShift: activeShift
+      };
+    });
+  }, [site?.posts, site?.shifts]);
+
+  useEffect(() => {
+    setShiftPage(1);
+  }, [shiftSearch, shiftStatusFilter, shiftPostFilter]);
 
   useEffect(() => {
     const fetchSite = async () => {
@@ -82,6 +180,8 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
     );
   }
 
+  const hasSiteManager = site.users?.some((u: any) => u.role === "SITE_MANAGER");
+
   const tabs = [
     { id: "overview", label: "Overview", icon: <Info size={15} /> },
     { id: "incidents", label: "Occurrence Book", icon: <ShieldAlert size={15} /> },
@@ -91,75 +191,7 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
     { id: "posts", label: "Posts", icon: <MapPin size={15} /> }
   ] as const;
 
-  const getLocalDatetimeString = (date: Date) => {
-    const tzoffset = date.getTimezoneOffset() * 60000;
-    return (new Date(date.getTime() - tzoffset)).toISOString().slice(0, 16);
-  };
 
-  const openAssignModal = (postId: string) => {
-    const today = new Date();
-    const todayStr = today.toISOString().split("T")[0];
-    
-    setAssignPostId(postId);
-    setAssignUserId("");
-    setSelectedDate(todayStr);
-    setShiftPreset("morning");
-    
-    const start = new Date();
-    const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
-    setAssignStartTime(getLocalDatetimeString(start));
-    setAssignEndTime(getLocalDatetimeString(end));
-  };
-
-  const handleAssignGuard = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!assignPostId || !assignUserId) return;
-    
-    const selectedGuard = site.users?.find((u: any) => u.id === assignUserId);
-    if (selectedGuard?.onLeave) {
-      if (!confirm(`Warning: ${selectedGuard.firstName} ${selectedGuard.lastName} is flagged as On Leave. Do you still want to assign them to this shift?`)) {
-        return;
-      }
-    }
-    
-    let finalStart = assignStartTime;
-    let finalEnd = assignEndTime;
-
-    if (shiftPreset !== "custom" && selectedDate) {
-      if (shiftPreset === "morning") {
-        finalStart = `${selectedDate}T06:00`;
-        finalEnd = `${selectedDate}T14:00`;
-      } else if (shiftPreset === "afternoon") {
-        finalStart = `${selectedDate}T14:00`;
-        finalEnd = `${selectedDate}T22:00`;
-      } else if (shiftPreset === "night") {
-        finalStart = `${selectedDate}T22:00`;
-        const nextDay = new Date(new Date(selectedDate).getTime() + 24 * 60 * 60 * 1000);
-        const nextDayStr = nextDay.toISOString().split("T")[0];
-        finalEnd = `${nextDayStr}T06:00`;
-      }
-    }
-    
-    setIsAssigning(true);
-    try {
-      await managerService.createShift({
-        userId: assignUserId,
-        postId: assignPostId,
-        startTime: finalStart,
-        endTime: finalEnd,
-        siteId: site.id
-      });
-      setAssignPostId(null);
-      // Refresh site data
-      const res = await managerService.getSiteById(siteId);
-      setSite(res.data.data.site);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to assign personnel to this post.");
-    } finally {
-      setIsAssigning(false);
-    }
-  };
 
   const handleToggleLeave = async (userId: string) => {
     try {
@@ -250,6 +282,42 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
           </p>
         </div>
       </div>
+
+      {/* Warning banner for unassigned Site Manager */}
+      {!hasSiteManager && (
+        <div style={{
+          background: "rgba(245, 158, 11, 0.04)",
+          border: "1px solid rgba(245, 158, 11, 0.15)",
+          borderRadius: "var(--radius-xl)",
+          padding: "14px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "16px",
+          boxShadow: "var(--color-card-shadow)",
+          marginTop: "-8px",
+          boxSizing: "border-box"
+        }}>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <Info size={16} color="var(--color-accent)" style={{ flexShrink: 0 }} />
+            <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+              <strong>Notice:</strong> This site does not have a designated Site Manager assigned to oversee day-to-day operations.
+            </span>
+          </div>
+          <button 
+            onClick={() => router.push("/manager/users")}
+            style={{
+              padding: "6px 12px", background: "var(--color-accent)", color: "var(--color-accent-text)",
+              border: "none", borderRadius: "var(--radius-md)", fontSize: "12px", fontWeight: 600,
+              cursor: "pointer", transition: "opacity var(--transition-fast)", flexShrink: 0
+            }}
+            onMouseEnter={e => e.currentTarget.style.opacity = "0.9"}
+            onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+          >
+            Assign Site Manager
+          </button>
+        </div>
+      )}
 
       {/* Tabs Selector Strip */}
       <div style={{ display: "flex", gap: "4px", borderBottom: "1px solid var(--color-border)", paddingBottom: "1px", overflowX: "auto" }}>
@@ -450,122 +518,495 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
 
         {/* TAB: PERSONNEL */}
         {activeTab === "personnel" && (
-          <div style={{ padding: "24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
-            {site.users.length === 0 ? (
-              <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", gridColumn: "1 / -1", fontSize: "13.5px" }}>No personnel assigned to this site.</div>
-            ) : site.users.map((u: any) => (
-              <div 
-                key={u.id} 
-                style={{ 
-                  padding: "20px", 
-                  border: "1px solid var(--color-border)", 
-                  borderRadius: "var(--radius-xl)", 
-                  display: "flex", 
-                  flexDirection: "column",
-                  gap: "16px", 
-                  background: "var(--color-card-bg)",
-                  transition: "transform var(--transition-base)",
-                  cursor: "default"
-                }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                  <div style={{ 
-                    width: "40px", 
-                    height: "40px", 
-                    borderRadius: "50%", 
-                    background: "var(--color-accent-subtle)", 
-                    color: "var(--color-accent)", 
-                    display: "flex", 
-                    alignItems: "center", 
-                    justifyContent: "center", 
-                    fontWeight: 700, 
-                    fontSize: "12px",
-                    border: "1px solid var(--color-accent-border)"
-                  }}>
-                    {(u.firstName?.[0] || "") + (u.lastName?.[0] || "")}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>{u.firstName} {u.lastName}</h4>
-                    <p style={{ margin: 0, fontSize: "12.5px", color: "var(--color-text-muted)", marginTop: "2px" }}>{u.role}</p>
-                  </div>
-                  <span style={{
-                    padding: "3px 8px",
-                    borderRadius: "12px",
-                    fontSize: "10.5px",
-                    fontWeight: 700,
-                    background: u.onLeave ? "var(--color-danger-subtle)" : "var(--color-success-subtle)",
-                    color: u.onLeave ? "var(--color-danger)" : "var(--color-success)"
-                  }}>
-                    {u.onLeave ? "ON LEAVE" : "ACTIVE"}
-                  </span>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px" }}>
+            
+            {/* Search & Filter Controls */}
+            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "16px 20px", display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap", justifyContent: "space-between", boxShadow: "var(--color-card-shadow)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: "260px" }}>
+                <div style={{ position: "relative", flex: 1 }}>
+                  <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
+                  <input
+                    type="text"
+                    style={{ ...inputStyle, paddingLeft: "36px", height: "38px" }}
+                    placeholder="Search personnel by name or email..."
+                    value={personnelSearch}
+                    onChange={e => setPersonnelSearch(e.target.value)}
+                  />
                 </div>
-                
-                <div style={{ borderTop: "1px solid var(--color-border)", paddingTop: "12px", display: "flex", justifyContent: "flex-end" }}>
+              </div>
+              
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--color-text-muted)" }}>
+                  <Filter size={14} /> Filters:
+                </div>
+                <select 
+                  style={selectStyle}
+                  value={personnelRole}
+                  onChange={e => setPersonnelRole(e.target.value)}
+                >
+                  <option value="ALL">All Roles</option>
+                  <option value="SITE_MANAGER">Site Managers</option>
+                  <option value="GUARD">Security Officers</option>
+                </select>
+                <select 
+                  style={selectStyle}
+                  value={personnelStatus}
+                  onChange={e => setPersonnelStatus(e.target.value)}
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="ON_LEAVE">On Leave</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div style={{ overflowX: "auto", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                <thead style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
+                  <tr>
+                    {["Personnel Info", "Designated Role", "Duty Status", "Actions"].map(h => (
+                      <th key={h} style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedPersonnel.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13.5px" }}>
+                        No personnel found matching filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedPersonnel.map((u: any, idx: number) => (
+                      <tr 
+                        key={u.id}
+                        style={{ 
+                          borderBottom: idx < paginatedPersonnel.length - 1 ? "1px solid var(--color-border)" : "none",
+                          transition: "background var(--transition-fast)" 
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                      >
+                        <td style={{ padding: "16px 24px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <div style={{ 
+                              width: "36px", 
+                              height: "36px", 
+                              borderRadius: "50%", 
+                              background: "var(--color-accent-subtle)", 
+                              color: "var(--color-accent)", 
+                              display: "flex", 
+                              alignItems: "center", 
+                              justifyContent: "center", 
+                              fontWeight: 700, 
+                              fontSize: "12px",
+                              border: "1px solid var(--color-accent-border)",
+                              flexShrink: 0
+                            }}>
+                              {(u.firstName?.[0] || "") + (u.lastName?.[0] || "")}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: "var(--color-text-primary)", fontSize: "13.5px" }}>{u.firstName} {u.lastName}</div>
+                              <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "2px" }}>{u.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: "16px 24px" }}>
+                          <span style={{ 
+                            display: "inline-flex", alignItems: "center", gap: "4px", padding: "3px 8px", borderRadius: "6px", fontSize: "11px", fontWeight: 700,
+                            background: u.role === "SITE_MANAGER" ? "var(--color-accent-subtle)" : "var(--color-bg-subtle)",
+                            color: u.role === "SITE_MANAGER" ? "var(--color-accent)" : "var(--color-text-secondary)"
+                          }}>
+                            {u.role === "SITE_MANAGER" ? "Site Manager" : "Security Officer"}
+                          </span>
+                        </td>
+                        <td style={{ padding: "16px 24px" }}>
+                          <span style={{
+                            padding: "3px 8px",
+                            borderRadius: "12px",
+                            fontSize: "10.5px",
+                            fontWeight: 700,
+                            background: u.onLeave ? "var(--color-danger-subtle)" : "var(--color-success-subtle)",
+                            color: u.onLeave ? "var(--color-danger)" : "var(--color-success)"
+                          }}>
+                            {u.onLeave ? "ON LEAVE" : "ACTIVE"}
+                          </span>
+                        </td>
+                        <td style={{ padding: "16px 24px" }}>
+                          <div style={{ display: "flex", gap: "10px" }}>
+                            <button
+                              onClick={() => handleToggleLeave(u.id)}
+                              style={{
+                                padding: "6px 12px",
+                                background: u.onLeave ? "var(--color-success-subtle)" : "var(--color-danger-subtle)",
+                                border: "none",
+                                borderRadius: "var(--radius-md)",
+                                fontSize: "12px",
+                                fontWeight: 600,
+                                color: u.onLeave ? "var(--color-success)" : "var(--color-danger)",
+                                cursor: "pointer",
+                                transition: "opacity var(--transition-fast)"
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.opacity = "0.8"; }}
+                              onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+                            >
+                              {u.onLeave ? "Mark Active" : "Flag Leave"}
+                            </button>
+                            <button
+                              onClick={() => router.push(`/manager/users/${u.id}`)}
+                              style={{
+                                padding: "6px 12px",
+                                background: "var(--color-bg-subtle)",
+                                border: "1px solid var(--color-border)",
+                                borderRadius: "var(--radius-md)",
+                                fontSize: "12px",
+                                fontWeight: 600,
+                                color: "var(--color-text-secondary)",
+                                cursor: "pointer",
+                                transition: "all var(--transition-fast)"
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--color-accent)"; e.currentTarget.style.color = "var(--color-accent)"; }}
+                              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--color-border)"; e.currentTarget.style.color = "var(--color-text-secondary)"; }}
+                            >
+                              Profile
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "6px" }}>
+                <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>
+                  Showing page <strong>{personnelPage}</strong> of <strong>{totalPages}</strong> ({filteredPersonnel.length} entries)
+                </span>
+                <div style={{ display: "flex", gap: "8px" }}>
                   <button
-                    onClick={() => handleToggleLeave(u.id)}
+                    disabled={personnelPage === 1}
+                    onClick={() => setPersonnelPage(prev => Math.max(1, prev - 1))}
                     style={{
-                      padding: "6px 12px",
-                      background: u.onLeave ? "var(--color-success-subtle)" : "var(--color-danger-subtle)",
-                      border: "none",
-                      borderRadius: "var(--radius-md)",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      color: u.onLeave ? "var(--color-success)" : "var(--color-danger)",
-                      cursor: "pointer",
-                      transition: "opacity var(--transition-fast)"
+                      padding: "6px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-md)", fontSize: "12.5px", fontWeight: 600,
+                      color: personnelPage === 1 ? "var(--color-text-muted)" : "var(--color-text-secondary)",
+                      cursor: personnelPage === 1 ? "not-allowed" : "pointer"
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.opacity = "0.8"; }}
-                    onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
                   >
-                    {u.onLeave ? "Mark as Active" : "Flag on Leave"}
+                    Previous
+                  </button>
+                  <button
+                    disabled={personnelPage === totalPages}
+                    onClick={() => setPersonnelPage(prev => Math.min(totalPages, prev + 1))}
+                    style={{
+                      padding: "6px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-md)", fontSize: "12.5px", fontWeight: 600,
+                      color: personnelPage === totalPages ? "var(--color-text-muted)" : "var(--color-text-secondary)",
+                      cursor: personnelPage === totalPages ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    Next
                   </button>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         )}
 
         {/* TAB: SHIFTS */}
         {activeTab === "shifts" && (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-              <thead style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
-                <tr>
-                  {["Personnel", "Start Time", "End Time", "Status"].map(h => (
-                    <th key={h} style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px", padding: "20px" }}>
+            
+            {/* KPI Cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+              <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "16px 20px", display: "flex", alignItems: "center", gap: "12px", boxShadow: "var(--color-card-shadow)" }}>
+                <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "var(--color-bg-subtle)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-secondary)" }}>
+                  <Calendar size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Total Shifts</div>
+                  <div style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-primary)", marginTop: "2px" }}>{shiftStats.total}</div>
+                </div>
+              </div>
+
+              <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "16px 20px", display: "flex", alignItems: "center", gap: "12px", boxShadow: "var(--color-card-shadow)" }}>
+                <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(16, 185, 129, 0.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-success)" }}>
+                  <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--color-success)", animation: "pulse 1.5s infinite" }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Active (On Duty)</div>
+                  <div style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-success)", marginTop: "2px" }}>{shiftStats.active}</div>
+                </div>
+              </div>
+
+              <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "16px 20px", display: "flex", alignItems: "center", gap: "12px", boxShadow: "var(--color-card-shadow)" }}>
+                <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(59, 130, 246, 0.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-info)" }}>
+                  <Clock size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Upcoming</div>
+                  <div style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-info)", marginTop: "2px" }}>{shiftStats.scheduled}</div>
+                </div>
+              </div>
+
+              <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "16px 20px", display: "flex", alignItems: "center", gap: "12px", boxShadow: "var(--color-card-shadow)" }}>
+                <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(239, 68, 68, 0.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-danger)" }}>
+                  <ShieldAlert size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>Missed / Expired</div>
+                  <div style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-danger)", marginTop: "2px" }}>{shiftStats.missed}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Post Coverage monitor */}
+            <div style={{ background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)", padding: "20px", boxShadow: "var(--color-card-shadow)" }}>
+              <h3 style={{ margin: "0 0 16px 0", fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <Users size={16} color="var(--color-accent)" /> Live Post Coverage Monitor
+              </h3>
+              {postCoverageList.length === 0 ? (
+                <div style={{ fontSize: "13px", color: "var(--color-text-muted)", padding: "10px 0" }}>No posts defined for this site. Assign posts in the "Posts" tab first.</div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "14px" }}>
+                  {postCoverageList.map((cov: any) => (
+                    <div 
+                      key={cov.post.id} 
+                      style={{ 
+                        padding: "14px 16px", borderRadius: "var(--radius-lg)", border: "1px solid var(--color-border)",
+                        background: cov.isCovered ? "rgba(16, 185, 129, 0.03)" : "rgba(239, 68, 68, 0.02)",
+                        display: "flex", flexDirection: "column", gap: "8px"
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--color-text-primary)" }}>{cov.post.name}</span>
+                        <span style={{ 
+                          fontSize: "10px", fontWeight: 700, padding: "2px 6px", borderRadius: "10px",
+                          background: cov.isCovered ? "var(--color-success-subtle)" : "var(--color-danger-subtle)",
+                          color: cov.isCovered ? "var(--color-success)" : "var(--color-danger)"
+                        }}>
+                          {cov.isCovered ? "🟢 COVERED" : "🔴 UNSTAFFED"}
+                        </span>
+                      </div>
+                      {cov.isCovered ? (
+                        <div style={{ fontSize: "12.5px", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{ fontWeight: 600 }}>{cov.activeGuard?.firstName} {cov.activeGuard?.lastName}</span>
+                          <span style={{ color: "var(--color-text-muted)" }}>({cov.activeShift?.actualStartTime ? new Date(cov.activeShift.actualStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "—"})</span>
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>No security officer currently checked-in.</div>
+                      )}
+                    </div>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {site.shifts.length === 0 ? (
-                  <tr><td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13.5px" }}>No shifts scheduled.</td></tr>
-                ) : site.shifts.map((s: any, i: number) => (
-                  <tr 
-                    key={s.id} 
-                    style={{ borderBottom: i < site.shifts.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
-                  >
-                    <td style={{ padding: "16px 24px", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }}>{s.user?.firstName || "-"} {s.user?.lastName || ""}</td>
-                    <td style={{ padding: "16px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>{new Date(s.startTime).toLocaleString()}</td>
-                    <td style={{ padding: "16px 24px", fontSize: "13.5px", color: s.endTime ? "var(--color-text-secondary)" : "var(--color-accent)", fontWeight: s.endTime ? 400 : 500 }}>
-                      {s.endTime ? new Date(s.endTime).toLocaleString() : "Active"}
-                    </td>
-                    <td style={{ padding: "16px 24px" }}>
-                      <span style={{ 
-                        padding: "3px 8px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700, 
-                        background: s.status === "COMPLETED" ? "var(--color-success-subtle)" : "var(--color-bg-subtle)", 
-                        color: s.status === "COMPLETED" ? "var(--color-success)" : "var(--color-text-secondary)" 
-                      }}>
-                        {s.status}
-                      </span>
-                    </td>
+                </div>
+              )}
+            </div>
+
+            {/* Filter Bar */}
+            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "16px 20px", display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap", justifyContent: "space-between", boxShadow: "var(--color-card-shadow)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: "260px" }}>
+                <div style={{ position: "relative", flex: 1 }}>
+                  <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
+                  <input
+                    type="text"
+                    style={{ ...inputStyle, paddingLeft: "36px", height: "38px" }}
+                    placeholder="Search shifts by officer name or post..."
+                    value={shiftSearch}
+                    onChange={e => setShiftSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--color-text-muted)" }}>
+                  <Filter size={14} /> Filters:
+                </div>
+                <select 
+                  style={selectStyle}
+                  value={shiftStatusFilter}
+                  onChange={e => setShiftStatusFilter(e.target.value)}
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="IN_PROGRESS">Active (Live)</option>
+                  <option value="SCHEDULED">Upcoming</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="MISSED">Missed / Expired</option>
+                </select>
+                <select 
+                  style={selectStyle}
+                  value={shiftPostFilter}
+                  onChange={e => setShiftPostFilter(e.target.value)}
+                >
+                  <option value="ALL">All Posts</option>
+                  {site.posts.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div style={{ overflowX: "auto", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                <thead style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
+                  <tr>
+                    {["Personnel Info", "Post / Location", "Scheduled Time", "Actual Check-In/Out", "Status", "Actions"].map(h => (
+                      <th key={h} style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {paginatedShifts.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13.5px" }}>
+                        No shifts scheduled or matching search filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedShifts.map((s: any, idx: number) => {
+                      const isShiftMissed = s.status === "SCHEDULED" && new Date(s.startTime).getTime() < Date.now();
+                      return (
+                        <tr 
+                          key={s.id}
+                          style={{ 
+                            borderBottom: idx < paginatedShifts.length - 1 ? "1px solid var(--color-border)" : "none",
+                            transition: "background var(--transition-fast)" 
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                        >
+                          <td style={{ padding: "16px 24px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                              <div style={{ 
+                                width: "36px", 
+                                height: "36px", 
+                                borderRadius: "50%", 
+                                background: "var(--color-accent-subtle)", 
+                                color: "var(--color-accent)", 
+                                display: "flex", 
+                                alignItems: "center", 
+                                justifyContent: "center", 
+                                fontWeight: 700, 
+                                fontSize: "12px",
+                                border: "1px solid var(--color-accent-border)",
+                                flexShrink: 0
+                              }}>
+                                {(s.user?.firstName?.[0] || "") + (s.user?.lastName?.[0] || "")}
+                              </div>
+                              <div>
+                                <div style={{ fontWeight: 700, color: "var(--color-text-primary)", fontSize: "13.5px" }}>{s.user?.firstName} {s.user?.lastName}</div>
+                                <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "2px" }}>{s.user?.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ padding: "16px 24px" }}>
+                            <div style={{ fontWeight: 600, color: "var(--color-text-primary)", fontSize: "13.5px" }}>{s.post?.name || "Ad-Hoc Patrol"}</div>
+                            <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "2px" }}>{site.name}</div>
+                          </td>
+                          <td style={{ padding: "16px 24px" }}>
+                            <div style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                              <strong>Start:</strong> {new Date(s.startTime).toLocaleString()}
+                            </div>
+                            <div style={{ fontSize: "13px", color: "var(--color-text-secondary)", marginTop: "4px" }}>
+                              <strong>End:</strong> {s.endTime ? new Date(s.endTime).toLocaleString() : "—"}
+                            </div>
+                          </td>
+                          <td style={{ padding: "16px 24px" }}>
+                            {s.actualStartTime ? (
+                              <>
+                                <div style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                                  <strong>In:</strong> {new Date(s.actualStartTime).toLocaleString()}
+                                </div>
+                                <div style={{ fontSize: "13px", color: "var(--color-text-secondary)", marginTop: "4px" }}>
+                                  <strong>Out:</strong> {s.actualEndTime ? new Date(s.actualEndTime).toLocaleString() : "Still Active"}
+                                </div>
+                              </>
+                            ) : (
+                              <span style={{ fontSize: "13px", color: "var(--color-text-muted)", fontStyle: "italic" }}>
+                                {isShiftMissed ? "Expired (No Check-In)" : "No Check-In Yet"}
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ padding: "16px 24px" }}>
+                            <span style={{
+                              padding: "3px 8px",
+                              borderRadius: "12px",
+                              fontSize: "10.5px",
+                              fontWeight: 700,
+                              background: isShiftMissed ? "var(--color-danger-subtle)" :
+                                         s.status === "COMPLETED" ? "var(--color-bg-subtle)" : 
+                                         s.status === "IN_PROGRESS" ? "var(--color-success-subtle)" : "var(--color-info-subtle)",
+                              color: isShiftMissed ? "var(--color-danger)" :
+                                     s.status === "COMPLETED" ? "var(--color-text-secondary)" : 
+                                     s.status === "IN_PROGRESS" ? "var(--color-success)" : "var(--color-info)"
+                            }}>
+                              {isShiftMissed ? "MISSED" : s.status === "IN_PROGRESS" ? "LIVE" : s.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: "16px 24px" }}>
+                            <button
+                              onClick={() => router.push(`/manager/users/${s.userId}`)}
+                              style={{
+                                padding: "6px 12px",
+                                background: "var(--color-bg-subtle)",
+                                border: "1px solid var(--color-border)",
+                                borderRadius: "var(--radius-md)",
+                                fontSize: "12px",
+                                fontWeight: 600,
+                                color: "var(--color-text-secondary)",
+                                cursor: "pointer",
+                                transition: "all var(--transition-fast)"
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--color-accent)"; e.currentTarget.style.color = "var(--color-accent)"; }}
+                              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--color-border)"; e.currentTarget.style.color = "var(--color-text-secondary)"; }}
+                            >
+                              Officer Profile
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalShiftPages > 1 && (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "6px" }}>
+                <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>
+                  Showing page <strong>{shiftPage}</strong> of <strong>{totalShiftPages}</strong> ({filteredShifts.length} entries)
+                </span>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    disabled={shiftPage === 1}
+                    onClick={() => setShiftPage(prev => Math.max(1, prev - 1))}
+                    style={{
+                      padding: "6px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-md)", fontSize: "12.5px", fontWeight: 600,
+                      color: shiftPage === 1 ? "var(--color-text-muted)" : "var(--color-text-secondary)",
+                      cursor: shiftPage === 1 ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    disabled={shiftPage === totalShiftPages}
+                    onClick={() => setShiftPage(prev => Math.min(totalShiftPages, prev + 1))}
+                    style={{
+                      padding: "6px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-md)", fontSize: "12.5px", fontWeight: 600,
+                      color: shiftPage === totalShiftPages ? "var(--color-text-muted)" : "var(--color-text-secondary)",
+                      cursor: shiftPage === totalShiftPages ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -589,44 +1030,7 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
               </button>
             </div>
 
-            {/* Add Post Form */}
-            {isAddingPost && (
-              <form onSubmit={handleAddPost} className="glass-panel" style={{ display: "flex", gap: "12px", marginBottom: "24px", padding: "20px", borderRadius: "var(--radius-xl)" }}>
-                <input
-                  type="text"
-                  placeholder="Post Name (e.g. Main Gate)"
-                  value={newPostName}
-                  onChange={e => setNewPostName(e.target.value)}
-                  style={{
-                    flex: 1, padding: "10px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)",
-                    background: "var(--color-bg-subtle)", color: "var(--color-text-primary)", fontSize: "13.5px",
-                    outline: "none"
-                  }}
-                  autoFocus
-                />
-                <button 
-                  type="submit"
-                  disabled={!newPostName.trim()}
-                  style={{
-                    padding: "10px 20px", background: newPostName.trim() ? "var(--color-accent)" : "var(--color-bg-subtle)",
-                    color: newPostName.trim() ? "var(--color-accent-text)" : "var(--color-text-muted)", border: "none", borderRadius: "var(--radius-md)",
-                    fontSize: "13.5px", fontWeight: 600, cursor: newPostName.trim() ? "pointer" : "not-allowed"
-                  }}
-                >
-                  Save
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => { setIsAddingPost(false); setNewPostName(""); }}
-                  style={{
-                    padding: "10px 20px", background: "transparent", color: "var(--color-text-secondary)", border: "1px solid var(--color-border)", 
-                    borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600, cursor: "pointer"
-                  }}
-                >
-                  Cancel
-                </button>
-              </form>
-            )}
+
 
             {/* Posts Table */}
             <div style={{ background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)", overflow: "hidden" }}>
@@ -634,7 +1038,7 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
                 <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                   <thead>
                     <tr style={{ background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
-                      {["Post Name", "Status", "Assigned Officer", "Shift Time", "Created Date", ""].map(h => (
+                      {["Post Name", "Status", "Assigned Officer", "Shift Time", "Created Date"].map(h => (
                         <th key={h} style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
                       ))}
                     </tr>
@@ -709,26 +1113,7 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
                             </div>
                           </td>
                           <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-muted)" }}>{new Date(post.createdAt).toLocaleDateString()}</td>
-                          <td style={{ padding: "16px 24px", textAlign: "right" }}>
-                            <button
-                              onClick={() => openAssignModal(post.id)}
-                              style={{
-                                padding: "6px 12px",
-                                background: "var(--color-bg-subtle)",
-                                border: "1px solid var(--color-border)",
-                                borderRadius: "var(--radius-md)",
-                                fontSize: "12px",
-                                fontWeight: 600,
-                                color: "var(--color-text-primary)",
-                                cursor: "pointer",
-                                transition: "all var(--transition-fast)"
-                              }}
-                              onMouseEnter={e => { e.currentTarget.style.background = "var(--color-border)"; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                            >
-                              Assign Guard
-                            </button>
-                          </td>
+
                         </tr>
                       );
                     })}
@@ -740,106 +1125,47 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
         )}
 
       </div>
-      {/* Assign Guard Modal */}
-      {assignPostId && (
-        <div 
-          onClick={() => setAssignPostId(null)}
-          style={{ position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px" }}
-        >
-          <form 
-            onSubmit={handleAssignGuard}
-            className="glass-panel animate-fade-in" 
-            style={{ borderRadius: "var(--radius-xl)", boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "420px", display: "flex", flexDirection: "column", overflow: "hidden", padding: "24px", gap: "16px" }} 
-            onClick={e => e.stopPropagation()}
-          >
-            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Assign Guard to Post</h3>
+      {/* Add Post Popup Modal */}
+      {isAddingPost && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px"
+        }}>
+          <div style={{
+            background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)",
+            boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "480px",
+            display: "flex", flexDirection: "column", overflow: "hidden"
+          }}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                <Plus size={16} color="var(--color-accent)" /> Add Guard Post
+              </h2>
+              <button type="button" onClick={() => { setIsAddingPost(false); setNewPostName(""); }} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: "4px" }}>
+                <X size={20} />
+              </button>
+            </div>
             
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={labelStyle}>Select Personnel *</label>
-              <select 
-                required 
-                value={assignUserId} 
-                onChange={e => setAssignUserId(e.target.value)} 
-                style={inputStyle}
-              >
-                <option value="">Choose a guard...</option>
-                {site.users?.map((u: any) => (
-                  <option key={u.id} value={u.id}>
-                    {u.firstName} {u.lastName} ({u.role}){u.onLeave ? " - [ON LEAVE]" : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={labelStyle}>Day / Date *</label>
-              <input 
-                type="date" 
-                required 
-                value={selectedDate} 
-                onChange={e => setSelectedDate(e.target.value)} 
-                style={inputStyle} 
-              />
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={labelStyle}>Shift Type *</label>
-              <select 
-                required 
-                value={shiftPreset} 
-                onChange={e => setShiftPreset(e.target.value)} 
-                style={inputStyle}
-              >
-                <option value="morning">Morning Shift (06:00 - 14:00)</option>
-                <option value="afternoon">Afternoon Shift (14:00 - 22:00)</option>
-                <option value="night">Night Shift (22:00 - 06:00 next day)</option>
-                <option value="custom">Custom Times</option>
-              </select>
-            </div>
-
-            {shiftPreset === "custom" && (
-              <>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={labelStyle}>Start Time *</label>
-                  <input 
-                    type="datetime-local" 
-                    required 
-                    value={assignStartTime} 
-                    onChange={e => setAssignStartTime(e.target.value)} 
-                    style={inputStyle} 
+            <form onSubmit={handleAddPost} style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "12.5px", fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: "6px" }}>Post Name</label>
+                  <input
+                    required
+                    style={inputStyle}
+                    placeholder="E.g. Main Gate Entrance"
+                    value={newPostName}
+                    onChange={e => setNewPostName(e.target.value)}
+                    autoFocus
                   />
                 </div>
+              </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={labelStyle}>End Time *</label>
-                  <input 
-                    type="datetime-local" 
-                    required 
-                    value={assignEndTime} 
-                    onChange={e => setAssignEndTime(e.target.value)} 
-                    style={inputStyle} 
-                  />
-                </div>
-              </>
-            )}
-
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "12px" }}>
-              <button 
-                type="button" 
-                onClick={() => setAssignPostId(null)} 
-                style={{ padding: "8px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13.5px" }}
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit" 
-                disabled={isAssigning}
-                style={{ padding: "8px 16px", background: "var(--color-accent)", border: "none", color: "var(--color-accent-text)", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: isAssigning ? "not-allowed" : "pointer", fontSize: "13.5px" }}
-              >
-                {isAssigning ? "Assigning..." : "Assign"}
-              </button>
-            </div>
-          </form>
+              <div style={{ padding: "18px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+                <button type="button" onClick={() => { setIsAddingPost(false); setNewPostName(""); }} style={{ padding: "10px 20px", background: "transparent", color: "var(--color-text-primary)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "13.5px", fontWeight: 600 }}>Cancel</button>
+                <button type="submit" disabled={!newPostName.trim()} style={{ padding: "10px 20px", background: newPostName.trim() ? "var(--color-accent)" : "var(--color-accent-text)", color: newPostName.trim() ? "var(--color-accent-text)" : "var(--color-text-muted)", border: "none", borderRadius: "var(--radius-md)", cursor: newPostName.trim() ? "pointer" : "not-allowed", fontSize: "13.5px", fontWeight: 600 }}>Save Post</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

@@ -77,7 +77,18 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
       avatarUrl: true, phone: true,
       siteId: true, tenantId: true,
       lastActiveAt: true, createdAt: true,
-      tenant: { select: { name: true } },
+      tenant: { 
+        select: { 
+          name: true,
+          orgType: true,
+          registrationNumber: true,
+          physicalAddress: true,
+          countryRegion: true,
+          contactEmail: true,
+          contactPhone: true,
+          logoUrl: true
+        } 
+      },
     },
   });
   if (!user) throw new AppError("User not found", HttpStatus.NOT_FOUND);

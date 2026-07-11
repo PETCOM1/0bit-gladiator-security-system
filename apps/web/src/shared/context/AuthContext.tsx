@@ -21,7 +21,16 @@ export interface AuthUser {
   accountStatus: string;
   siteId?: string | null;
   tenantId?: string | null;
-  tenant?: { name: string } | null;
+  tenant?: { 
+    name: string;
+    orgType?: string | null;
+    registrationNumber?: string | null;
+    physicalAddress?: string | null;
+    countryRegion?: string | null;
+    contactEmail?: string | null;
+    contactPhone?: string | null;
+    logoUrl?: string | null;
+  } | null;
   createdAt?: string | null;
 }
 

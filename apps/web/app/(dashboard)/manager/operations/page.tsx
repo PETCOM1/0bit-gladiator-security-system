@@ -1,15 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import React, { useEffect, useState, useMemo, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import { 
-  FolderKanban, Users, Calendar, Contact, ShieldAlert, CheckCircle2, 
-  Search, Filter, Plus, X, Mail, User, Clock, Ban, MapPin, 
-  AlertTriangle, FileText, Eye, Shield, Edit2, Save, Building, Trash2
+  FolderKanban, Plus, X, MapPin, Edit2, Save, Building, Trash2, Search, Users, Activity, ArrowRight, ShieldAlert, Info
 } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
-import { exportIncidentReport } from "@/shared/utils/pdf";
-import { useAuth } from "@/shared/context/AuthContext";
 
 const inputStyle = {
   padding: "10px 14px",
@@ -24,146 +20,110 @@ const inputStyle = {
   boxSizing: "border-box" as const
 };
 
-const selectStyle = {
-  ...inputStyle,
-  appearance: "none" as const,
+const cardStyle = {
+  background: "var(--color-card-bg)",
+  border: "1px solid var(--color-border)",
+  borderRadius: "var(--radius-xl)",
+  boxShadow: "var(--color-card-shadow)",
+  padding: "24px",
+  display: "flex",
+  flexDirection: "column" as const,
+  gap: "16px",
+  position: "relative" as const,
+  transition: "transform var(--transition-base), border-color var(--transition-base)",
   cursor: "pointer"
-};
-
-const labelStyle = {
-  display: "block",
-  fontSize: "12px",
-  fontWeight: 600,
-  color: "var(--color-text-secondary)",
-  marginBottom: "6px",
-  textTransform: "uppercase" as const,
-  letterSpacing: "0.05em"
-};
-
-const filterByDuration = (createdAtString: string, duration: string) => {
-  if (duration === "ALL") return true;
-  const date = new Date(createdAtString);
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
-  if (duration === "TODAY") {
-    return date >= todayStart;
-  }
-  if (duration === "WEEK") {
-    const weekStart = new Date(todayStart.getTime() - todayStart.getDay() * 24 * 60 * 60 * 1000);
-    return date >= weekStart;
-  }
-  if (duration === "MONTH") {
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    return date >= monthStart;
-  }
-  if (duration === "YEAR") {
-    const yearStart = new Date(now.getFullYear(), 0, 1);
-    return date >= yearStart;
-  }
-  return true;
-};
-
-const filterVisitorByDuration = (checkInTimeString: string, duration: string) => {
-  if (duration === "ALL") return true;
-  const date = new Date(checkInTimeString);
-  const now = new Date();
-  
-  if (duration === "TODAY") {
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    return date >= todayStart;
-  }
-  if (duration === "7DAYS") {
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    return date >= sevenDaysAgo;
-  }
-  if (duration === "30DAYS") {
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    return date >= thirtyDaysAgo;
-  }
-  return true;
 };
 
 function OperationsContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab") || "personnel";
-  const { user } = useAuth();
-
-  // Data sets state
-  const [users, setUsers] = useState<any[]>([]);
   const [sites, setSites] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [shifts, setShifts] = useState<any[]>([]);
-  const [visitors, setVisitors] = useState<any[]>([]);
-  const [incidents, setIncidents] = useState<any[]>([]);
-  const [occurrences, setOccurrences] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Personnel Form State
-  const [isInviting, setIsInviting] = useState(false);
-  const [inviteForm, setInviteForm] = useState({
-    email: "", firstName: "", lastName: "", role: "GUARD" as "SITE_MANAGER" | "GUARD", siteId: ""
-  });
-
-  // Filters & Pagination States
-  const [searchTerm, setSearchTerm] = useState("");
-  const itemsPerPage = 10;
-
-  // Personnel Search
-  const [personnelSearch, setPersonnelSearch] = useState("");
-
-  // Shifts state
-  const [shiftSearch, setShiftSearch] = useState("");
-  const [shiftDuration, setShiftDuration] = useState("ALL");
-
-  // Visitors state
-  const [visitorSearch, setVisitorSearch] = useState("");
-  const [visitorDuration, setVisitorDuration] = useState("ALL");
-  const [visitorPage, setVisitorPage] = useState(1);
-
-  // Incidents state
-  const [incidentSearch, setIncidentSearch] = useState("");
-  const [incidentStatus, setIncidentStatus] = useState("ALL");
-
-  // Occurrence Book state
-  const [occurrenceSearch, setOccurrenceSearch] = useState("");
-  const [occurrenceCategory, setOccurrenceCategory] = useState("ALL");
-  const [occurrenceDuration, setOccurrenceDuration] = useState("ALL");
-  const [occurrencePage, setOccurrencePage] = useState(1);
-  
-  // Modals state
-  const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
-  const [zoomImage, setZoomImage] = useState<string | null>(null);
-
-  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
+  // Search & Filter state
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Site CRUD state
   const [isCreatingSite, setIsCreatingSite] = useState(false);
   const [editingSiteId, setEditingSiteId] = useState<string | null>(null);
   const [siteForm, setSiteForm] = useState({ name: "", address: "" });
 
+  // Site Manager assignment and reminder states
+  const [postponedReminders, setPostponedReminders] = useState<string[]>([]);
+  const [assigningSiteId, setAssigningSiteId] = useState<string | null>(null);
+  const [selectedManagerId, setSelectedManagerId] = useState("");
+  const [submittingManager, setSubmittingManager] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("postponedSiteReminders");
+      if (stored) {
+        try {
+          setPostponedReminders(JSON.parse(stored));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, []);
+
+  const handlePostponeReminder = (siteIds: string[]) => {
+    const updated = Array.from(new Set([...postponedReminders, ...siteIds]));
+    setPostponedReminders(updated);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("postponedSiteReminders", JSON.stringify(updated));
+    }
+  };
+
+  const handleAssignSiteManager = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assigningSiteId || !selectedManagerId) return;
+    setSubmittingManager(true);
+    try {
+      const selectedUser = users.find(u => u.id === selectedManagerId);
+      if (selectedUser) {
+        if (selectedUser.role !== "SITE_MANAGER") {
+          await managerService.updateUserRole(selectedManagerId, "SITE_MANAGER");
+        }
+        await managerService.assignUserToSite(selectedManagerId, assigningSiteId);
+      }
+      setAssigningSiteId(null);
+      setSelectedManagerId("");
+      loadData();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to assign Site Manager.");
+    } finally {
+      setSubmittingManager(false);
+    }
+  };
+
+  const unassignedSites = useMemo(() => {
+    return sites.filter(site => {
+      const hasManager = users.some(u => 
+        (u.assignedSiteId === site.id || u.assignedSite?.id === site.id) && 
+        u.role === "SITE_MANAGER"
+      );
+      return !hasManager;
+    });
+  }, [sites, users]);
+
+  const unassignedSitesForBanner = useMemo(() => {
+    return unassignedSites.filter(s => !postponedReminders.includes(s.id));
+  }, [unassignedSites, postponedReminders]);
+
   const loadData = async () => {
     setLoading(true);
     try {
-      const [userRes, siteRes, shiftRes, visitorRes, incidentRes, occurrenceRes] = await Promise.all([
+      const [userRes, siteRes, shiftRes] = await Promise.all([
         managerService.getTenantUsers(),
         managerService.getSites(),
-        managerService.getTenantShifts(),
-        managerService.getVisitors(),
-        managerService.getIncidents(),
-        managerService.getOccurrences()
+        managerService.getTenantShifts()
       ]);
-      const loadedSites = siteRes.data?.data?.sites || [];
       setUsers(userRes.data?.data?.users || []);
-      setSites(loadedSites);
+      setSites(siteRes.data?.data?.sites || []);
       setShifts(shiftRes.data?.data?.shifts || []);
-      setVisitors(visitorRes.data?.data?.visitors || []);
-      setIncidents(incidentRes.data?.data?.incidents || []);
-      setOccurrences(occurrenceRes.data?.data?.entries || []);
-      
-      if (loadedSites.length > 0 && !selectedSiteId) {
-        setSelectedSiteId(loadedSites[0].id);
-      }
     } catch (err) {
       console.error("Failed to load operations data", err);
     } finally {
@@ -175,11 +135,6 @@ function OperationsContent() {
     loadData();
   }, []);
 
-  const handleTabChange = (tabName: string) => {
-    router.push(`/manager/operations?tab=${tabName}`);
-  };
-
-  // Site CRUD Handlers
   const handleSaveSite = async (id?: string) => {
     if (!siteForm.name.trim()) { alert("Site name is required."); return; }
     try {
@@ -199,213 +154,37 @@ function OperationsContent() {
   };
 
   const handleDeleteSite = async (id: string) => {
-    if (!confirm("Are you sure you want to close this site? This cannot be undone.")) return;
+    if (!confirm("Are you sure you want to delete this site? This action cannot be undone.")) return;
     try {
       await managerService.deleteSite(id);
-      if (selectedSiteId === id) setSelectedSiteId(sites.find(s => s.id !== id)?.id || null);
       loadData();
     } catch (err) {
       console.error(err);
-      alert("Failed to close site.");
+      alert("Failed to delete site.");
     }
   };
 
-  // Personnel Handlers
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await managerService.inviteUser(inviteForm);
-      setIsInviting(false);
-      setInviteForm({ email: "", firstName: "", lastName: "", role: "GUARD", siteId: "" });
-      loadData();
-      alert("Invitation sent successfully!");
-    } catch (err: any) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to send invitation.");
-    }
-  };
-
-  const handleRoleChange = async (userId: string, newRole: string) => {
-    if (!confirm(`Change this user's role to ${newRole}?`)) return;
-    try {
-      await managerService.updateUserRole(userId, newRole);
-      loadData();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update role.");
-    }
-  };
-
-  const handleSiteChange = async (userId: string, newSiteId: string) => {
-    try {
-      await managerService.assignUserToSite(userId, newSiteId);
-      loadData();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to reassign site.");
-    }
-  };
-
-  const handleToggleStatus = async (user: any) => {
-    const action = user.accountStatus === "ACTIVE" ? "suspend" : "activate";
-    try {
-      await managerService.disableUser(user.id);
-      loadData();
-    } catch (err) {
-      console.error(err);
-      alert(`Failed to ${action} user.`);
-    }
-  };
-
-  // Incident status change handler
-  const handleIncidentStatusChange = async (id: string, newStatus: string) => {
-    try {
-      await managerService.updateIncidentStatus(id, { status: newStatus });
-      loadData();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update status.");
-    }
-  };
-
-  // Filtered lists
-  const filteredUsers = users
-    .filter(u => !selectedSiteId || u.assignedSiteId === selectedSiteId || u.assignedSite?.id === selectedSiteId)
-    .filter(u => 
-      `${u.firstName} ${u.lastName}`.toLowerCase().includes(personnelSearch.toLowerCase()) ||
-      u.email.toLowerCase().includes(personnelSearch.toLowerCase()) ||
-      u.role.toLowerCase().includes(personnelSearch.toLowerCase())
-    );
-
-  const filteredShifts = shifts
-    .filter(s => !selectedSiteId || s.siteId === selectedSiteId || s.site?.id === selectedSiteId)
-    .filter(s => {
-      const matchesSearch = 
-        (s.user && `${s.user.firstName} ${s.user.lastName}`.toLowerCase().includes(shiftSearch.toLowerCase())) ||
-        (s.site && s.site.name.toLowerCase().includes(shiftSearch.toLowerCase())) ||
-        (s.post && s.post.name.toLowerCase().includes(shiftSearch.toLowerCase()));
-      const matchesDuration = filterByDuration(s.startTime, shiftDuration);
-      return matchesSearch && matchesDuration;
-    });
-
-  const filteredVisitors = visitors
-    .filter(v => !selectedSiteId || v.siteId === selectedSiteId || v.site?.id === selectedSiteId)
-    .filter(v => {
-      const matchesSearch = 
-        v.name.toLowerCase().includes(visitorSearch.toLowerCase()) ||
-        (v.idNumber && v.idNumber.toLowerCase().includes(visitorSearch.toLowerCase())) ||
-        (v.vehicleReg && v.vehicleReg.toLowerCase().includes(visitorSearch.toLowerCase())) ||
-        (v.purpose && v.purpose.toLowerCase().includes(visitorSearch.toLowerCase())) ||
-        (v.site?.name && v.site.name.toLowerCase().includes(visitorSearch.toLowerCase()));
-      const matchesDuration = filterVisitorByDuration(v.checkInTime, visitorDuration);
-      return matchesSearch && matchesDuration;
-    });
-
-  const visitorTotalPages = Math.ceil(filteredVisitors.length / itemsPerPage) || 1;
-  const paginatedVisitors = filteredVisitors.slice((visitorPage - 1) * itemsPerPage, visitorPage * itemsPerPage);
-
-  useEffect(() => {
-    setVisitorPage(1);
-  }, [visitorSearch, visitorDuration]);
-
-  const filteredIncidents = incidents
-    .filter(inc => !selectedSiteId || inc.siteId === selectedSiteId || inc.site?.id === selectedSiteId)
-    .filter(inc => {
-      const matchesSearch = 
-        inc.title.toLowerCase().includes(incidentSearch.toLowerCase()) ||
-        inc.description.toLowerCase().includes(incidentSearch.toLowerCase()) ||
-        (inc.site?.name && inc.site.name.toLowerCase().includes(incidentSearch.toLowerCase())) ||
-        (inc.reportedBy && `${inc.reportedBy.firstName} ${inc.reportedBy.lastName}`.toLowerCase().includes(incidentSearch.toLowerCase()));
-      const matchesStatus = incidentStatus === "ALL" || inc.status === incidentStatus;
-      return matchesSearch && matchesStatus;
-    });
-
-  const filteredOccurrences = occurrences
-    .filter(entry => !selectedSiteId || entry.siteId === selectedSiteId || entry.site?.id === selectedSiteId)
-    .filter(entry => {
-      const matchesSearch = 
-        entry.entryText.toLowerCase().includes(occurrenceSearch.toLowerCase()) ||
-        (entry.location && entry.location.toLowerCase().includes(occurrenceSearch.toLowerCase())) ||
-        (entry.user && `${entry.user.firstName} ${entry.user.lastName}`.toLowerCase().includes(occurrenceSearch.toLowerCase())) ||
-        (entry.site?.name && entry.site.name.toLowerCase().includes(occurrenceSearch.toLowerCase()));
-      const matchesCategory = occurrenceCategory === "ALL" || entry.category === occurrenceCategory;
-      const matchesDuration = filterByDuration(entry.createdAt, occurrenceDuration);
-      return matchesSearch && matchesCategory && matchesDuration;
-    });
-
-  const occurrenceTotalPages = Math.ceil(filteredOccurrences.length / itemsPerPage) || 1;
-  const paginatedOccurrences = filteredOccurrences.slice((occurrencePage - 1) * itemsPerPage, occurrencePage * itemsPerPage);
-
-  useEffect(() => {
-    setOccurrencePage(1);
-  }, [occurrenceSearch, occurrenceCategory, occurrenceDuration]);
-
-  // Style helpers
-  const tabButtonStyle = (isActive: boolean) => ({
-    padding: "12px 20px",
-    background: "transparent",
-    border: "none",
-    borderBottom: isActive ? "2px solid var(--color-accent)" : "2px solid transparent",
-    color: isActive ? "var(--color-text-primary)" : "var(--color-text-muted)",
-    fontWeight: isActive ? 700 : 500,
-    fontSize: "14px",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    transition: "all var(--transition-fast)"
-  });
-
-  const getShiftStatusStyle = (status: string) => {
-    switch (status) {
-      case "COMPLETED": return { bg: "var(--color-success-subtle)", color: "var(--color-success)", icon: <CheckCircle2 size={12} /> };
-      case "IN_PROGRESS": return { bg: "var(--color-accent-subtle)", color: "var(--color-accent)", icon: <Clock size={12} /> };
-      case "SCHEDULED": return { bg: "var(--color-warning-subtle)", color: "var(--color-warning)", icon: <Calendar size={12} /> };
-      default: return { bg: "var(--color-bg-subtle)", color: "var(--color-text-muted)", icon: <Ban size={12} /> };
-    }
-  };
-
-  const getSeverityStyle = (severity: string) => {
-    switch (severity?.toUpperCase()) {
-      case "CRITICAL": return { bg: "var(--color-danger-subtle)", color: "var(--color-danger)" };
-      case "HIGH": return { bg: "var(--color-warning-subtle)", color: "var(--color-warning)" };
-      case "MEDIUM": return { bg: "var(--color-accent-subtle)", color: "var(--color-accent)" };
-      default: return { bg: "var(--color-success-subtle)", color: "var(--color-success)" };
-    }
-  };
-
-  const getOccurrenceCategoryStyle = (cat: string) => {
-    switch (cat?.toUpperCase()) {
-      case "EMERGENCY": return { bg: "var(--color-danger)", text: "#fff" };
-      case "INCIDENT": return { bg: "var(--color-warning)", text: "#000" };
-      case "HANDOVER": return { bg: "var(--color-info-subtle)", text: "var(--color-info)" };
-      default: return { bg: "var(--color-bg-subtle)", text: "var(--color-text-secondary)" };
-    }
-  };
-
-  const selectedSite = sites.find(s => s.id === selectedSiteId);
-  const siteInputStyle = {
-    width: "100%", padding: "7px 10px", background: "var(--color-bg-subtle)",
-    border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)",
-    fontSize: "12.5px", color: "var(--color-text-primary)", outline: "none"
-  };
+  // Filtered sites based on search query
+  const filteredSites = sites.filter(site => 
+    site.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (site.address && site.address.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0px", width: "100%" }}>
-
-      {/* Page Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
         <div>
-          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px", margin: 0 }}>
-            <FolderKanban size={24} color="var(--color-accent)" /> Sites &amp; Operations
+          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
+            <FolderKanban size={24} color="var(--color-accent)" /> Monitored Sites &amp; Operations
           </h1>
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "6px" }}>
-            Select a site to manage its personnel, shifts, visitors, incidents &amp; occurrences.
+            Select any site card below to view live telemetry, manage schedules, and check Occurrence Book logs.
           </p>
         </div>
         <button
           onClick={() => { setIsCreatingSite(true); setSiteForm({ name: "", address: "" }); }}
-          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", background: "var(--color-accent)", border: "none", borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600, color: "var(--color-accent-text)", cursor: "pointer", boxShadow: "0 4px 12px rgba(245,158,11,0.25)", flexShrink: 0 }}
+          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", background: "var(--color-accent)", border: "none", borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600, color: "var(--color-accent-text)", cursor: "pointer", boxShadow: "0 4px 12px rgba(245,158,11,0.25)" }}
           onMouseEnter={e => (e.currentTarget.style.opacity = "0.9")}
           onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
         >
@@ -413,813 +192,245 @@ function OperationsContent() {
         </button>
       </div>
 
-      {/* Two-Column Split Layout */}
-      <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", width: "100%" }}>
+      {/* Search Bar */}
+      <div style={{ display: "flex", position: "relative", width: "100%", maxWidth: "480px" }}>
+        <input
+          style={{ ...inputStyle, paddingLeft: "40px" }}
+          placeholder="Search sites by name or address..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+        />
+        <Search size={18} color="var(--color-text-muted)" style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)" }} />
+      </div>
 
-        {/* LEFT: Site List Panel */}
-        <div style={{ width: "260px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "6px", position: "sticky", top: "80px" }}>
-          <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px", paddingLeft: "4px" }}>Sites</div>
-
-          {loading ? (
-            <div style={{ padding: "20px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px" }}>Loading...</div>
-          ) : sites.length === 0 ? (
-            <div style={{ padding: "20px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", background: "var(--color-card-bg)", borderRadius: "var(--radius-lg)", border: "1px dashed var(--color-border)" }}>
-              No sites yet. Click &#34;Add Site&#34; to create your first.
+      {/* Gentle Banner reminder for unassigned Site Managers */}
+      {unassignedSitesForBanner.length > 0 && (
+        <div style={{
+          background: "rgba(245, 158, 11, 0.04)",
+          border: "1px solid rgba(245, 158, 11, 0.15)",
+          borderRadius: "var(--radius-xl)",
+          padding: "16px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "16px",
+          boxShadow: "var(--color-card-shadow)",
+          flexWrap: "wrap",
+          boxSizing: "border-box"
+        }}>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center", minWidth: 0, flex: 1 }}>
+            <div style={{
+              width: "36px", height: "36px", borderRadius: "50%",
+              background: "rgba(245, 158, 11, 0.08)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "var(--color-accent)", flexShrink: 0
+            }}>
+              <ShieldAlert size={18} />
             </div>
-          ) : (
-            sites.map(site => {
-              const isSelected = selectedSiteId === site.id;
-              const isEditing = editingSiteId === site.id;
-              const siteUsersCount = users.filter(u => u.assignedSiteId === site.id || u.assignedSite?.id === site.id).length;
-              const activeShiftsCount = shifts.filter(s => (s.siteId === site.id) && s.status === "IN_PROGRESS").length;
-
-              return (
-                <div
-                  key={site.id}
-                  style={{
-                    background: isSelected ? "var(--color-accent-subtle)" : "var(--color-card-bg)",
-                    border: `1px solid ${isSelected ? "var(--color-accent)" : "var(--color-border)"}`,
-                    borderRadius: "var(--radius-lg)",
-                    padding: "12px 14px",
-                    cursor: isEditing ? "default" : "pointer",
-                    transition: "all var(--transition-fast)",
-                    boxShadow: isSelected ? "0 2px 12px rgba(245,158,11,0.12)" : "none"
-                  }}
-                  onClick={() => { if (!isEditing) setSelectedSiteId(site.id); }}
-                  onMouseEnter={e => { if (!isSelected && !isEditing) e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                  onMouseLeave={e => { if (!isSelected && !isEditing) e.currentTarget.style.background = "var(--color-card-bg)"; }}
-                >
-                  {isEditing ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }} onClick={e => e.stopPropagation()}>
-                      <input
-                        style={siteInputStyle} value={siteForm.name} autoFocus
-                        placeholder="Site name" onChange={e => setSiteForm({ ...siteForm, name: e.target.value })}
-                      />
-                      <input
-                        style={siteInputStyle} value={siteForm.address}
-                        placeholder="Address" onChange={e => setSiteForm({ ...siteForm, address: e.target.value })}
-                      />
-                      <div style={{ display: "flex", gap: "6px", marginTop: "4px" }}>
-                        <button
-                          onClick={() => handleSaveSite(site.id)}
-                          style={{ flex: 1, padding: "6px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}
-                        >
-                          <Save size={12} /> Save
-                        </button>
-                        <button
-                          onClick={() => { setEditingSiteId(null); setSiteForm({ name: "", address: "" }); }}
-                          style={{ padding: "6px 10px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "12px", color: "var(--color-text-secondary)" }}
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "6px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, minWidth: 0 }}>
-                          <Building size={14} color={isSelected ? "var(--color-accent)" : "var(--color-text-muted)"} style={{ flexShrink: 0 }} />
-                          <span style={{ fontWeight: 700, fontSize: "13.5px", color: isSelected ? "var(--color-accent)" : "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{site.name}</span>
-                        </div>
-                        <div style={{ display: "flex", gap: "4px", flexShrink: 0 }}>
-                          <button
-                            onClick={e => { e.stopPropagation(); setEditingSiteId(site.id); setSiteForm({ name: site.name, address: site.address || "" }); }}
-                            title="Edit site"
-                            style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: "2px", display: "flex" }}
-                          ><Edit2 size={12} /></button>
-                          <button
-                            onClick={e => { e.stopPropagation(); handleDeleteSite(site.id); }}
-                            title="Delete site"
-                            style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--color-danger)", padding: "2px", display: "flex" }}
-                          ><Trash2 size={12} /></button>
-                        </div>
-                      </div>
-                      <div style={{ fontSize: "11.5px", color: "var(--color-text-muted)", marginTop: "6px", display: "flex", gap: "10px" }}>
-                        <span>{siteUsersCount} guards</span>
-                        {activeShiftsCount > 0 && <span style={{ color: "var(--color-success)", fontWeight: 700 }}>● {activeShiftsCount} live</span>}
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* RIGHT: Operations Workspace */}
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "20px" }}>
-          {!selectedSite ? (
-            <div style={{ flex: 1, background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", padding: "60px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", minHeight: "400px", boxShadow: "var(--color-card-shadow)" }}>
-              <MapPin size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
-              <p style={{ fontSize: "15px", fontWeight: 600, margin: "0 0 6px 0" }}>No site selected</p>
-              <p style={{ fontSize: "13px", margin: 0 }}>Choose a site from the left panel to manage its operations.</p>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>
+                Site Manager Assignment Recommended
+              </div>
+              <div style={{ fontSize: "12.5px", color: "var(--color-text-secondary)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {unassignedSitesForBanner.length === 1 
+                  ? `"${unassignedSitesForBanner[0].name}" has no designated Site Manager assigned to oversee day-to-day operations.`
+                  : `You have ${unassignedSitesForBanner.length} sites without designated Site Managers.`
+                }
+              </div>
             </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-
-          {/* Tab Navigation Menu */}
-          <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)", gap: "8px", overflowX: "auto" }}>
-            <button onClick={() => handleTabChange("personnel")} style={tabButtonStyle(activeTab === "personnel")}>
-              <Users size={16} /> Site Officers
+          </div>
+          <div style={{ display: "flex", gap: "10px", flexShrink: 0 }}>
+            <button 
+              onClick={() => {
+                setAssigningSiteId(unassignedSitesForBanner[0].id);
+                setSelectedManagerId("");
+              }}
+              style={{
+                padding: "8px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)",
+                border: "none", borderRadius: "var(--radius-md)", fontSize: "12.5px", fontWeight: 600,
+                cursor: "pointer", transition: "opacity var(--transition-fast)"
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = "0.9"}
+              onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+            >
+              Assign Site Manager
             </button>
-            <button onClick={() => handleTabChange("shifts")} style={tabButtonStyle(activeTab === "shifts")}>
-              <Calendar size={16} /> Shifts & Attendance
-            </button>
-            <button onClick={() => handleTabChange("visitors")} style={tabButtonStyle(activeTab === "visitors")}>
-              <Contact size={16} /> Visitor Logs
-            </button>
-            <button onClick={() => handleTabChange("incidents")} style={tabButtonStyle(activeTab === "incidents")}>
-              <ShieldAlert size={16} /> Incidents
-            </button>
-            <button onClick={() => handleTabChange("occurrence")} style={tabButtonStyle(activeTab === "occurrence")}>
-              <CheckCircle2 size={16} /> Occurrence Book
+            <button 
+              onClick={() => handlePostponeReminder(unassignedSitesForBanner.map(s => s.id))}
+              style={{
+                padding: "8px 16px", background: "var(--color-bg-subtle)", color: "var(--color-text-secondary)",
+                border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "12.5px",
+                fontWeight: 600, cursor: "pointer", transition: "background var(--transition-fast)"
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--color-border)"}
+              onMouseLeave={e => e.currentTarget.style.background = "var(--color-bg-subtle)"}
+            >
+              Remind Me Later
             </button>
           </div>
+        </div>
+      )}
 
-          {/* Main Tabs Container */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      {/* Sites Grid */}
+      {loading ? (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", padding: "80px", color: "var(--color-text-muted)" }}>
+          <div style={{ width: "16px", height: "16px", border: "2px solid var(--color-border)", borderTopColor: "var(--color-accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <span style={{ fontSize: "14px" }}>Loading monitored sites...</span>
+        </div>
+      ) : filteredSites.length === 0 ? (
+        <div style={{ padding: "80px 40px", background: "var(--color-card-bg)", border: "1px dashed var(--color-border)", borderRadius: "var(--radius-xl)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+          <Building size={48} style={{ opacity: 0.15, color: "var(--color-text-primary)" }} />
+          <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>No sites found</h3>
+          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", margin: 0, maxWidth: "340px" }}>
+            {searchQuery ? "No sites match your search term. Try adjusting your query." : "You have not set up any sites yet. Click 'Add Site' above to create one."}
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
+          {filteredSites.map(site => {
+            const isEditing = editingSiteId === site.id;
+            const siteUsersCount = users.filter(u => u.assignedSiteId === site.id || u.assignedSite?.id === site.id).length;
+            const activeShiftsCount = shifts.filter(s => s.siteId === site.id && s.status === "IN_PROGRESS").length;
+            const hasSiteManager = users.some(u => 
+              (u.assignedSiteId === site.id || u.assignedSite?.id === site.id) && 
+              u.role === "SITE_MANAGER"
+            );
 
-            {/* TAB 1: PERSONNEL MANAGEMENT */}
-            {activeTab === "personnel" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-              <div style={{ position: "relative" }}>
-                <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
-                <input 
-                  type="text" 
-                  placeholder="Search personnel..." 
-                  value={personnelSearch} 
-                  onChange={e => setPersonnelSearch(e.target.value)}
-                  style={{ ...inputStyle, paddingLeft: "32px", width: "240px", padding: "8px 12px 8px 32px" }} 
-                />
-              </div>
-              <button
-                onClick={() => setIsInviting(true)}
-                style={{ 
-                  display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", 
-                  background: "var(--color-accent)", border: "none", borderRadius: "var(--radius-md)", 
-                  fontSize: "13.5px", fontWeight: 600, color: "var(--color-accent-text)", cursor: "pointer", 
-                  transition: "opacity var(--transition-fast)" 
+            return (
+              <div
+                key={site.id}
+                style={{
+                  ...cardStyle,
+                  borderColor: isEditing ? "var(--color-accent)" : "var(--color-border)",
+                }}
+                onMouseEnter={e => {
+                  if (!isEditing) {
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.borderColor = "var(--color-accent)";
+                    e.currentTarget.style.boxShadow = "0 8px 30px rgba(0, 0, 0, 0.08)";
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isEditing) {
+                    e.currentTarget.style.transform = "none";
+                    e.currentTarget.style.borderColor = "var(--color-border)";
+                    e.currentTarget.style.boxShadow = "var(--color-card-shadow)";
+                  }
+                }}
+                onClick={() => {
+                  if (!isEditing) router.push(`/manager/sites/${site.id}`);
                 }}
               >
-                <Plus size={16} /> Invite Personnel
-              </button>
-            </div>
-
-            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Personnel</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Role</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Assigned Site</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Status</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading personnel...</td></tr>
-                    ) : filteredUsers.length === 0 ? (
-                      <tr><td colSpan={5} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No personnel found.</td></tr>
-                    ) : filteredUsers.map((user, i) => (
-                      <tr 
-                        key={user.id} 
-                        style={{ borderBottom: i < filteredUsers.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
-                        onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                {isEditing ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }} onClick={e => e.stopPropagation()}>
+                    <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Edit Site</h3>
+                    <input
+                      style={inputStyle} value={siteForm.name} autoFocus
+                      placeholder="Site name" onChange={e => setSiteForm({ ...siteForm, name: e.target.value })}
+                    />
+                    <input
+                      style={inputStyle} value={siteForm.address}
+                      placeholder="Address" onChange={e => setSiteForm({ ...siteForm, address: e.target.value })}
+                    />
+                    <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                      <button
+                        onClick={() => handleSaveSite(site.id)}
+                        style={{ flex: 1, padding: "8px 14px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "13px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
                       >
-                        <td style={{ padding: "16px 24px" }}>
-                          <div style={{ fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px" }}>{user.firstName} {user.lastName}</div>
-                          <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "2px" }}>{user.email}</div>
-                        </td>
-                        <td style={{ padding: "16px 24px" }}>
-                          <select 
-                            value={user.role} 
-                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                            style={{ padding: "4px 8px", fontSize: "12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", fontWeight: 600, color: "var(--color-text-primary)", cursor: "pointer" }}
-                          >
-                            <option value="SITE_MANAGER">Site Manager</option>
-                            <option value="GUARD">Security Officer</option>
-                          </select>
-                        </td>
-                        <td style={{ padding: "16px 24px" }}>
-                          <select 
-                            value={user.site?.id || ""} 
-                            onChange={(e) => handleSiteChange(user.id, e.target.value)}
-                            style={{ padding: "4px 8px", fontSize: "12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", color: "var(--color-text-secondary)", cursor: "pointer" }}
-                          >
-                            <option value="" disabled>No Site</option>
-                            {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                          </select>
-                        </td>
-                        <td style={{ padding: "16px 24px" }}>
-                          <span style={{ 
-                            padding: "4px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: 700,
-                            background: user.accountStatus === "ACTIVE" ? "var(--color-success-subtle)" : 
-                                       user.accountStatus === "PENDING" ? "var(--color-warning-subtle)" : "var(--color-danger-subtle)",
-                            color: user.accountStatus === "ACTIVE" ? "var(--color-success)" : 
-                                   user.accountStatus === "PENDING" ? "var(--color-warning)" : "var(--color-danger)"
-                          }}>
-                            {user.accountStatus}
-                          </span>
-                        </td>
-                        <td style={{ padding: "16px 24px" }}>
-                          <button 
-                            onClick={() => handleToggleStatus(user)}
-                            style={{ 
-                              padding: "6px 12px", background: "transparent", 
-                              border: `1px solid ${user.accountStatus === "ACTIVE" ? "var(--color-danger)" : "var(--color-success)"}`, 
-                              borderRadius: "var(--radius-md)", fontSize: "12px", fontWeight: 600, 
-                              color: user.accountStatus === "ACTIVE" ? "var(--color-danger)" : "var(--color-success)", 
-                              cursor: "pointer"
-                            }}
-                          >
-                            {user.accountStatus === "ACTIVE" ? "Suspend" : "Activate"}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Invite Modal */}
-            {isInviting && (
-              <div style={{
-                position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", zIndex: 1000, padding: "24px",
-                display: "flex", alignItems: "center", justifyContent: "center"
-              }}>
-                <div style={{
-                  background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)",
-                  boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "500px", display: "flex", flexDirection: "column"
-                }}>
-                  <div style={{ padding: "24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <h2 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
-                      <Mail size={18} color="var(--color-accent)" /> Send Invitation
-                    </h2>
-                    <button type="button" onClick={() => setIsInviting(false)} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer" }}>
-                      <X size={20} />
-                    </button>
+                        <Save size={14} /> Save
+                      </button>
+                      <button
+                        onClick={() => { setEditingSiteId(null); setSiteForm({ name: "", address: "" }); }}
+                        style={{ padding: "8px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "13px", color: "var(--color-text-secondary)" }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                  <form onSubmit={handleInvite}>
-                    <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                        <div>
-                          <label style={labelStyle}>First Name</label>
-                          <input required style={inputStyle} placeholder="First Name" value={inviteForm.firstName} onChange={e => setInviteForm({...inviteForm, firstName: e.target.value})} autoFocus />
-                        </div>
-                        <div>
-                          <label style={labelStyle}>Last Name</label>
-                          <input required style={inputStyle} placeholder="Last Name" value={inviteForm.lastName} onChange={e => setInviteForm({...inviteForm, lastName: e.target.value})} />
-                        </div>
+                ) : (
+                  <>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}>
+                        <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={site.name}>
+                          {site.name}
+                        </h3>
+                        <span style={{ fontSize: "13px", color: "var(--color-text-muted)", display: "flex", alignItems: "center", gap: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          <MapPin size={13} style={{ flexShrink: 0 }} /> {site.address || "No address provided"}
+                        </span>
                       </div>
-                      <div>
-                        <label style={labelStyle}>Email Address</label>
-                        <input required type="email" style={inputStyle} placeholder="Email Address" value={inviteForm.email} onChange={e => setInviteForm({...inviteForm, email: e.target.value})} />
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                        <div>
-                          <label style={labelStyle}>Role</label>
-                          <select required style={selectStyle} value={inviteForm.role} onChange={e => setInviteForm({...inviteForm, role: e.target.value as any})}>
-                            <option value="GUARD">Security Officer (Guard)</option>
-                            <option value="SITE_MANAGER">Site Manager</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label style={labelStyle}>Assign to Site</label>
-                          <select required style={selectStyle} value={inviteForm.siteId} onChange={e => setInviteForm({...inviteForm, siteId: e.target.value})}>
-                            <option value="" disabled>Assign to Site...</option>
-                            {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                          </select>
-                        </div>
+                      <div style={{ display: "flex", gap: "4px", flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                        <button
+                          onClick={() => { setEditingSiteId(site.id); setSiteForm({ name: site.name, address: site.address || "" }); }}
+                          title="Edit site"
+                          style={{ background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", cursor: "pointer", color: "var(--color-text-secondary)", padding: "6px", borderRadius: "var(--radius-md)", display: "flex" }}
+                        ><Edit2 size={13} /></button>
+                        <button
+                          onClick={() => handleDeleteSite(site.id)}
+                          title="Delete site"
+                          style={{ background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.15)", cursor: "pointer", color: "var(--color-danger)", padding: "6px", borderRadius: "var(--radius-md)", display: "flex" }}
+                        ><Trash2 size={13} /></button>
                       </div>
                     </div>
-                    <div style={{ padding: "20px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
-                      <button type="button" onClick={() => setIsInviting(false)} style={{ padding: "10px 20px", background: "transparent", color: "var(--color-text-primary)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "14px", fontWeight: 600 }}>Cancel</button>
-                      <button type="submit" style={{ padding: "10px 20px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "14px", fontWeight: 600 }}>Send Invite</button>
+
+                    <div style={{ display: "flex", gap: "16px", borderTop: "1px solid var(--color-border)", paddingTop: "14px", marginTop: "4px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                        <Users size={15} color="var(--color-text-muted)" />
+                        <span><strong>{siteUsersCount}</strong> Assigned</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: activeShiftsCount > 0 ? "var(--color-success)" : "var(--color-text-secondary)" }}>
+                        <Activity size={15} color={activeShiftsCount > 0 ? "var(--color-success)" : "var(--color-text-muted)"} className={activeShiftsCount > 0 ? "animate-pulse" : ""} />
+                        <span><strong>{activeShiftsCount}</strong> On-Duty</span>
+                      </div>
                     </div>
-                  </form>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* TAB 2: SHIFTS & ATTENDANCE */}
-        {activeTab === "shifts" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-              <div style={{ position: "relative" }}>
-                <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
-                <input 
-                  type="text" 
-                  placeholder="Search shifts (name, site, post)..." 
-                  value={shiftSearch} 
-                  onChange={e => setShiftSearch(e.target.value)}
-                  style={{ ...inputStyle, paddingLeft: "32px", width: "260px", padding: "8px 12px 8px 32px" }} 
-                />
-              </div>
-
-              <select 
-                value={shiftDuration} 
-                onChange={e => setShiftDuration(e.target.value)} 
-                style={{ ...selectStyle, width: "160px", padding: "8px 12px 8px 14px" }}
-              >
-                <option value="ALL">All Time</option>
-                <option value="TODAY">Today</option>
-                <option value="WEEK">This Week</option>
-                <option value="MONTH">This Month</option>
-                <option value="YEAR">This Year</option>
-              </select>
-            </div>
-
-            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Date</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Personnel</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Location</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Times</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading shifts...</td></tr>
-                    ) : filteredShifts.length === 0 ? (
-                      <tr><td colSpan={5} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No shifts found.</td></tr>
-                    ) : filteredShifts.map((s, i) => {
-                      const style = getShiftStatusStyle(s.status);
-                      return (
-                        <tr 
-                          key={s.id} 
-                          style={{ borderBottom: i < filteredShifts.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
-                        >
-                          <td style={{ padding: "16px 24px", fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px" }}>
-                            {new Date(s.startTime).toLocaleDateString()}
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <div style={{ fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
-                              <User size={14} /> {s.user?.firstName} {s.user?.lastName}
-                            </div>
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                              <MapPin size={14} color="var(--color-accent)" /> {s.post?.name || s.site?.name || "Unassigned"}
-                            </div>
-                          </td>
-                          <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                            <div style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>Start: {new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                            <div style={{ color: "var(--color-text-muted)", marginTop: "4px" }}>End: {s.endTime ? new Date(s.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--"}</div>
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: 700, background: style.bg, color: style.color }}>
-                              {style.icon} {s.status.replace("_", " ")}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: VISITOR LOGS */}
-        {activeTab === "visitors" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              
-              {/* Filter Header */}
-              <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <Filter size={16} color="var(--color-accent)" />
-                  <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Filter Visitors</h3>
-                </div>
-                
-                <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-                  <div style={{ position: "relative" }}>
-                    <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
-                    <input 
-                      type="text" 
-                      placeholder="Search visitor, ID, license..." 
-                      value={visitorSearch} 
-                      onChange={e => setVisitorSearch(e.target.value)}
-                      style={{ ...inputStyle, paddingLeft: "32px", width: "240px", padding: "8px 12px 8px 32px" }} 
-                    />
-                  </div>
-
-                  <select 
-                    value={visitorDuration} 
-                    onChange={e => setVisitorDuration(e.target.value)} 
-                    style={{ ...selectStyle, width: "160px", padding: "8px 12px 8px 14px" }}
-                  >
-                    <option value="ALL">All Time</option>
-                    <option value="TODAY">Today</option>
-                    <option value="7DAYS">Last 7 Days</option>
-                    <option value="30DAYS">Last 30 Days</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Table */}
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Visitor Name</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "140px" }}>SA ID Number</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "120px" }}>Vehicle Reg</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Purpose / Visiting</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Location & Guard</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "160px" }}>Check In</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "160px" }}>Check Out</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "110px" }}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      <tr><td colSpan={8} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading visitors...</td></tr>
-                    ) : paginatedVisitors.length === 0 ? (
-                      <tr><td colSpan={8} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No visitors recorded.</td></tr>
-                    ) : paginatedVisitors.map((v, i) => (
-                      <tr 
-                        key={v.id} 
-                        style={{ borderBottom: i < paginatedVisitors.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
-                        onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                    {!hasSiteManager && (
+                      <div 
+                        style={{
+                          background: "rgba(245, 158, 11, 0.03)",
+                          border: "1px solid rgba(245, 158, 11, 0.15)",
+                          borderRadius: "var(--radius-lg)",
+                          padding: "10px 14px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: "8px",
+                          marginTop: "4px",
+                          boxSizing: "border-box"
+                        }}
+                        onClick={e => e.stopPropagation()}
                       >
-                        <td style={{ padding: "16px 24px", fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px" }}>
-                          {v.name}
-                          {v.company && <div style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }}>Co: {v.company}</div>}
-                        </td>
-                        <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-primary)" }}>
-                          {v.idNumber || <span style={{ color: "var(--color-text-muted)" }}>—</span>}
-                        </td>
-                        <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-primary)", fontWeight: 500 }}>
-                          {v.vehicleReg || <span style={{ color: "var(--color-text-muted)" }}>—</span>}
-                        </td>
-                        <td style={{ padding: "16px 24px", fontSize: "13px" }}>
-                          <div style={{ color: "var(--color-text-primary)" }}>{v.purpose || "No reason given"}</div>
-                          {v.personVisiting && <div style={{ fontSize: "11px", color: "var(--color-text-secondary)", marginTop: "4px" }}>Visiting: {v.personVisiting}</div>}
-                        </td>
-                        <td style={{ padding: "16px 24px", fontSize: "13px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "var(--color-text-primary)" }}>
-                            <MapPin size={13} color="var(--color-accent)" /> {v.site?.name || "Unknown Site"}
-                          </div>
-                          {v.loggedBy && (
-                            <div style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-                              Guard: {v.loggedBy.firstName} {v.loggedBy.lastName}
-                            </div>
-                          )}
-                        </td>
-                        <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                          {new Date(v.checkInTime).toLocaleString()}
-                        </td>
-                        <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                          {v.checkOutTime ? new Date(v.checkOutTime).toLocaleString() : <span style={{ color: "var(--color-text-muted)" }}>—</span>}
-                        </td>
-                        <td style={{ padding: "16px 24px" }}>
-                          <span style={{ 
-                            display: "inline-flex", 
-                            alignItems: "center", 
-                            padding: "3px 8px", 
-                            borderRadius: "12px", 
-                            fontSize: "10.5px", 
-                            fontWeight: 700, 
-                            background: v.status === "CHECKED_IN" ? "var(--color-success-subtle)" : "var(--color-bg-subtle)", 
-                            color: v.status === "CHECKED_IN" ? "var(--color-success)" : "var(--color-text-secondary)"
-                          }}>
-                            {v.status === "CHECKED_IN" ? "ON SITE" : "DEPARTED"}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              <div style={{ padding: "16px 24px", borderTop: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--color-bg-subtle)" }}>
-                <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                  Showing {filteredVisitors.length === 0 ? 0 : (visitorPage - 1) * itemsPerPage + 1} to {Math.min(visitorPage * itemsPerPage, filteredVisitors.length)} of {filteredVisitors.length} visitors
-                </span>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button 
-                    disabled={visitorPage === 1} 
-                    onClick={() => setVisitorPage(prev => prev - 1)}
-                    style={{ padding: "6px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: visitorPage === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)", cursor: visitorPage === 1 ? "not-allowed" : "pointer" }}
-                  >
-                    Previous
-                  </button>
-                  <button 
-                    disabled={visitorPage === visitorTotalPages} 
-                    onClick={() => setVisitorPage(prev => prev + 1)}
-                    style={{ padding: "6px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: visitorPage === visitorTotalPages ? "var(--color-text-muted)" : "var(--color-text-primary)", cursor: visitorPage === visitorTotalPages ? "not-allowed" : "pointer" }}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: INCIDENT REPORTS (TICKETS) */}
-        {activeTab === "incidents" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-              <div style={{ position: "relative" }}>
-                <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
-                <input 
-                  type="text" 
-                  placeholder="Search incident tickets..." 
-                  value={incidentSearch} 
-                  onChange={e => setIncidentSearch(e.target.value)}
-                  style={{ ...inputStyle, paddingLeft: "32px", width: "250px", padding: "8px 12px 8px 32px" }} 
-                />
-              </div>
-
-              <select 
-                value={incidentStatus} 
-                onChange={e => setIncidentStatus(e.target.value)} 
-                style={{ ...selectStyle, width: "160px", padding: "8px 12px 8px 14px" }}
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="OPEN">Open</option>
-                <option value="INVESTIGATING">Investigating</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="CLOSED">Closed</option>
-              </select>
-            </div>
-
-            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Details</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Location & Officer</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Severity</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Status Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      <tr><td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading incident tickets...</td></tr>
-                    ) : filteredIncidents.length === 0 ? (
-                      <tr><td colSpan={4} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No incident tickets reported.</td></tr>
-                    ) : filteredIncidents.map((inc, i) => {
-                      const sStyle = getSeverityStyle(inc.severity);
-                      return (
-                        <tr 
-                          key={inc.id} 
-                          style={{ borderBottom: i < filteredIncidents.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                        <span style={{ fontSize: "12px", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}>
+                          <Info size={14} color="var(--color-accent)" style={{ flexShrink: 0 }} /> No Site Manager
+                        </span>
+                        <button 
+                          onClick={() => {
+                            setAssigningSiteId(site.id);
+                            setSelectedManagerId("");
+                          }}
+                          style={{
+                            padding: "4px 10px", background: "var(--color-accent)", color: "var(--color-accent-text)",
+                            border: "none", borderRadius: "var(--radius-sm)", fontSize: "11px", fontWeight: 700,
+                            cursor: "pointer", transition: "opacity var(--transition-fast)"
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.opacity = "0.9"}
+                          onMouseLeave={e => e.currentTarget.style.opacity = "1"}
                         >
-                          <td style={{ padding: "16px 24px" }}>
-                            <div style={{ fontWeight: 600, color: "var(--color-text-primary)", fontSize: "15px", marginBottom: "4px" }}>{inc.title}</div>
-                            <div style={{ fontSize: "13px", color: "var(--color-text-secondary)", maxWidth: "300px" }}>{inc.description}</div>
-                            <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}>
-                              <Clock size={12} /> {new Date(inc.createdAt).toLocaleString()}
-                            </div>
-                          </td>
-                          <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px", fontWeight: 600, color: "var(--color-text-primary)" }}>
-                              <MapPin size={14} color="var(--color-accent)" /> {inc.site?.name || "Unknown Site"}
-                            </div>
-                            {inc.reportedBy && <div>Reported by: {inc.reportedBy.firstName} {inc.reportedBy.lastName}</div>}
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <span style={{ padding: "4px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: 700, background: sStyle.bg, color: sStyle.color }}>
-                              {inc.severity}
-                            </span>
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <select 
-                              value={inc.status} 
-                              onChange={(e) => handleIncidentStatusChange(inc.id, e.target.value)}
-                              style={{ padding: "6px 12px", fontSize: "12px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", fontWeight: 600, color: "var(--color-text-primary)", cursor: "pointer" }}
-                            >
-                              <option value="OPEN">Open</option>
-                              <option value="INVESTIGATING">Investigating</option>
-                              <option value="RESOLVED">Resolved</option>
-                              <option value="CLOSED">Closed</option>
-                            </select>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          Assign
+                        </button>
+                      </div>
+                    )}
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "13px", fontWeight: 600, color: "var(--color-accent)", marginTop: "4px" }}>
+                      <span>View Site Console</span>
+                      <ArrowRight size={14} />
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 5: OCCURRENCE BOOK */}
-        {activeTab === "occurrence" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-              
-              {/* Filters Header */}
-              <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <Filter size={16} color="var(--color-accent)" />
-                  <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Filter Entries</h3>
-                </div>
-                
-                <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-                  {/* Search */}
-                  <div style={{ position: "relative" }}>
-                    <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
-                    <input 
-                      type="text" 
-                      placeholder="Search OB entries..." 
-                      value={occurrenceSearch} 
-                      onChange={e => setOccurrenceSearch(e.target.value)}
-                      style={{ ...inputStyle, paddingLeft: "32px", width: "220px", padding: "8px 12px 8px 32px" }} 
-                    />
-                  </div>
-
-                  {/* Category Dropdown */}
-                  <select 
-                    value={occurrenceCategory} 
-                    onChange={e => setOccurrenceCategory(e.target.value)} 
-                    style={{ ...selectStyle, width: "160px", padding: "8px 12px 8px 14px" }}
-                  >
-                    <option value="ALL">All Categories</option>
-                    <option value="ROUTINE">Routine Checks</option>
-                    <option value="HANDOVER">Handovers</option>
-                    <option value="INCIDENT">Incident Reports</option>
-                    <option value="EMERGENCY">Emergencies</option>
-                    <option value="OTHER">Other Logs</option>
-                  </select>
-
-                  {/* Duration Dropdown */}
-                  <select 
-                    value={occurrenceDuration} 
-                    onChange={e => setOccurrenceDuration(e.target.value)} 
-                    style={{ ...selectStyle, width: "150px", padding: "8px 12px 8px 14px" }}
-                  >
-                    <option value="ALL">All Time</option>
-                    <option value="TODAY">Today</option>
-                    <option value="WEEK">This Week</option>
-                    <option value="MONTH">This Month</option>
-                    <option value="YEAR">This Year</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Table */}
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "160px" }}>Time</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "160px" }}>Location & Guard</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "120px" }}>Category</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Entry Details</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "110px" }}>Severity</th>
-                      <th style={{ padding: "12px 24px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", width: "90px" }}>Photo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      <tr><td colSpan={6} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>Loading occurrences...</td></tr>
-                    ) : paginatedOccurrences.length === 0 ? (
-                      <tr><td colSpan={6} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)" }}>No occurrence entries found.</td></tr>
-                    ) : paginatedOccurrences.map((entry, i) => {
-                      const isIncident = entry.category === "INCIDENT" || entry.category === "EMERGENCY";
-                      const sevColor = getSeverityStyle(entry.severity);
-                      const catColor = getOccurrenceCategoryStyle(entry.category);
-
-                      return (
-                        <tr 
-                          key={entry.id} 
-                          onClick={() => setSelectedEntry(entry)}
-                          style={{ cursor: "pointer", borderBottom: i < paginatedOccurrences.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
-                        >
-                          <td style={{ padding: "16px 24px", fontWeight: 600, color: "var(--color-text-primary)", fontSize: "13px" }}>
-                            {new Date(entry.createdAt).toLocaleString()}
-                          </td>
-                          <td style={{ padding: "16px 24px", fontSize: "13.5px" }}>
-                            <div style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>{entry.user?.firstName} {entry.user?.lastName}</div>
-                            <div style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-                              {entry.site?.name || "Unknown Site"}
-                            </div>
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <span style={{ 
-                              display: "inline-flex", 
-                              alignItems: "center", 
-                              padding: "3px 8px", 
-                              borderRadius: "8px", 
-                              fontSize: "10.5px", 
-                              fontWeight: 700, 
-                              background: catColor.bg, 
-                              color: catColor.text,
-                              textTransform: "uppercase"
-                            }}>
-                              {entry.category === "ROUTINE" ? "ROUTINE" : entry.category}
-                            </span>
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                              {isIncident && <ShieldAlert size={16} color="var(--color-danger)" style={{ marginTop: "2px", flexShrink: 0 }} />}
-                              <div style={{ display: "flex", flexDirection: "column" }}>
-                                <span style={{ fontSize: "14px", color: "var(--color-text-primary)", lineHeight: 1.4 }}>{entry.entryText}</span>
-                                {entry.location && (
-                                  <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, marginTop: "4px" }}>
-                                    📍 Location: {entry.location}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            {isIncident ? (
-                              <span style={{ 
-                                display: "inline-flex", 
-                                padding: "3px 8px", 
-                                borderRadius: "12px", 
-                                fontSize: "10.5px", 
-                                fontWeight: 700, 
-                                background: sevColor.bg, 
-                                color: sevColor.color 
-                              }}>
-                                {entry.severity?.toUpperCase()}
-                              </span>
-                            ) : (
-                              <span style={{ color: "var(--color-text-muted)", fontSize: "13px" }}>—</span>
-                            )}
-                          </td>
-                          <td style={{ padding: "16px 24px" }}>
-                            {entry.image ? (
-                              <div 
-                                onClick={(e) => { e.stopPropagation(); setZoomImage(entry.image); }}
-                                style={{ position: "relative", width: "40px", height: "40px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--color-border)", cursor: "zoom-in" }}
-                                title="Click to zoom photo"
-                              >
-                                <img src={entry.image} alt="OB Log Attachment" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0, transition: "opacity var(--transition-fast)" }} onMouseEnter={e => { e.currentTarget.style.opacity = "1"; }} onMouseLeave={e => { e.currentTarget.style.opacity = "0"; }}>
-                                  <Eye size={12} color="#fff" />
-                                </div>
-                              </div>
-                            ) : (
-                              <span style={{ color: "var(--color-text-muted)", fontSize: "13px" }}>None</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              <div style={{ padding: "16px 24px", borderTop: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--color-bg-subtle)" }}>
-                <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                  Showing {filteredOccurrences.length === 0 ? 0 : (occurrencePage - 1) * itemsPerPage + 1} to {Math.min(occurrencePage * itemsPerPage, filteredOccurrences.length)} of {filteredOccurrences.length} entries
-                </span>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button 
-                    disabled={occurrencePage === 1} 
-                    onClick={() => setOccurrencePage(prev => prev - 1)}
-                    style={{ padding: "6px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: occurrencePage === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)", cursor: occurrencePage === 1 ? "not-allowed" : "pointer" }}
-                  >
-                    Previous
-                  </button>
-                  <button 
-                    disabled={occurrencePage === occurrenceTotalPages} 
-                    onClick={() => setOccurrencePage(prev => prev + 1)}
-                    style={{ padding: "6px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-card-bg)", fontSize: "13px", fontWeight: 600, color: occurrencePage === occurrenceTotalPages ? "var(--color-text-muted)" : "var(--color-text-primary)", cursor: occurrencePage === occurrenceTotalPages ? "not-allowed" : "pointer" }}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            </div>
-            </div>
-          )}
+            );
+          })}
         </div>
-      </div>
-    )}
-  </div>
-</div>
+      )}
 
       {/* Add New Site Modal */}
       {isCreatingSite && (
@@ -1234,11 +445,11 @@ function OperationsContent() {
             </div>
             <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "18px" }}>
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Site Name</label>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Site Name</label>
                 <input autoFocus style={inputStyle} placeholder="E.g. Downtown Mall" value={siteForm.name} onChange={e => setSiteForm({ ...siteForm, name: e.target.value })} />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Address / Location</label>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Address / Location</label>
                 <input style={inputStyle} placeholder="123 Commerce St" value={siteForm.address} onChange={e => setSiteForm({ ...siteForm, address: e.target.value })} />
               </div>
             </div>
@@ -1251,108 +462,80 @@ function OperationsContent() {
           </div>
         </div>
       )}
-
-      {/* Details & PDF Export Modal */}
-      {selectedEntry && (
+      {/* Assign Site Manager Modal */}
+      {assigningSiteId && (
         <div 
-          onClick={() => setSelectedEntry(null)}
-          style={{ position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px" }}
+          onClick={() => setAssigningSiteId(null)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px"
+          }}
         >
           <div 
-            className="glass-panel animate-fade-in" 
-            style={{ borderRadius: "var(--radius-xl)", boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "600px", maxHeight: "90vh", display: "flex", flexDirection: "column", overflow: "hidden" }} 
             onClick={e => e.stopPropagation()}
+            style={{
+              background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)",
+              boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "420px",
+              display: "flex", flexDirection: "column", overflow: "hidden"
+            }}
           >
-            {/* Header */}
             <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <FileText size={18} color="var(--color-accent)" />
-                <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>OB Entry Details</h3>
-              </div>
-              <button onClick={() => setSelectedEntry(null)} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", display: "flex" }}><X size={18} /></button>
-            </div>
-            
-            {/* Body */}
-            <div style={{ padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px" }}>
-              {/* Metadata grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", background: "var(--color-bg-subtle)", padding: "16px", borderRadius: "var(--radius-md)" }}>
-                <div>
-                  <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Category</span>
-                  <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", marginTop: "4px" }}>{selectedEntry.category}</div>
-                </div>
-                {selectedEntry.severity && (
-                  <div>
-                    <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Severity</span>
-                    <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", marginTop: "4px" }}>{selectedEntry.severity}</div>
-                  </div>
-                )}
-                <div>
-                  <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Logged By</span>
-                  <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", marginTop: "4px" }}>
-                    {selectedEntry.user ? `${selectedEntry.user.firstName} ${selectedEntry.user.lastName}` : "System Log"}
-                  </div>
-                </div>
-                <div>
-                  <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Logged At</span>
-                  <div style={{ fontSize: "13px", color: "var(--color-text-primary)", marginTop: "4px" }}>{new Date(selectedEntry.createdAt).toLocaleString()}</div>
-                </div>
-                {(selectedEntry.site?.name || selectedEntry.location) && (
-                  <div style={{ gridColumn: "span 2" }}>
-                    <span style={{ fontSize: "11px", color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Location / Site</span>
-                    <div style={{ fontSize: "13px", color: "var(--color-text-primary)", marginTop: "4px" }}>
-                      {selectedEntry.site?.name || ""} {selectedEntry.location ? `(${selectedEntry.location})` : ""}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Statement details */}
-              <div>
-                <h4 style={{ margin: "0 0 6px 0", fontSize: "13px", color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Statement / Description</h4>
-                <p style={{ margin: 0, fontSize: "14px", color: "var(--color-text-primary)", lineHeight: 1.5, background: "var(--color-card-bg)", border: "1px solid var(--color-border)", padding: "16px", borderRadius: "var(--radius-md)", whiteSpace: "pre-wrap" }}>
-                  {selectedEntry.entryText}
-                </p>
-              </div>
-
-              {/* Attached Photo */}
-              {selectedEntry.image && (
-                <div>
-                  <h4 style={{ margin: "0 0 6px 0", fontSize: "13px", color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Attached Photo Evidence</h4>
-                  <img src={selectedEntry.image} alt="Evidence" style={{ width: "100%", maxHeight: "250px", objectFit: "contain", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)" }} />
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div style={{ padding: "16px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
-              <button onClick={() => setSelectedEntry(null)} style={{ padding: "8px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13.5px" }}>Close</button>
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <Users size={16} color="var(--color-accent)" /> Assign Site Manager
+              </h3>
               <button 
-                onClick={() => {
-                  exportIncidentReport(selectedEntry, `Incident_Report_${selectedEntry.id}.pdf`);
-                }}
-                style={{ padding: "8px 16px", background: "var(--color-accent)", border: "none", color: "var(--color-accent-text)", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", fontSize: "13.5px" }}
+                onClick={() => setAssigningSiteId(null)}
+                style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: "4px" }}
               >
-                Download PDF Report
+                <X size={20} />
               </button>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* Zoom Modal */}
-      {zoomImage && (
-        <div 
-          onClick={() => setZoomImage(null)}
-          style={{ position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.75)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000, padding: "24px" }}
-        >
-          <div style={{ position: "relative", maxWidth: "90vw", maxHeight: "90vh", borderRadius: "var(--radius-lg)", overflow: "hidden", boxShadow: "0 24px 64px rgba(0,0,0,0.5)" }} onClick={e => e.stopPropagation()}>
-            <img src={zoomImage} alt="Enlarged view" style={{ maxWidth: "100%", maxHeight: "80vh", display: "block" }} />
-            <button 
-              onClick={() => setZoomImage(null)}
-              style={{ position: "absolute", top: "12px", right: "12px", background: "rgba(0,0,0,0.5)", border: "none", color: "#fff", padding: "8px", borderRadius: "50%", cursor: "pointer", display: "flex" }}
-            >
-              <X size={16} />
-            </button>
+            <form onSubmit={handleAssignSiteManager} style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                <p style={{ margin: 0, fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                  Choose a member from your staff roster to designate as the Site Manager for <strong>{sites.find(s => s.id === assigningSiteId)?.name}</strong>.
+                </p>
+                
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Select Staff Member *</label>
+                  <select 
+                    required 
+                    value={selectedManagerId} 
+                    onChange={e => setSelectedManagerId(e.target.value)} 
+                    style={{
+                      padding: "10px 12px", background: "var(--color-card-bg)", border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-md)", fontSize: "13.5px", color: "var(--color-text-primary)",
+                      outline: "none", cursor: "pointer"
+                    }}
+                  >
+                    <option value="">Choose a staff member...</option>
+                    {users.map((u: any) => (
+                      <option key={u.id} value={u.id}>
+                        {u.firstName} {u.lastName} ({u.role === "SITE_MANAGER" ? "Site Manager" : "Officer"})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ padding: "18px 24px", borderTop: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+                <button 
+                  type="button" 
+                  onClick={() => setAssigningSiteId(null)} 
+                  style={{ padding: "10px 20px", background: "transparent", color: "var(--color-text-primary)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", cursor: "pointer", fontSize: "13.5px", fontWeight: 600 }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={submittingManager || !selectedManagerId}
+                  style={{ padding: "10px 20px", background: selectedManagerId ? "var(--color-accent)" : "var(--color-bg-subtle)", color: selectedManagerId ? "var(--color-accent-text)" : "var(--color-text-muted)", border: "none", borderRadius: "var(--radius-md)", cursor: selectedManagerId ? "pointer" : "not-allowed", fontSize: "13.5px", fontWeight: 600 }}
+                >
+                  {submittingManager ? "Assigning..." : "Assign"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -1368,7 +551,11 @@ export default function ManagerOperationsConsole() {
         <span style={{ fontSize: "14px" }}>Loading operations dashboard...</span>
       </div>
     }>
-      <OperationsContent />
+      <SuspenseWrapper />
     </Suspense>
   );
+}
+
+function SuspenseWrapper() {
+  return <OperationsContent />;
 }

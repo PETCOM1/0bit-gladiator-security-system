@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, ShieldAlert, MapPin, Activity, Calendar, LayoutDashboard, Radio, ChevronRight, CheckCircle2, AlertOctagon, TrendingUp, ClipboardList, Shield } from "lucide-react";
+import { Users, ShieldAlert, MapPin, Activity, Calendar, LayoutDashboard, ChevronRight, CheckCircle2, AlertOctagon, TrendingUp, ClipboardList, Shield } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
 import { useAuth } from "@/shared/context/AuthContext";
 import Link from "next/link";
@@ -98,17 +98,6 @@ export default function ManagerDashboard() {
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
             Operations Command Center for <strong style={{ color: "var(--color-text-primary)" }}>{companyName}</strong>.
           </p>
-        </div>
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: "8px",
-          padding: "6px 14px",
-          background: "var(--color-accent-subtle)",
-          border: "1px solid var(--color-accent-border)",
-          borderRadius: "999px",
-          fontSize: "12px", fontWeight: 600, color: "var(--color-accent)",
-          letterSpacing: "0.06em", textTransform: "uppercase",
-        }}>
-          <Radio size={12} className="animate-pulse" /> LIVE TELEMETRY
         </div>
       </div>
 

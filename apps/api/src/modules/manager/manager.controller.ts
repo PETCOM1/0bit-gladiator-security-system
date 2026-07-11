@@ -37,13 +37,29 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
 // Update Organization Profile
 export const updateTenantProfile = catchAsync(async (req: Request, res: Response) => {
   const tenantId = req.user!.tenantId;
-  const { name } = req.body;
+  const { 
+    name, 
+    contactEmail, 
+    contactPhone, 
+    registrationNumber, 
+    orgType, 
+    physicalAddress, 
+    countryRegion 
+  } = req.body;
 
   if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
 
   const tenant = await prisma.tenant.update({
     where: { id: tenantId },
-    data: { name }
+    data: { 
+      name,
+      contactEmail,
+      contactPhone,
+      registrationNumber,
+      orgType,
+      physicalAddress,
+      countryRegion
+    }
   });
 
   res.status(HttpStatus.OK).json({ status: "success", data: { tenant } });
