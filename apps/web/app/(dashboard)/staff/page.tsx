@@ -1,5 +1,5 @@
-import { TenantsListContent } from "../admin/tenants/page";
+import { OverviewPage } from "@/features/staff/pages/OverviewPage";
 
-export default function StaffMemberPage() {
-  return <TenantsListContent />;
+export default function StaffOverviewRoute() {
+  return <OverviewPage />;
 }

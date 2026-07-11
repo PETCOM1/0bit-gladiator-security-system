@@ -24,7 +24,8 @@ export const NAV_CONFIG: Record<string, NavItem[]> = {
     { href: "/admin/settings",  label: "Settings",  icon: "Settings"        },
   ],
   ACCOUNT_MANAGER: [
-    { href: "/staff",           label: "Tenants",   icon: "Building2" },
+    { href: "/staff",           label: "Dashboard", icon: "LayoutDashboard" },
+    { href: "/staff/tenants",   label: "Tenants",   icon: "Building2" },
     { href: "/staff/analytics", label: "Analytics", icon: "BarChart"  },
     { href: "/staff/plans",     label: "Plans",     icon: "ScrollText" },
     { href: "/staff/support",   label: "Helpdesk",  icon: "UserCircle" },
