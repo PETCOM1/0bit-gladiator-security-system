@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Building2, Users, MapPin, Ban } from "lucide-react";
+import { Building2, Users, MapPin, Ban, CheckCircle2, LifeBuoy, Download } from "lucide-react";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
+import { useAuth } from "@/shared/context/AuthContext";
+import { exportAccountManagerReport } from "@/shared/utils/pdf";
 
 interface Stats {
   totalTenants: number;
@@ -12,6 +14,8 @@ interface Stats {
   suspendedCount: number;
   totalUsersReached: number;
   totalSitesReached: number;
+  ticketsSolved: number;
+  ticketsOpen: number;
   planBreakdown: { plan: string; count: number }[];
   monthlyOnboarding: { month: string; count: number }[];
   recentTenants: {
@@ -44,6 +48,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
 
 export function AnalyticsPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [stats,   setStats]   = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +58,33 @@ export function AnalyticsPage() {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleDownloadPDF = () => {
+    if (!stats) return;
+    const formattedPeriod = new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+    const formattedGenerated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+    exportAccountManagerReport({
+      managerName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Account Manager",
+      reportPeriod: formattedPeriod,
+      generatedDate: formattedGenerated,
+      kpis: {
+        totalTenants: stats.totalTenants,
+        activeCount: stats.activeCount,
+        suspendedCount: stats.suspendedCount,
+        totalUsersReached: stats.totalUsersReached,
+        totalSitesReached: stats.totalSitesReached,
+        ticketsSolved: stats.ticketsSolved,
+        ticketsOpen: stats.ticketsOpen,
+      },
+      planBreakdown: stats.planBreakdown,
+      monthlyOnboarding: stats.monthlyOnboarding,
+      recentTenants: stats.recentTenants.map((t) => ({
+        name: t.name, plan: t.plan, subscriptionStatus: t.subscriptionStatus,
+        createdAt: t.createdAt, userCount: t.userCount, siteCount: t.siteCount,
+      })),
+    });
+  };
 
   if (loading) {
     return <div style={{ padding: "40px", color: "var(--color-text-muted)" }}>Loading analytics...</div>;
@@ -64,11 +96,25 @@ export function AnalyticsPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-      <div>
-        <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>Analytics</h1>
-        <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-          Your tenant onboarding activity and growth
-        </p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
+        <div>
+          <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>Analytics</h1>
+          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+            Your tenant onboarding activity and growth
+          </p>
+        </div>
+        <button
+          onClick={handleDownloadPDF}
+          style={{
+            display: "flex", alignItems: "center", gap: "8px",
+            padding: "10px 18px", background: "var(--color-accent)", border: "none",
+            borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600,
+            color: "var(--color-accent-text)", cursor: "pointer", boxShadow: "var(--color-card-shadow)",
+            transition: "background var(--transition-fast)",
+          }}
+        >
+          <Download size={15} /> Export PDF Report
+        </button>
       </div>
 
       {/* Stat cards */}
@@ -76,6 +122,8 @@ export function AnalyticsPage() {
         <StatCard icon={<Building2 size={18} />} label="Tenants Onboarded" value={stats.totalTenants} />
         <StatCard icon={<Building2 size={18} />} label="Active" value={stats.activeCount} />
         <StatCard icon={<Ban size={18} />} label="Suspended" value={stats.suspendedCount} />
+        <StatCard icon={<CheckCircle2 size={18} />} label="Tickets Solved" value={stats.ticketsSolved} />
+        <StatCard icon={<LifeBuoy size={18} />} label="Tickets Open" value={stats.ticketsOpen} />
         <StatCard icon={<Users size={18} />} label="Users Reached" value={stats.totalUsersReached} />
         <StatCard icon={<MapPin size={18} />} label="Sites Reached" value={stats.totalSitesReached} />
       </div>

@@ -189,7 +189,11 @@ export function TenantsListContent() {
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-subtle)" }}>
-                {["Company Name", "Contact Email", "Plan", "Tenant ID", "Joined Date"].map(h => (
+                {[
+                  "Company Name", "Contact Email", "Plan",
+                  ...(user?.role === "ACCOUNT_MANAGER" ? ["Onboarded By"] : []),
+                  "Tenant ID", "Joined Date",
+                ].map(h => (
                   <th key={h} style={{
                     padding: "12px 24px",
                     textAlign: "left",
@@ -206,13 +210,13 @@ export function TenantsListContent() {
             <tbody>
               {paginatedTenants.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "14px" }}>
+                  <td colSpan={user?.role === "ACCOUNT_MANAGER" ? 7 : 6} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "14px" }}>
                     No tenants matching filters.
                   </td>
                 </tr>
               ) : (
                 paginatedTenants.map((t, idx) => (
-                  <tr key={t.id} 
+                  <tr key={t.id}
                     onClick={() => router.push(`${tenantProfileBase}/${t.id}`)}
                     style={{ cursor: "pointer", borderBottom: idx < paginatedTenants.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "var(--color-bg-subtle)"; }}
@@ -228,6 +232,22 @@ export function TenantsListContent() {
                         {t.subscriptionTier?.name || "BASIC"}
                       </span>
                     </td>
+                    {user?.role === "ACCOUNT_MANAGER" && (
+                      <td style={{ padding: "16px 24px" }}>
+                        {t.createdBy?.id === user.id ? (
+                          <span style={{
+                            padding: "3px 10px", borderRadius: "var(--radius-pill)", fontSize: "11px", fontWeight: 700,
+                            background: "var(--color-accent-subtle)", color: "var(--color-accent)",
+                          }}>
+                            You
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>
+                            {t.createdBy ? `${t.createdBy.firstName ?? ""} ${t.createdBy.lastName ?? ""}`.trim() || t.createdBy.email : "—"}
+                          </span>
+                        )}
+                      </td>
+                    )}
                     <td style={{ padding: "16px 24px", fontSize: "13px", color: "var(--color-text-muted)", fontFamily: "monospace" }}>{t.id}</td>
                     <td style={{ padding: "16px 24px", fontSize: "13.5px", color: "var(--color-text-secondary)" }}>{new Date(t.createdAt).toLocaleDateString()}</td>
                     <td style={{ padding: "16px 24px", textAlign: "right" }}><ChevronRight size={16} style={{ color: "var(--color-text-muted)" }} /></td>

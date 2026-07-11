@@ -1,20 +1,19 @@
 import { Request, Response } from "express";
 import { prisma } from "@repo/database";
-import { HttpStatus, Role } from "@repo/types";
+import { HttpStatus } from "@repo/types";
 import { catchAsync } from "../../utils/catchAsync.js";
 import { sendInviteEmail } from "../../services/mail.service.js";
 import { AppError } from "../../utils/appError.js";
 
 export const getTenants = catchAsync(async (req: Request, res: Response) => {
-  // Staff Members only see tenants they've personally onboarded — full
-  // platform visibility stays with Admin/Super Admin.
-  const isAccountManager = req.user!.role === Role.ACCOUNT_MANAGER;
-
+  // Account Managers see every tenant on the platform (so they can pick up
+  // work and stay aware of the whole book), with createdBy included so the
+  // UI can flag which ones they personally onboarded.
   const tenants = await prisma.tenant.findMany({
-    where:   isAccountManager ? { createdById: req.user!.userId } : undefined,
     orderBy: { name: 'asc' },
     include: {
       subscriptionTier: { select: { name: true, price: true } },
+      createdBy: { select: { id: true, firstName: true, lastName: true, email: true } },
       _count: { select: { users: true, sites: true, incidents: true, shifts: true, patrolLogs: true } }
     }
   });
@@ -38,10 +37,6 @@ export const getTenantById = catchAsync(async (req: Request, res: Response) => {
 
   if (!tenant) {
     return res.status(HttpStatus.NOT_FOUND).json({ message: "Tenant not found" });
-  }
-
-  if (req.user!.role === Role.ACCOUNT_MANAGER && tenant.createdById !== req.user!.userId) {
-    return res.status(HttpStatus.FORBIDDEN).json({ message: "You can only view tenants you onboarded" });
   }
 
   res.status(HttpStatus.OK).json({ status: "success", data: { tenant } });
@@ -84,11 +79,19 @@ export const getMyTenantStats = catchAsync(async (req: Request, res: Response) =
     return { month: d.toLocaleDateString("en-US", { month: "short" }), count };
   });
 
+  // Helpdesk is a shared queue across all Account Managers, so ticket counts
+  // are platform-wide rather than scoped to this user's own tenants.
+  const [ticketsSolved, ticketsOpen] = await Promise.all([
+    prisma.supportTicket.count({ where: { status: { in: ["RESOLVED", "CLOSED"] } } }),
+    prisma.supportTicket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS", "WAITING_ON_CUSTOMER"] } } }),
+  ]);
+
   return res.status(HttpStatus.OK).json({
     status: "success",
     data: {
       totalTenants, activeCount, suspendedCount,
       totalUsersReached, totalSitesReached,
+      ticketsSolved, ticketsOpen,
       planBreakdown: Object.entries(planCounts).map(([plan, count]) => ({ plan, count })),
       monthlyOnboarding,
       recentTenants: tenants.slice(0, 8).map((t) => ({

@@ -1008,6 +1008,257 @@ export function exportSuperAdminReport(data: SuperAdminReportData, filename: str
   doc.save(filename);
 }
 
+export interface AccountManagerReportData {
+  managerName: string;
+  reportPeriod: string;
+  generatedDate: string;
+  kpis: {
+    totalTenants: number;
+    activeCount: number;
+    suspendedCount: number;
+    totalUsersReached: number;
+    totalSitesReached: number;
+    ticketsSolved: number;
+    ticketsOpen: number;
+  };
+  planBreakdown: Array<{ plan: string; count: number }>;
+  monthlyOnboarding: Array<{ month: string; count: number }>;
+  recentTenants: Array<{
+    name: string;
+    plan: string;
+    subscriptionStatus: string;
+    createdAt: string;
+    userCount: number;
+    siteCount: number;
+  }>;
+}
+
+export function exportAccountManagerReport(data: AccountManagerReportData, filename: string = "Account_Manager_Analytics_Report.pdf") {
+  const doc = new jsPDF();
+  const primaryColor = [15, 23, 42]; // slate-900
+  const secondaryColor = [71, 85, 105]; // slate-600
+  const accentColor = [249, 115, 22]; // orange-500
+  const borderLight = [226, 232, 240]; // slate-200
+
+  const drawHeader = (pageTitle: string, pageNum: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text("GLADIATOR PRO", 14, 15);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(239, 68, 68);
+    doc.text("CONFIDENTIAL", 95, 15);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text(`Page ${pageNum} - ${pageTitle}`, 196 - doc.getTextWidth(`Page ${pageNum} - ${pageTitle}`), 15);
+
+    doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+    doc.setLineWidth(0.5);
+    doc.line(14, 18, 196, 18);
+  };
+
+  // ── PAGE 1: SUMMARY ──
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(0, 0, 45, 297, "F");
+  doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+  doc.rect(40, 0, 5, 297, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(239, 68, 68);
+  doc.text("STRICTLY CONFIDENTIAL - INTERNAL USE ONLY", 60, 40);
+
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  doc.text("ACCOUNT MANAGER", 60, 50);
+  doc.text("PERFORMANCE REPORT", 60, 60);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(13);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text("Tenant Onboarding & Support Analytics", 60, 68);
+
+  const drawMeta = (label: string, value: string, y: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text(label.toUpperCase(), 60, y);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(value, 60, y + 6);
+  };
+
+  drawMeta("Account Manager:", data.managerName, 90);
+  drawMeta("Report Period:", data.reportPeriod, 112);
+  drawMeta("Generated:", data.generatedDate, 134);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text("SUMMARY HIGHLIGHTS", 60, 165);
+  doc.line(60, 168, 190, 168);
+
+  const drawHighlight = (count: string, label: string, x: number, y: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+    doc.text(count, x, y);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text(label, x, y + 6);
+  };
+
+  drawHighlight(`${data.kpis.totalTenants}`, "Tenants Onboarded", 60, 185);
+  drawHighlight(`${data.kpis.activeCount}`, "Active", 100, 185);
+  drawHighlight(`${data.kpis.suspendedCount}`, "Suspended", 135, 185);
+  drawHighlight(`${data.kpis.ticketsSolved}`, "Tickets Solved", 60, 205);
+  drawHighlight(`${data.kpis.ticketsOpen}`, "Tickets Open", 100, 205);
+  drawHighlight(`${data.kpis.totalUsersReached}`, "Users Reached", 60, 225);
+  drawHighlight(`${data.kpis.totalSitesReached}`, "Sites Reached", 100, 225);
+
+  // ── PAGE 2: KPI DETAIL + PLAN BREAKDOWN ──
+  doc.addPage();
+  drawHeader("Key Metrics", 2);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("KEY PERFORMANCE INDICATORS", 14, 30);
+
+  const drawKPICard = (title: string, value: string, x: number, y: number, w: number, h: number) => {
+    doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+    doc.setFillColor(248, 250, 252);
+    doc.rect(x, y, w, h, "FD");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text(title.toUpperCase(), x + 6, y + 8);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(value, x + 6, y + 20);
+  };
+
+  const cardW = 85;
+  const cardH = 26;
+  drawKPICard("Tenants Onboarded", `${data.kpis.totalTenants}`, 14, 40, cardW, cardH);
+  drawKPICard("Active / Suspended", `${data.kpis.activeCount} / ${data.kpis.suspendedCount}`, 109, 40, cardW, cardH);
+  drawKPICard("Tickets Solved", `${data.kpis.ticketsSolved}`, 14, 73, cardW, cardH);
+  drawKPICard("Tickets Open", `${data.kpis.ticketsOpen}`, 109, 73, cardW, cardH);
+  drawKPICard("Users Reached", `${data.kpis.totalUsersReached}`, 14, 106, cardW, cardH);
+  drawKPICard("Sites Reached", `${data.kpis.totalSitesReached}`, 109, 106, cardW, cardH);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("TENANTS BY PLAN", 14, 150);
+  doc.line(14, 153, 196, 153);
+
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, 158, 182, 8, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text("PLAN", 18, 164);
+  doc.text("TENANTS", 160, 164);
+
+  let planY = 174;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  if (data.planBreakdown.length === 0) {
+    doc.text("No tenants onboarded yet.", 18, planY);
+  } else {
+    data.planBreakdown.forEach((p) => {
+      doc.text(p.plan, 18, planY);
+      doc.text(p.count.toString(), 160, planY);
+      doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+      doc.line(14, planY + 4, 196, planY + 4);
+      planY += 10;
+    });
+  }
+
+  // ── PAGE 3: MONTHLY TREND + RECENT TENANTS ──
+  doc.addPage();
+  drawHeader("Onboarding Activity", 3);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("TENANTS ONBOARDED — LAST 6 MONTHS", 14, 30);
+
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, 40, 182, 8, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text("MONTH", 18, 46);
+  doc.text("TENANTS ONBOARDED", 160, 46);
+
+  let monthY = 56;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  data.monthlyOnboarding.forEach((m) => {
+    doc.text(m.month, 18, monthY);
+    doc.text(m.count.toString(), 160, monthY);
+    doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+    doc.line(14, monthY + 4, 196, monthY + 4);
+    monthY += 10;
+  });
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("RECENTLY ONBOARDED TENANTS", 14, monthY + 16);
+
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, monthY + 26, 182, 8, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text("TENANT NAME", 18, monthY + 32);
+  doc.text("PLAN", 90, monthY + 32);
+  doc.text("STATUS", 125, monthY + 32);
+  doc.text("ONBOARDED", 160, monthY + 32);
+
+  let tenantY = monthY + 42;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+
+  if (data.recentTenants.length === 0) {
+    doc.text("No tenants onboarded yet.", 18, tenantY);
+  } else {
+    data.recentTenants.forEach((t) => {
+      if (tenantY > 275) {
+        doc.addPage();
+        drawHeader("Onboarding Activity", 3);
+        tenantY = 30;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.text(t.name, 18, tenantY);
+      doc.setFont("helvetica", "normal");
+      doc.text(t.plan, 90, tenantY);
+      doc.text(t.subscriptionStatus, 125, tenantY);
+      doc.text(new Date(t.createdAt).toLocaleDateString(), 160, tenantY);
+
+      doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+      doc.line(14, tenantY + 4, 196, tenantY + 4);
+      tenantY += 10;
+    });
+  }
+
+  doc.save(filename);
+}
+
 export interface PlatformAdminReportData {
   managerName: string;
   reportPeriod: string;
