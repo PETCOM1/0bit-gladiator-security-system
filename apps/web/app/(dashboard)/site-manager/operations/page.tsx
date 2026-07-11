@@ -370,6 +370,9 @@ function OperationsContent() {
           <button onClick={() => handleTabChange("occurrence")} style={tabButtonStyle(activeTab === "occurrence")}>
             <CheckCircle2 size={16} /> Occurrence Book
           </button>
+          <button onClick={() => handleTabChange("shifts")} style={tabButtonStyle(activeTab === "shifts")}>
+            <Calendar size={16} /> Shift Scheduling
+          </button>
           <button onClick={() => handleTabChange("attendance")} style={tabButtonStyle(activeTab === "attendance")}>
             <ClipboardCheck size={16} /> Attendance Tracking
           </button>
