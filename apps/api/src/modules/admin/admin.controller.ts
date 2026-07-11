@@ -198,7 +198,7 @@ export const listStaffMembers = catchAsync(async (_req: Request, res: Response) 
   const staffMembers = await prisma.user.findMany({
     where:   { role: "ACCOUNT_MANAGER", accountStatus: { not: "DELETED" } },
     select:  {
-      id: true, email: true, firstName: true, lastName: true,
+      id: true, email: true, role: true, firstName: true, lastName: true,
       displayName: true, accountStatus: true, createdAt: true, lastActiveAt: true,
     },
     orderBy: { createdAt: "desc" },

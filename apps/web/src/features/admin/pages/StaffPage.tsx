@@ -28,6 +28,32 @@ const blurBorder = (e: React.FocusEvent<HTMLInputElement>) => {
   e.target.style.boxShadow   = "none";
 };
 
+// ─── Staff type badge ───────────────────────────────────────────────────────────
+// Every account on this page is platform staff who support tenant onboarding
+// and growth. ACCOUNT_MANAGER is the only type today; add new roles here as
+// they're introduced so this page keeps working as an umbrella for all of them.
+const STAFF_TYPE_LABELS: Record<string, string> = {
+  ACCOUNT_MANAGER: "Account Manager",
+};
+
+function StaffTypeBadge({ role }: { role: string }) {
+  return (
+    <span style={{
+      display:       "inline-flex",
+      alignItems:    "center",
+      padding:       "3px 10px",
+      borderRadius:  "var(--radius-pill)",
+      fontSize:      "11px",
+      fontWeight:    700,
+      background:    "var(--color-info-subtle)",
+      color:         "var(--color-info)",
+      border:        "1px solid var(--color-info-subtle)",
+    }}>
+      {STAFF_TYPE_LABELS[role] ?? role}
+    </span>
+  );
+}
+
 // ─── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, React.CSSProperties> = {
@@ -311,6 +337,10 @@ export function StaffPage() {
       }
     },
     {
+      header: "Type",
+      render: (m) => <StaffTypeBadge role={m.role} />
+    },
+    {
       header: "Status",
       render: (m) => <StatusBadge status={m.accountStatus} />
     },
@@ -404,6 +434,11 @@ export function StaffPage() {
             searchPlaceholder="Search staff by name or email..."
             searchKeys={["displayName", "firstName", "lastName", "email"]}
             filterOptions={[
+              {
+                label: "Type",
+                key: "role",
+                options: Object.entries(STAFF_TYPE_LABELS).map(([value, label]) => ({ label, value })),
+              },
               {
                 label: "Status",
                 key: "accountStatus",
