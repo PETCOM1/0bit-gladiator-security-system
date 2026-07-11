@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/shared/context/AuthContext";
+import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 import { Suspense } from "react";
 
 const ROLE_ROUTES: Record<string, string> = {
@@ -45,12 +46,9 @@ function RegisterContent() {
       <div style={{ width: "100%", maxWidth: "400px" }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <div style={{
-            width: "48px", height: "48px", borderRadius: "12px",
-            background: "linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 16px", fontSize: "22px", fontWeight: 900, color: "#0f172a",
-          }}>O</div>
+          <div style={{ display: "flex", justifyContent: "center", margin: "0 auto 16px" }}>
+            <GladiatorLogo size={48} />
+          </div>
           <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#fff", marginBottom: "6px" }}>
             Create an account
           </h1>

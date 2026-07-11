@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from "@/features/auth/services/auth.service";
 import { BRAND } from "@/shared/config/branding.config";
+import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "11px 14px",
@@ -49,12 +50,9 @@ export default function ForgotPasswordPage() {
       <div style={{ width: "100%", maxWidth: "400px" }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <div style={{
-            width: "48px", height: "48px", borderRadius: "12px",
-            background: "linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 16px", fontSize: "22px", fontWeight: 900, color: "var(--color-accent-text)",
-          }}>O</div>
+          <div style={{ display: "flex", justifyContent: "center", margin: "0 auto 16px" }}>
+            <GladiatorLogo size={48} />
+          </div>
           <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#fff", marginBottom: "6px" }}>
             Reset password
           </h1>
