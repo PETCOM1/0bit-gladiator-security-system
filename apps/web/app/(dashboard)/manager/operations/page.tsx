@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  FolderKanban, Plus, X, MapPin, Edit2, Save, Building, Trash2, Search, Users, Activity, ArrowRight, ShieldAlert, Info
+  FolderKanban, Plus, X, MapPin, Edit2, Save, Building, Trash2, Search, Users, Activity, ArrowRight, ShieldAlert, Info, Snowflake, Unlock
 } from "lucide-react";
 import { managerService } from "@/features/manager/services/manager.service";
 
@@ -153,14 +153,29 @@ function OperationsContent() {
     }
   };
 
-  const handleDeleteSite = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this site? This action cannot be undone.")) return;
+  const handleFreezeSite = async (id: string) => {
+    if (!confirm("Are you sure you want to freeze this site? This will suspend all active shift creation and guard clock-ins for this site.")) return;
     try {
       await managerService.deleteSite(id);
       loadData();
     } catch (err) {
       console.error(err);
-      alert("Failed to delete site.");
+      alert("Failed to freeze site.");
+    }
+  };
+
+  const handleUnfreezeSite = async (site: any) => {
+    if (!confirm(`Are you sure you want to unfreeze "${site.name}"? Operational activities and guard shifts will be unlocked.`)) return;
+    try {
+      await managerService.updateSite(site.id, {
+        name: site.name,
+        address: site.address,
+        isFrozen: false
+      });
+      loadData();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to unfreeze site.");
     }
   };
 
@@ -351,24 +366,39 @@ function OperationsContent() {
                   <>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}>
-                        <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={site.name}>
+                        <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center" }} title={site.name}>
                           {site.name}
+                          {site.isFrozen && (
+                            <span style={{ fontSize: "10px", background: "rgba(59, 130, 246, 0.08)", color: "#3b82f6", padding: "2px 6px", borderRadius: "4px", marginLeft: "8px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "3px" }}>
+                              <Snowflake size={10} /> FROZEN
+                            </span>
+                          )}
                         </h3>
                         <span style={{ fontSize: "13px", color: "var(--color-text-muted)", display: "flex", alignItems: "center", gap: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           <MapPin size={13} style={{ flexShrink: 0 }} /> {site.address || "No address provided"}
                         </span>
                       </div>
                       <div style={{ display: "flex", gap: "4px", flexShrink: 0 }} onClick={e => e.stopPropagation()}>
-                        <button
-                          onClick={() => { setEditingSiteId(site.id); setSiteForm({ name: site.name, address: site.address || "" }); }}
-                          title="Edit site"
-                          style={{ background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", cursor: "pointer", color: "var(--color-text-secondary)", padding: "6px", borderRadius: "var(--radius-md)", display: "flex" }}
-                        ><Edit2 size={13} /></button>
-                        <button
-                          onClick={() => handleDeleteSite(site.id)}
-                          title="Delete site"
-                          style={{ background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.15)", cursor: "pointer", color: "var(--color-danger)", padding: "6px", borderRadius: "var(--radius-md)", display: "flex" }}
-                        ><Trash2 size={13} /></button>
+                        {!site.isFrozen && (
+                          <button
+                            onClick={() => { setEditingSiteId(site.id); setSiteForm({ name: site.name, address: site.address || "" }); }}
+                            title="Edit site"
+                            style={{ background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", cursor: "pointer", color: "var(--color-text-secondary)", padding: "6px", borderRadius: "var(--radius-md)", display: "flex" }}
+                          ><Edit2 size={13} /></button>
+                        )}
+                        {site.isFrozen ? (
+                          <button
+                            onClick={() => handleUnfreezeSite(site)}
+                            title="Unfreeze site"
+                            style={{ background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.15)", cursor: "pointer", color: "var(--color-success)", padding: "6px", borderRadius: "var(--radius-md)", display: "flex" }}
+                          ><Unlock size={13} /></button>
+                        ) : (
+                          <button
+                            onClick={() => handleFreezeSite(site.id)}
+                            title="Freeze site"
+                            style={{ background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.15)", cursor: "pointer", color: "#3b82f6", padding: "6px", borderRadius: "var(--radius-md)", display: "flex" }}
+                          ><Snowflake size={13} /></button>
+                        )}
                       </div>
                     </div>
 

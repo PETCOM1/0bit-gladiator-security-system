@@ -67,7 +67,7 @@ export const createSite = catchAsync(async (req: Request, res: Response) => {
 export const updateSite = catchAsync(async (req: Request, res: Response) => {
   const tenantId = req.user!.tenantId;
   const { id } = req.params;
-  const { name, address } = req.body;
+  const { name, address, isFrozen } = req.body;
 
   if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
 
@@ -78,7 +78,11 @@ export const updateSite = catchAsync(async (req: Request, res: Response) => {
 
   const site = await prisma.site.update({
     where: { id },
-    data: { name, address },
+    data: { 
+      name, 
+      address,
+      isFrozen: isFrozen !== undefined ? isFrozen : undefined
+    },
   });
 
   res.status(HttpStatus.OK).json({ status: "success", data: { site } });
@@ -95,7 +99,11 @@ export const deleteSite = catchAsync(async (req: Request, res: Response) => {
     return res.status(HttpStatus.NOT_FOUND).json({ message: "Site not found" });
   }
 
-  await prisma.site.delete({ where: { id } });
+  // Freeze site instead of deleting
+  const site = await prisma.site.update({ 
+    where: { id }, 
+    data: { isFrozen: true } 
+  });
 
-  res.status(HttpStatus.NO_CONTENT).send();
+  res.status(HttpStatus.OK).json({ status: "success", message: "Site frozen successfully", data: { site } });
 });

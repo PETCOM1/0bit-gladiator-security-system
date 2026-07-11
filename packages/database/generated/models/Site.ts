@@ -29,6 +29,7 @@ export type SiteMinAggregateOutputType = {
   tenantId: string | null
   name: string | null
   address: string | null
+  isFrozen: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,6 +39,7 @@ export type SiteMaxAggregateOutputType = {
   tenantId: string | null
   name: string | null
   address: string | null
+  isFrozen: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,6 +49,7 @@ export type SiteCountAggregateOutputType = {
   tenantId: number
   name: number
   address: number
+  isFrozen: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -58,6 +61,7 @@ export type SiteMinAggregateInputType = {
   tenantId?: true
   name?: true
   address?: true
+  isFrozen?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -67,6 +71,7 @@ export type SiteMaxAggregateInputType = {
   tenantId?: true
   name?: true
   address?: true
+  isFrozen?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,6 +81,7 @@ export type SiteCountAggregateInputType = {
   tenantId?: true
   name?: true
   address?: true
+  isFrozen?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -158,6 +164,7 @@ export type SiteGroupByOutputType = {
   tenantId: string
   name: string
   address: string | null
+  isFrozen: boolean
   createdAt: Date
   updatedAt: Date
   _count: SiteCountAggregateOutputType | null
@@ -188,6 +195,7 @@ export type SiteWhereInput = {
   tenantId?: Prisma.StringFilter<"Site"> | string
   name?: Prisma.StringFilter<"Site"> | string
   address?: Prisma.StringNullableFilter<"Site"> | string | null
+  isFrozen?: Prisma.BoolFilter<"Site"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Site"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Site"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -206,6 +214,7 @@ export type SiteOrderByWithRelationInput = {
   tenantId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
+  isFrozen?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -227,6 +236,7 @@ export type SiteWhereUniqueInput = Prisma.AtLeast<{
   tenantId?: Prisma.StringFilter<"Site"> | string
   name?: Prisma.StringFilter<"Site"> | string
   address?: Prisma.StringNullableFilter<"Site"> | string | null
+  isFrozen?: Prisma.BoolFilter<"Site"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Site"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Site"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -245,6 +255,7 @@ export type SiteOrderByWithAggregationInput = {
   tenantId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
+  isFrozen?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SiteCountOrderByAggregateInput
@@ -260,6 +271,7 @@ export type SiteScalarWhereWithAggregatesInput = {
   tenantId?: Prisma.StringWithAggregatesFilter<"Site"> | string
   name?: Prisma.StringWithAggregatesFilter<"Site"> | string
   address?: Prisma.StringNullableWithAggregatesFilter<"Site"> | string | null
+  isFrozen?: Prisma.BoolWithAggregatesFilter<"Site"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Site"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Site"> | Date | string
 }
@@ -268,6 +280,7 @@ export type SiteCreateInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
@@ -286,6 +299,7 @@ export type SiteUncheckedCreateInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
@@ -302,6 +316,7 @@ export type SiteUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
@@ -320,6 +335,7 @@ export type SiteUncheckedUpdateInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
@@ -337,6 +353,7 @@ export type SiteCreateManyInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -345,6 +362,7 @@ export type SiteUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -354,6 +372,7 @@ export type SiteUncheckedUpdateManyInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -378,6 +397,7 @@ export type SiteCountOrderByAggregateInput = {
   tenantId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  isFrozen?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -387,6 +407,7 @@ export type SiteMaxOrderByAggregateInput = {
   tenantId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  isFrozen?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -396,6 +417,7 @@ export type SiteMinOrderByAggregateInput = {
   tenantId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  isFrozen?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -565,6 +587,7 @@ export type SiteCreateWithoutUsersInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
@@ -582,6 +605,7 @@ export type SiteUncheckedCreateWithoutUsersInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   visitors?: Prisma.VisitorUncheckedCreateNestedManyWithoutSiteInput
@@ -613,6 +637,7 @@ export type SiteUpdateWithoutUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
@@ -630,6 +655,7 @@ export type SiteUncheckedUpdateWithoutUsersInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   visitors?: Prisma.VisitorUncheckedUpdateManyWithoutSiteNestedInput
@@ -645,6 +671,7 @@ export type SiteCreateWithoutTenantInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserCreateNestedManyWithoutSiteInput
@@ -661,6 +688,7 @@ export type SiteUncheckedCreateWithoutTenantInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
@@ -707,6 +735,7 @@ export type SiteScalarWhereInput = {
   tenantId?: Prisma.StringFilter<"Site"> | string
   name?: Prisma.StringFilter<"Site"> | string
   address?: Prisma.StringNullableFilter<"Site"> | string | null
+  isFrozen?: Prisma.BoolFilter<"Site"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Site"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Site"> | Date | string
 }
@@ -715,6 +744,7 @@ export type SiteCreateWithoutVisitorsInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
@@ -732,6 +762,7 @@ export type SiteUncheckedCreateWithoutVisitorsInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
@@ -763,6 +794,7 @@ export type SiteUpdateWithoutVisitorsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
@@ -780,6 +812,7 @@ export type SiteUncheckedUpdateWithoutVisitorsInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
@@ -795,6 +828,7 @@ export type SiteCreateWithoutIncidentsInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
@@ -812,6 +846,7 @@ export type SiteUncheckedCreateWithoutIncidentsInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
@@ -843,6 +878,7 @@ export type SiteUpdateWithoutIncidentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
@@ -860,6 +896,7 @@ export type SiteUncheckedUpdateWithoutIncidentsInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
@@ -875,6 +912,7 @@ export type SiteCreateWithoutShiftsInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
@@ -892,6 +930,7 @@ export type SiteUncheckedCreateWithoutShiftsInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
@@ -923,6 +962,7 @@ export type SiteUpdateWithoutShiftsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
@@ -940,6 +980,7 @@ export type SiteUncheckedUpdateWithoutShiftsInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
@@ -955,6 +996,7 @@ export type SiteCreateWithoutPostsInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
@@ -972,6 +1014,7 @@ export type SiteUncheckedCreateWithoutPostsInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
@@ -1003,6 +1046,7 @@ export type SiteUpdateWithoutPostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
@@ -1020,6 +1064,7 @@ export type SiteUncheckedUpdateWithoutPostsInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
@@ -1035,6 +1080,7 @@ export type SiteCreateWithoutOccurrenceBooksInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
@@ -1052,6 +1098,7 @@ export type SiteUncheckedCreateWithoutOccurrenceBooksInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
@@ -1083,6 +1130,7 @@ export type SiteUpdateWithoutOccurrenceBooksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
@@ -1100,6 +1148,7 @@ export type SiteUncheckedUpdateWithoutOccurrenceBooksInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
@@ -1115,6 +1164,7 @@ export type SiteCreateWithoutPatrolRoutesInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
@@ -1132,6 +1182,7 @@ export type SiteUncheckedCreateWithoutPatrolRoutesInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
@@ -1163,6 +1214,7 @@ export type SiteUpdateWithoutPatrolRoutesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
@@ -1180,6 +1232,7 @@ export type SiteUncheckedUpdateWithoutPatrolRoutesInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
@@ -1195,6 +1248,7 @@ export type SiteCreateWithoutPatrolLogsInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutSitesInput
@@ -1212,6 +1266,7 @@ export type SiteUncheckedCreateWithoutPatrolLogsInput = {
   tenantId: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSiteInput
@@ -1243,6 +1298,7 @@ export type SiteUpdateWithoutPatrolLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutSitesNestedInput
@@ -1260,6 +1316,7 @@ export type SiteUncheckedUpdateWithoutPatrolLogsInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
@@ -1275,6 +1332,7 @@ export type SiteCreateManyTenantInput = {
   id?: string
   name: string
   address?: string | null
+  isFrozen?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1283,6 +1341,7 @@ export type SiteUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUpdateManyWithoutSiteNestedInput
@@ -1299,6 +1358,7 @@ export type SiteUncheckedUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutSiteNestedInput
@@ -1315,6 +1375,7 @@ export type SiteUncheckedUpdateManyWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1418,6 +1479,7 @@ export type SiteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   tenantId?: boolean
   name?: boolean
   address?: boolean
+  isFrozen?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1437,6 +1499,7 @@ export type SiteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   tenantId?: boolean
   name?: boolean
   address?: boolean
+  isFrozen?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1447,6 +1510,7 @@ export type SiteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   tenantId?: boolean
   name?: boolean
   address?: boolean
+  isFrozen?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1457,11 +1521,12 @@ export type SiteSelectScalar = {
   tenantId?: boolean
   name?: boolean
   address?: boolean
+  isFrozen?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SiteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "address" | "createdAt" | "updatedAt", ExtArgs["result"]["site"]>
+export type SiteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "address" | "isFrozen" | "createdAt" | "updatedAt", ExtArgs["result"]["site"]>
 export type SiteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   users?: boolean | Prisma.Site$usersArgs<ExtArgs>
@@ -1499,6 +1564,7 @@ export type $SitePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     tenantId: string
     name: string
     address: string | null
+    isFrozen: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["site"]>
@@ -1937,6 +2003,7 @@ export interface SiteFieldRefs {
   readonly tenantId: Prisma.FieldRef<"Site", 'String'>
   readonly name: Prisma.FieldRef<"Site", 'String'>
   readonly address: Prisma.FieldRef<"Site", 'String'>
+  readonly isFrozen: Prisma.FieldRef<"Site", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Site", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Site", 'DateTime'>
 }

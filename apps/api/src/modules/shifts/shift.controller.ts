@@ -10,6 +10,14 @@ export const createShift = catchAsync(async (req: Request, res: Response) => {
   
   if (!tenantId || !siteId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant/site context" });
 
+  // Check if site is frozen
+  const site = await prisma.site.findUnique({ where: { id: siteId } });
+  if (site?.isFrozen) {
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      message: "This site has been frozen by the Tenant Manager. Operational activities are locked."
+    });
+  }
+
   const { userId, startTime, endTime, postId } = req.body;
 
   const shift = await prisma.shift.create({
@@ -34,6 +42,14 @@ export const startShift = catchAsync(async (req: Request, res: Response) => {
   const { shiftId } = req.body; // if shiftId provided, clock into scheduled shift
   
   if (!tenantId || !siteId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant/site context" });
+
+  // Check if site is frozen
+  const site = await prisma.site.findUnique({ where: { id: siteId } });
+  if (site?.isFrozen) {
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      message: "This site has been frozen by the Tenant Manager. Operational activities are locked."
+    });
+  }
 
   let shift;
   if (shiftId) {

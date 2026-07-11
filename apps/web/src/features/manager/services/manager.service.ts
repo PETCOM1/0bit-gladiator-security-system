@@ -8,7 +8,7 @@ export const managerService = {
   getSites: () => apiClient.get("/sites"),
   getSiteById: (id: string) => apiClient.get(`/sites/${id}`),
   createSite: (data: { name: string; address: string }) => apiClient.post("/sites", data),
-  updateSite: (id: string, data: { name?: string; address?: string }) => apiClient.put(`/sites/${id}`, data),
+  updateSite: (id: string, data: { name?: string; address?: string; isFrozen?: boolean }) => apiClient.put(`/sites/${id}`, data),
   deleteSite: (id: string) => apiClient.delete(`/sites/${id}`),
 
   // Users & Personnel

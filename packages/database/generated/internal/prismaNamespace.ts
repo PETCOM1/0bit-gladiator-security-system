@@ -1920,6 +1920,7 @@ export const SiteScalarFieldEnum = {
   tenantId: 'tenantId',
   name: 'name',
   address: 'address',
+  isFrozen: 'isFrozen',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
