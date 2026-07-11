@@ -318,16 +318,12 @@ export async function runMigrationsAndSeed(): Promise<void> {
     console.log("✅ [MIGRATE] Schema ready");
 
     // ── Data migration: security guards used to share the generic USER role ──
-    // Only relevant on databases old enough to have had 'USER' in the Role
-    // enum at all — fresh databases never get it added (see CREATE TYPE
-    // above), and Postgres rejects 'USER' as a literal outright if it was
-    // never a valid label, so check first instead of just trying/catching.
-    const legacyUserRole = await client.query(
-      `SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid = t.oid WHERE t.typname = 'Role' AND e.enumlabel = 'USER'`
-    );
-    if ((legacyUserRole.rowCount ?? 0) > 0) {
-      await client.query(`UPDATE "User" SET "role" = 'GUARD' WHERE "role" = 'USER';`);
-    }
+    // Cast to text for the comparison so Postgres never has to validate
+    // 'USER' as a Role enum literal — on a database where that label was
+    // never added (fresh installs never get it, see CREATE TYPE above),
+    // comparing it directly as an enum value is rejected outright before
+    // the query even runs, regardless of how many rows would've matched.
+    await client.query(`UPDATE "User" SET "role" = 'GUARD' WHERE "role"::text = 'USER';`);
 
     // ── Seed system settings ─────────────────────────────────────────────────
     await client.query(`
