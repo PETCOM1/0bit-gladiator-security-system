@@ -10,6 +10,9 @@ router.route("/")
   .get(restrictTo(Role.SUPER_ADMIN, Role.ADMIN, Role.ACCOUNT_MANAGER), tenantController.getTenants)
   .post(restrictTo(Role.SUPER_ADMIN, Role.ADMIN, Role.ACCOUNT_MANAGER), tenantController.createTenant);
 
+// Must be registered before /:id so Express doesn't treat "my-stats" as an id.
+router.get("/my-stats", restrictTo(Role.ACCOUNT_MANAGER), tenantController.getMyTenantStats);
+
 router.route("/:id")
   .get(restrictTo(Role.SUPER_ADMIN, Role.ADMIN, Role.ACCOUNT_MANAGER), tenantController.getTenantById);
 

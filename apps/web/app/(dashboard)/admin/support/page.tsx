@@ -98,11 +98,14 @@ export default function SupportHelpdeskPage() {
   };
 
   const filteredTickets = tickets.filter(t => {
-    // Tenant Scope Isolation: non-platform-admins only see their own tenant's tickets
-    const isPlatformAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+    // Tenant Scope Isolation: the backend already scopes what each role can
+    // see (Account Managers to tenants they onboarded, Managers/Site Managers
+    // to their own tenant); only re-filter here for roles with a single fixed
+    // tenantId, since Account Managers can have several onboarded tenants.
+    const isPreScopedByBackend = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" || user?.role === "ACCOUNT_MANAGER";
     const userTenantId = user?.tenantId || (user?.tenant as any)?.id;
     const ticketTenantId = t.tenantId || t.tenant?.id;
-    if (!isPlatformAdmin && ticketTenantId && ticketTenantId !== userTenantId) {
+    if (!isPreScopedByBackend && ticketTenantId && ticketTenantId !== userTenantId) {
       return false;
     }
 
@@ -175,7 +178,7 @@ export default function SupportHelpdeskPage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>Status:</span>
-                  {user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" ? (
+                  {user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" || user?.role === "ACCOUNT_MANAGER" ? (
                     <select 
                       value={selectedTicket.status} 
                       onChange={e => handleStatusChange(e.target.value)}
@@ -230,7 +233,7 @@ export default function SupportHelpdeskPage() {
                 {/* Ticket messages */}
                 {selectedTicket.messages?.map((msg: any) => {
                   const isMe = msg.senderId === user?.id || msg.sender?.id === user?.id;
-                  const isStaff = msg.sender?.role === "ADMIN" || msg.sender?.role === "SUPER_ADMIN";
+                  const isStaff = msg.sender?.role === "ADMIN" || msg.sender?.role === "SUPER_ADMIN" || msg.sender?.role === "ACCOUNT_MANAGER";
                   return (
                     <div key={msg.id} style={{ display: "flex", gap: "12px", alignSelf: isMe ? "flex-end" : "flex-start", flexDirection: isMe ? "row-reverse" : "row" }}>
                       <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: isMe ? "var(--color-accent-subtle)" : "var(--color-border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: isMe ? "var(--color-accent)" : "var(--color-text-secondary)", fontSize: "13px", flexShrink: 0 }}>

@@ -6,6 +6,7 @@ export const superAdminService = {
     apiClient.get("/super-admin/users", { params }),
   hardDeleteUser: (id: string) => apiClient.delete(`/super-admin/users/${id}`),
   getTenants: () => apiClient.get("/tenants"),
+  getMyTenantStats: () => apiClient.get("/tenants/my-stats"),
   getTenantById: (id: string) => apiClient.get(`/tenants/${id}`),
   createTenant: (data: any) => apiClient.post("/tenants", data),
   updateTenantStatus: (id: string, status: string) => apiClient.patch(`/tenants/${id}/status`, { status }),

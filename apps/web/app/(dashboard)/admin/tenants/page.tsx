@@ -4,6 +4,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import { Building2, Plus, X, CheckCircle2, ChevronRight, ChevronLeft, Search, Filter } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
+import { useAuth } from "@/shared/context/AuthContext";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -45,6 +46,8 @@ export function TenantsListContent() {
   const itemsPerPage = 10;
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user } = useAuth();
+  const tenantProfileBase = user?.role === "ACCOUNT_MANAGER" ? "/staff/tenants" : "/admin/tenants";
 
   useEffect(() => {
     if (searchParams.get("onboard") === "true") {
@@ -210,7 +213,7 @@ export function TenantsListContent() {
               ) : (
                 paginatedTenants.map((t, idx) => (
                   <tr key={t.id} 
-                    onClick={() => router.push(`/admin/tenants/${t.id}`)}
+                    onClick={() => router.push(`${tenantProfileBase}/${t.id}`)}
                     style={{ cursor: "pointer", borderBottom: idx < paginatedTenants.length - 1 ? "1px solid var(--color-border)" : "none", transition: "background var(--transition-fast)" }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "var(--color-bg-subtle)"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "transparent"; }}

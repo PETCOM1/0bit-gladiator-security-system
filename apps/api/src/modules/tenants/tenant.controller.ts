@@ -47,6 +47,59 @@ export const getTenantById = catchAsync(async (req: Request, res: Response) => {
   res.status(HttpStatus.OK).json({ status: "success", data: { tenant } });
 });
 
+// ── My onboarding stats (Account Manager's own dashboard analytics) ────────────
+
+export const getMyTenantStats = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user!.userId;
+
+  const tenants = await prisma.tenant.findMany({
+    where:   { createdById: userId },
+    select:  {
+      id: true, name: true, subscriptionStatus: true, createdAt: true,
+      subscriptionTier: { select: { name: true } },
+      _count: { select: { users: true, sites: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const totalTenants     = tenants.length;
+  const suspendedCount   = tenants.filter((t) => t.subscriptionStatus === "SUSPENDED").length;
+  const activeCount      = totalTenants - suspendedCount;
+  const totalUsersReached = tenants.reduce((sum, t) => sum + t._count.users, 0);
+  const totalSitesReached = tenants.reduce((sum, t) => sum + t._count.sites, 0);
+
+  const planCounts: Record<string, number> = {};
+  for (const t of tenants) {
+    const plan = t.subscriptionTier?.name ?? "Unknown";
+    planCounts[plan] = (planCounts[plan] ?? 0) + 1;
+  }
+
+  const now = new Date();
+  const monthlyOnboarding = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    const count = tenants.filter((t) => {
+      const tc = new Date(t.createdAt);
+      return tc.getFullYear() === d.getFullYear() && tc.getMonth() === d.getMonth();
+    }).length;
+    return { month: d.toLocaleDateString("en-US", { month: "short" }), count };
+  });
+
+  return res.status(HttpStatus.OK).json({
+    status: "success",
+    data: {
+      totalTenants, activeCount, suspendedCount,
+      totalUsersReached, totalSitesReached,
+      planBreakdown: Object.entries(planCounts).map(([plan, count]) => ({ plan, count })),
+      monthlyOnboarding,
+      recentTenants: tenants.slice(0, 8).map((t) => ({
+        id: t.id, name: t.name, subscriptionStatus: t.subscriptionStatus,
+        plan: t.subscriptionTier?.name ?? "Unknown", createdAt: t.createdAt,
+        userCount: t._count.users, siteCount: t._count.sites,
+      })),
+    },
+  });
+});
+
 export const createTenant = catchAsync(async (req: Request, res: Response) => {
   const { 
     name, orgType, registrationNumber, physicalAddress, countryRegion,

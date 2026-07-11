@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Building2, ArrowLeft, Mail, Phone, MapPin, Users, Activity, CheckCircle2, DollarSign, Ban, Play, ChevronDown, ChevronUp } from "lucide-react";
 import { superAdminService } from "../services/tenant.service";
+import { useAuth } from "@/shared/context/AuthContext";
 
 export default function TenantProfilePage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
+  const canChangeStatus = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
   const [tenant, setTenant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -84,20 +87,22 @@ export default function TenantProfilePage() {
           </div>
         </div>
 
-        <button 
-          onClick={handleToggleStatus}
-          disabled={updating}
-          style={{ 
-            display: "flex", alignItems: "center", gap: "8px",
-            padding: "10px 16px", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: 600,
-            background: tenant.subscriptionStatus === "SUSPENDED" ? "var(--color-success)" : "var(--color-danger)",
-            color: "white", border: "none", cursor: updating ? "not-allowed" : "pointer",
-            transition: "all var(--transition-fast)", opacity: updating ? 0.7 : 1
-          }}
-        >
-          {tenant.subscriptionStatus === "SUSPENDED" ? <Play size={16} /> : <Ban size={16} />}
-          {updating ? "Updating..." : tenant.subscriptionStatus === "SUSPENDED" ? "Activate Tenant" : "Suspend Tenant"}
-        </button>
+        {canChangeStatus && (
+          <button
+            onClick={handleToggleStatus}
+            disabled={updating}
+            style={{
+              display: "flex", alignItems: "center", gap: "8px",
+              padding: "10px 16px", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: 600,
+              background: tenant.subscriptionStatus === "SUSPENDED" ? "var(--color-success)" : "var(--color-danger)",
+              color: "white", border: "none", cursor: updating ? "not-allowed" : "pointer",
+              transition: "all var(--transition-fast)", opacity: updating ? 0.7 : 1
+            }}
+          >
+            {tenant.subscriptionStatus === "SUSPENDED" ? <Play size={16} /> : <Ban size={16} />}
+            {updating ? "Updating..." : tenant.subscriptionStatus === "SUSPENDED" ? "Activate Tenant" : "Suspend Tenant"}
+          </button>
+        )}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
