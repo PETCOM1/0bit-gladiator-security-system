@@ -255,6 +255,8 @@ export const IncidentScalarFieldEnum = {
   description: 'description',
   severity: 'severity',
   status: 'status',
+  category: 'category',
+  resolvedAt: 'resolvedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

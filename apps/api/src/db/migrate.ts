@@ -248,6 +248,8 @@ export async function runMigrationsAndSeed(): Promise<void> {
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phone"       TEXT;`);
     await client.query(`ALTER TABLE "Tenant" ADD COLUMN IF NOT EXISTS "subscriptionTierId" TEXT;`);
     await client.query(`ALTER TABLE "Tenant" ADD COLUMN IF NOT EXISTS "createdById" TEXT;`);
+    await client.query(`ALTER TABLE "Incident" ADD COLUMN IF NOT EXISTS "category"   TEXT;`);
+    await client.query(`ALTER TABLE "Incident" ADD COLUMN IF NOT EXISTS "resolvedAt" TIMESTAMP(3);`);
 
     // ── Indexes ──────────────────────────────────────────────────────────────
     await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key"    ON "User"("email");`);

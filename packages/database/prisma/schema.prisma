@@ -315,6 +315,8 @@ model Incident {
   description String
   severity    IncidentSeverity @default(LOW)
   status      IncidentStatus   @default(OPEN)
+  category    String?
+  resolvedAt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

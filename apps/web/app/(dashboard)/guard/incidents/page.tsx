@@ -15,6 +15,9 @@ export default function SecurityIncidentsPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState("LOW");
+  const [category, setCategory] = useState("");
+
+  const INCIDENT_CATEGORIES = ["Unauthorized Access", "Theft/Burglary", "Vandalism", "Suspicious Activity", "Fire/Hazard", "Medical Emergency", "Equipment Fault", "Policy Violation", "Other"];
 
   const fetchIncidents = async () => {
     setLoading(true);
@@ -36,9 +39,9 @@ export default function SecurityIncidentsPage() {
   const handleReport = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await managerService.createIncident({ title, description, severity });
+      await managerService.createIncident({ title, description, severity, category: category || undefined });
       setShowForm(false);
-      setTitle(""); setDescription(""); setSeverity("LOW");
+      setTitle(""); setDescription(""); setSeverity("LOW"); setCategory("");
       fetchIncidents();
     } catch (err) {
       console.error(err);
@@ -113,14 +116,24 @@ export default function SecurityIncidentsPage() {
             <textarea required value={description} onChange={e => setDescription(e.target.value)} placeholder="Provide full details of the incident..." style={{ ...inputStyle, minHeight: "100px", resize: "vertical" }} />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px", width: "200px" }}>
-            <label style={labelStyle}>Severity *</label>
-            <select value={severity} onChange={e => setSeverity(e.target.value)} style={inputStyle}>
-              <option value="LOW">Low</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HIGH">High</option>
-              <option value="CRITICAL">Critical</option>
-            </select>
+          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px", width: "200px" }}>
+              <label style={labelStyle}>Severity *</label>
+              <select value={severity} onChange={e => setSeverity(e.target.value)} style={inputStyle}>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
+              </select>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px", width: "220px" }}>
+              <label style={labelStyle}>Category</label>
+              <select value={category} onChange={e => setCategory(e.target.value)} style={inputStyle}>
+                <option value="">Uncategorized</option>
+                {INCIDENT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
           </div>
 
           <button type="submit" style={{ padding: "12px 24px", background: "var(--color-danger)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", width: "fit-content", marginTop: "8px", transition: "opacity var(--transition-fast)" }} onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; }} onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>

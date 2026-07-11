@@ -35,6 +35,7 @@ import ticketRoutes       from "./modules/tickets/ticket.routes.js";
 import planRoutes         from "./modules/plans/plan.routes.js";
 
 import managerRoutes      from "./modules/manager/manager.routes.js";
+import siteManagerRoutes  from "./modules/site-manager/site-manager.routes.js";
 
 const app: Express = express();
 const isProduction = process.env.NODE_ENV === "production";
@@ -112,6 +113,7 @@ app.use(`${API}/users`,         userRoutes);
 app.use(`${API}/admin`,         adminRoutes);
 app.use(`${API}/super-admin`,   superAdminRoutes);
 app.use(`${API}/manager`,       managerRoutes);
+app.use(`${API}/site-manager`,  siteManagerRoutes);
 app.use(`${API}/notifications`, notificationRoutes);
 app.use(`${API}/tenants`,       tenantRoutes);
 app.use(`${API}/sites`,         siteRoutes);

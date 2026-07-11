@@ -33,6 +33,8 @@ export type IncidentMinAggregateOutputType = {
   description: string | null
   severity: $Enums.IncidentSeverity | null
   status: $Enums.IncidentStatus | null
+  category: string | null
+  resolvedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +48,8 @@ export type IncidentMaxAggregateOutputType = {
   description: string | null
   severity: $Enums.IncidentSeverity | null
   status: $Enums.IncidentStatus | null
+  category: string | null
+  resolvedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +63,8 @@ export type IncidentCountAggregateOutputType = {
   description: number
   severity: number
   status: number
+  category: number
+  resolvedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,6 +80,8 @@ export type IncidentMinAggregateInputType = {
   description?: true
   severity?: true
   status?: true
+  category?: true
+  resolvedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,6 +95,8 @@ export type IncidentMaxAggregateInputType = {
   description?: true
   severity?: true
   status?: true
+  category?: true
+  resolvedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +110,8 @@ export type IncidentCountAggregateInputType = {
   description?: true
   severity?: true
   status?: true
+  category?: true
+  resolvedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -186,6 +198,8 @@ export type IncidentGroupByOutputType = {
   description: string
   severity: $Enums.IncidentSeverity
   status: $Enums.IncidentStatus
+  category: string | null
+  resolvedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: IncidentCountAggregateOutputType | null
@@ -220,6 +234,8 @@ export type IncidentWhereInput = {
   description?: Prisma.StringFilter<"Incident"> | string
   severity?: Prisma.EnumIncidentSeverityFilter<"Incident"> | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFilter<"Incident"> | $Enums.IncidentStatus
+  category?: Prisma.StringNullableFilter<"Incident"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Incident"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Incident"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -236,6 +252,8 @@ export type IncidentOrderByWithRelationInput = {
   description?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -255,6 +273,8 @@ export type IncidentWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringFilter<"Incident"> | string
   severity?: Prisma.EnumIncidentSeverityFilter<"Incident"> | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFilter<"Incident"> | $Enums.IncidentStatus
+  category?: Prisma.StringNullableFilter<"Incident"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Incident"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Incident"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -271,6 +291,8 @@ export type IncidentOrderByWithAggregationInput = {
   description?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.IncidentCountOrderByAggregateInput
@@ -290,6 +312,8 @@ export type IncidentScalarWhereWithAggregatesInput = {
   description?: Prisma.StringWithAggregatesFilter<"Incident"> | string
   severity?: Prisma.EnumIncidentSeverityWithAggregatesFilter<"Incident"> | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusWithAggregatesFilter<"Incident"> | $Enums.IncidentStatus
+  category?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Incident"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Incident"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Incident"> | Date | string
 }
@@ -300,6 +324,8 @@ export type IncidentCreateInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutIncidentsInput
@@ -316,6 +342,8 @@ export type IncidentUncheckedCreateInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -326,6 +354,8 @@ export type IncidentUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutIncidentsNestedInput
@@ -342,6 +372,8 @@ export type IncidentUncheckedUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -355,6 +387,8 @@ export type IncidentCreateManyInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -365,6 +399,8 @@ export type IncidentUpdateManyMutationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -378,6 +414,8 @@ export type IncidentUncheckedUpdateManyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -401,6 +439,8 @@ export type IncidentCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -414,6 +454,8 @@ export type IncidentMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -427,6 +469,8 @@ export type IncidentMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -571,6 +615,8 @@ export type IncidentCreateWithoutReportedByInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutIncidentsInput
@@ -585,6 +631,8 @@ export type IncidentUncheckedCreateWithoutReportedByInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -627,6 +675,8 @@ export type IncidentScalarWhereInput = {
   description?: Prisma.StringFilter<"Incident"> | string
   severity?: Prisma.EnumIncidentSeverityFilter<"Incident"> | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFilter<"Incident"> | $Enums.IncidentStatus
+  category?: Prisma.StringNullableFilter<"Incident"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Incident"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Incident"> | Date | string
 }
@@ -637,6 +687,8 @@ export type IncidentCreateWithoutTenantInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   site: Prisma.SiteCreateNestedOneWithoutIncidentsInput
@@ -651,6 +703,8 @@ export type IncidentUncheckedCreateWithoutTenantInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -687,6 +741,8 @@ export type IncidentCreateWithoutSiteInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutIncidentsInput
@@ -701,6 +757,8 @@ export type IncidentUncheckedCreateWithoutSiteInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -739,6 +797,8 @@ export type IncidentCreateManyReportedByInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -749,6 +809,8 @@ export type IncidentUpdateWithoutReportedByInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutIncidentsNestedInput
@@ -763,6 +825,8 @@ export type IncidentUncheckedUpdateWithoutReportedByInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -775,6 +839,8 @@ export type IncidentUncheckedUpdateManyWithoutReportedByInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -787,6 +853,8 @@ export type IncidentCreateManyTenantInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -797,6 +865,8 @@ export type IncidentUpdateWithoutTenantInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   site?: Prisma.SiteUpdateOneRequiredWithoutIncidentsNestedInput
@@ -811,6 +881,8 @@ export type IncidentUncheckedUpdateWithoutTenantInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -823,6 +895,8 @@ export type IncidentUncheckedUpdateManyWithoutTenantInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -835,6 +909,8 @@ export type IncidentCreateManySiteInput = {
   description: string
   severity?: $Enums.IncidentSeverity
   status?: $Enums.IncidentStatus
+  category?: string | null
+  resolvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -845,6 +921,8 @@ export type IncidentUpdateWithoutSiteInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutIncidentsNestedInput
@@ -859,6 +937,8 @@ export type IncidentUncheckedUpdateWithoutSiteInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -871,6 +951,8 @@ export type IncidentUncheckedUpdateManyWithoutSiteInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumIncidentSeverityFieldUpdateOperationsInput | $Enums.IncidentSeverity
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -886,6 +968,8 @@ export type IncidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   description?: boolean
   severity?: boolean
   status?: boolean
+  category?: boolean
+  resolvedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -902,6 +986,8 @@ export type IncidentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   description?: boolean
   severity?: boolean
   status?: boolean
+  category?: boolean
+  resolvedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -918,6 +1004,8 @@ export type IncidentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   description?: boolean
   severity?: boolean
   status?: boolean
+  category?: boolean
+  resolvedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -934,11 +1022,13 @@ export type IncidentSelectScalar = {
   description?: boolean
   severity?: boolean
   status?: boolean
+  category?: boolean
+  resolvedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type IncidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "siteId" | "reportedById" | "title" | "description" | "severity" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["incident"]>
+export type IncidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "siteId" | "reportedById" | "title" | "description" | "severity" | "status" | "category" | "resolvedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["incident"]>
 export type IncidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
@@ -971,6 +1061,8 @@ export type $IncidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     description: string
     severity: $Enums.IncidentSeverity
     status: $Enums.IncidentStatus
+    category: string | null
+    resolvedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["incident"]>
@@ -1407,6 +1499,8 @@ export interface IncidentFieldRefs {
   readonly description: Prisma.FieldRef<"Incident", 'String'>
   readonly severity: Prisma.FieldRef<"Incident", 'IncidentSeverity'>
   readonly status: Prisma.FieldRef<"Incident", 'IncidentStatus'>
+  readonly category: Prisma.FieldRef<"Incident", 'String'>
+  readonly resolvedAt: Prisma.FieldRef<"Incident", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Incident", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Incident", 'DateTime'>
 }

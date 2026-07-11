@@ -3,6 +3,7 @@ import apiClient from "@/api/client";
 export const managerService = {
   // Dashboard & KPIs
   getDashboardStats: () => apiClient.get("/manager/stats"),
+  getSiteAnalytics: () => apiClient.get("/site-manager/analytics"),
 
   // Sites
   getSites: () => apiClient.get("/sites"),
@@ -22,7 +23,7 @@ export const managerService = {
 
   // Incidents
   getIncidents: () => apiClient.get("/incidents"),
-  createIncident: (data: { title: string; description: string; severity?: string; siteId?: string }) => apiClient.post("/incidents", data),
+  createIncident: (data: { title: string; description: string; severity?: string; category?: string; siteId?: string }) => apiClient.post("/incidents", data),
   updateIncidentStatus: (id: string, data: { status?: string; severity?: string }) => apiClient.patch(`/incidents/${id}`, data),
 
   // Visitors

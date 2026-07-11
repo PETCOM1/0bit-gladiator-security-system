@@ -1670,3 +1670,339 @@ export function exportIncidentReport(data: SingleIncidentReportData, filename: s
   doc.save(filename);
 }
 
+export interface SiteAnalyticsReportData {
+  siteName: string;
+  generatedDate: string;
+  kpis: {
+    totalPersonnel: number; personnelOnDuty: number; activePosts: number; activeShiftsToday: number;
+    attendanceRate: number | null; shiftCoverage: number | null; openIncidents: number; visitorsOnSite: number;
+  };
+  attendance: { onTimeCheckIns: number; lateArrivals: number; missedCheckIns: number; missedCheckOuts: number; attendancePercentage: number | null };
+  shiftCoverage: { totalScheduled: number; filled: number; vacant: number; coveragePercentage: number | null; unstaffedPosts: number; overtimeAssignments: number; shiftCompletionRate: number | null };
+  postPerformance: Array<{ name: string; assignedPersonnel: number; coveragePercentage: number | null; needsAttention: boolean }>;
+  personnelPerformance: {
+    mostPunctual: Array<{ name: string; onTimePercentage: number | null }>;
+    repeatedLateArrivals: Array<{ name: string; lateArrivals: number }>;
+    onLeave: Array<{ name: string }>;
+    absentToday: Array<{ name: string }>;
+  };
+  incidentAnalytics: { total: number; open: number; resolved: number; avgResolutionTimeHours: number | null; byCategory: Array<{ category: string; count: number }> };
+  visitorAnalytics: { today: number; thisWeek: number; onSite: number; avgVisitDurationMinutes: number | null };
+  occurrenceBook: { entriesToday: number; entriesThisWeek: number; mostCommon: Array<{ category: string; count: number }> };
+  weeklyCoverage: Array<{ day: string; date: string; coveragePercentage: number | null; filledShifts: number; vacantShifts: number; status: string }>;
+  alerts: {
+    vacantPosts: Array<{ name: string }>;
+    unassignedShifts: number;
+    openHighPriorityIncidents: number;
+    missedCheckIns: Array<{ guardName: string }>;
+    visitorsOverstaying: Array<{ name: string; hoursOnSite: number }>;
+  };
+}
+
+export function exportSiteAnalyticsReport(data: SiteAnalyticsReportData, filename: string = "Site_Analytics_Report.pdf") {
+  const doc = new jsPDF();
+  const primaryColor = [15, 23, 42];
+  const secondaryColor = [71, 85, 105];
+  const accentColor = [249, 115, 22];
+  const borderLight = [226, 232, 240];
+
+  const drawHeader = (pageTitle: string, pageNum: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text("GLADIATOR PRO", 14, 15);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(239, 68, 68);
+    doc.text("CONFIDENTIAL", 95, 15);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text(`Page ${pageNum} - ${pageTitle}`, 196 - doc.getTextWidth(`Page ${pageNum} - ${pageTitle}`), 15);
+    doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+    doc.setLineWidth(0.5);
+    doc.line(14, 18, 196, 18);
+  };
+
+  const pct = (v: number | null) => (v === null ? "—" : `${v}%`);
+
+  // ── PAGE 1: COVER ──
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(0, 0, 45, 297, "F");
+  doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+  doc.rect(40, 0, 5, 297, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(239, 68, 68);
+  doc.text("STRICTLY CONFIDENTIAL - INTERNAL USE ONLY", 60, 40);
+
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("SITE OPERATIONAL", 60, 50);
+  doc.text("ANALYTICS REPORT", 60, 60);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(13);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text(data.siteName, 60, 68);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text("GENERATED:", 60, 90);
+  doc.setFontSize(14);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text(data.generatedDate, 60, 96);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text("SUMMARY HIGHLIGHTS", 60, 118);
+  doc.line(60, 121, 190, 121);
+
+  const drawHighlight = (count: string, label: string, x: number, y: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+    doc.text(count, x, y);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text(label, x, y + 6);
+  };
+
+  drawHighlight(`${data.kpis.totalPersonnel}`, "Total Personnel", 60, 138);
+  drawHighlight(`${data.kpis.personnelOnDuty}`, "On Duty Now", 100, 138);
+  drawHighlight(`${data.kpis.activePosts}`, "Active Posts", 140, 138);
+  drawHighlight(pct(data.kpis.attendanceRate), "Attendance Rate", 60, 158);
+  drawHighlight(pct(data.kpis.shiftCoverage), "Shift Coverage", 100, 158);
+  drawHighlight(`${data.kpis.openIncidents}`, "Open Incidents", 140, 158);
+  drawHighlight(`${data.kpis.visitorsOnSite}`, "Visitors On Site", 60, 178);
+
+  // ── PAGE 2: ATTENDANCE + SHIFT COVERAGE ──
+  doc.addPage();
+  drawHeader("Attendance & Coverage", 2);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("ATTENDANCE ANALYTICS", 14, 30);
+
+  const drawStatRow = (rows: Array<[string, string]>, startY: number) => {
+    let y = startY;
+    rows.forEach(([label, value]) => {
+      doc.setFillColor(241, 245, 249);
+      doc.rect(14, y, 182, 9, "F");
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.text(label, 18, y + 6);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text(value, 180, y + 6, { align: "right" });
+      y += 11;
+    });
+    return y;
+  };
+
+  let y = drawStatRow([
+    ["On-Time Check-ins (30 days)", `${data.attendance.onTimeCheckIns}`],
+    ["Late Arrivals (30 days)", `${data.attendance.lateArrivals}`],
+    ["Missed Check-ins (30 days)", `${data.attendance.missedCheckIns}`],
+    ["Missed Check-outs (30 days)", `${data.attendance.missedCheckOuts}`],
+    ["Attendance Percentage", pct(data.attendance.attendancePercentage)],
+  ], 40);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("SHIFT COVERAGE ANALYTICS (THIS WEEK)", 14, y + 14);
+
+  drawStatRow([
+    ["Total Scheduled Shifts", `${data.shiftCoverage.totalScheduled}`],
+    ["Filled", `${data.shiftCoverage.filled}`],
+    ["Vacant", `${data.shiftCoverage.vacant}`],
+    ["Coverage Percentage", pct(data.shiftCoverage.coveragePercentage)],
+    ["Unstaffed Posts", `${data.shiftCoverage.unstaffedPosts}`],
+    ["Overtime Assignments", `${data.shiftCoverage.overtimeAssignments}`],
+    ["Shift Completion Rate", pct(data.shiftCoverage.shiftCompletionRate)],
+  ], y + 24);
+
+  // ── PAGE 3: POST PERFORMANCE + PERSONNEL ──
+  doc.addPage();
+  drawHeader("Post & Personnel Performance", 3);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("POST PERFORMANCE", 14, 30);
+
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, 38, 182, 8, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text("POST", 18, 44);
+  doc.text("PERSONNEL", 100, 44);
+  doc.text("COVERAGE", 135, 44);
+  doc.text("STATUS", 170, 44);
+
+  let postY = 54;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  if (data.postPerformance.length === 0) {
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text("No posts configured for this site.", 18, postY);
+    postY += 10;
+  } else {
+    data.postPerformance.forEach(p => {
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text(p.name, 18, postY);
+      doc.text(`${p.assignedPersonnel}`, 100, postY);
+      doc.text(pct(p.coveragePercentage), 135, postY);
+      doc.setTextColor(p.needsAttention ? 239 : 34, p.needsAttention ? 68 : 197, p.needsAttention ? 68 : 94);
+      doc.text(p.needsAttention ? "Needs Attention" : "Healthy", 170, postY);
+      doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+      doc.line(14, postY + 4, 196, postY + 4);
+      postY += 10;
+    });
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("PERSONNEL PERFORMANCE (30 DAYS)", 14, postY + 14);
+
+  const drawNameList = (title: string, names: string[], startY: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text(title, 18, startY);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(names.length ? names.join(", ") : "None", 18, startY + 6, { maxWidth: 178 });
+    return startY + 6 + Math.ceil((names.join(", ").length || 4) / 90) * 5 + 6;
+  };
+
+  let pY = postY + 24;
+  pY = drawNameList("Most Punctual", data.personnelPerformance.mostPunctual.map(g => g.name), pY);
+  pY = drawNameList("Repeated Late Arrivals", data.personnelPerformance.repeatedLateArrivals.map(g => g.name), pY);
+  pY = drawNameList("Currently On Leave", data.personnelPerformance.onLeave.map(g => g.name), pY);
+  drawNameList("Absent Today", data.personnelPerformance.absentToday.map(g => g.name), pY);
+
+  // ── PAGE 4: INCIDENTS, VISITORS, OB ──
+  doc.addPage();
+  drawHeader("Incidents, Visitors & Occurrence Book", 4);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("INCIDENT ANALYTICS", 14, 30);
+
+  let iY = drawStatRow([
+    ["Total Incidents", `${data.incidentAnalytics.total}`],
+    ["Open", `${data.incidentAnalytics.open}`],
+    ["Resolved", `${data.incidentAnalytics.resolved}`],
+    ["Avg Resolution Time", data.incidentAnalytics.avgResolutionTimeHours !== null ? `${data.incidentAnalytics.avgResolutionTimeHours}h` : "—"],
+  ], 40);
+  iY = drawNameList("By Category", data.incidentAnalytics.byCategory.map(c => `${c.category} (${c.count})`), iY + 6);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("VISITOR ANALYTICS", 14, iY + 10);
+  let vY = drawStatRow([
+    ["Visitors Today", `${data.visitorAnalytics.today}`],
+    ["Visitors This Week", `${data.visitorAnalytics.thisWeek}`],
+    ["Currently On Site", `${data.visitorAnalytics.onSite}`],
+    ["Avg Visit Duration", data.visitorAnalytics.avgVisitDurationMinutes !== null ? `${data.visitorAnalytics.avgVisitDurationMinutes}m` : "—"],
+  ], iY + 20);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("OCCURRENCE BOOK ANALYTICS", 14, vY + 10);
+  drawStatRow([
+    ["Entries Today", `${data.occurrenceBook.entriesToday}`],
+    ["Entries This Week", `${data.occurrenceBook.entriesThisWeek}`],
+    ["Most Common", data.occurrenceBook.mostCommon.map(c => c.category).join(", ") || "—"],
+  ], vY + 20);
+
+  // ── PAGE 5: WEEKLY COVERAGE + ALERTS ──
+  doc.addPage();
+  drawHeader("Weekly Coverage & Alerts", 5);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("WEEKLY COVERAGE OVERVIEW", 14, 30);
+
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, 38, 182, 8, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text("DAY", 18, 44);
+  doc.text("COVERAGE", 70, 44);
+  doc.text("FILLED", 115, 44);
+  doc.text("VACANT", 150, 44);
+  doc.text("STATUS", 175, 44);
+
+  let wY = 54;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  data.weeklyCoverage.forEach(d => {
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(`${d.day} ${d.date}`, 18, wY);
+    doc.text(pct(d.coveragePercentage), 70, wY);
+    doc.text(`${d.filledShifts}`, 115, wY);
+    doc.text(`${d.vacantShifts}`, 150, wY);
+    doc.text(d.status, 175, wY);
+    doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+    doc.line(14, wY + 4, 196, wY + 4);
+    wY += 10;
+  });
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("OPERATIONAL ALERTS", 14, wY + 14);
+
+  const alertLines: string[] = [
+    ...data.alerts.vacantPosts.map(p => `Vacant post: ${p.name}`),
+    ...(data.alerts.unassignedShifts > 0 ? [`${data.alerts.unassignedShifts} unassigned shift(s) in the next 7 days`] : []),
+    ...(data.alerts.openHighPriorityIncidents > 0 ? [`${data.alerts.openHighPriorityIncidents} open high-priority incident(s)`] : []),
+    ...data.alerts.missedCheckIns.map(m => `${m.guardName} missed check-in`),
+    ...data.alerts.visitorsOverstaying.map(v => `${v.name} on site for ${v.hoursOnSite}h (overstaying)`),
+  ];
+
+  let aY = wY + 24;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  if (alertLines.length === 0) {
+    doc.setTextColor(34, 197, 94);
+    doc.text("No urgent operational issues at time of report.", 18, aY);
+  } else {
+    alertLines.forEach(line => {
+      if (aY > 275) { doc.addPage(); drawHeader("Operational Alerts", 5); aY = 30; }
+      doc.setTextColor(239, 68, 68);
+      doc.text(`•  ${line}`, 18, aY, { maxWidth: 178 });
+      aY += 8;
+    });
+  }
+
+  // Footer on all pages
+  const pageCount = (doc.internal as any).getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
+    doc.line(14, 282, 196, 282);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text("GLADIATOR PRO © 2026 - CONFIDENTIAL SECURITY REPORT", 14, 288);
+    doc.text(`Page ${i} of ${pageCount}`, 196 - doc.getTextWidth(`Page ${i} of ${pageCount}`), 288);
+  }
+
+  doc.save(filename);
+}
+
