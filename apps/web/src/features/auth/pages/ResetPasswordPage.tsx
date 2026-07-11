@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/api/client";
 import { endpoints } from "@/api/endpoints";
+import { authService } from "@/features/auth/services/auth.service";
+import { useAuth } from "@/shared/context/AuthContext";
 import { BRAND } from "@/shared/config/branding.config";
 
 const inputStyle: React.CSSProperties = {
@@ -64,6 +66,7 @@ function PasswordStrength({ password }: { password: string }) {
 export default function ResetPasswordPage() {
   const router       = useRouter();
   const searchParams = useSearchParams();
+  const { setUser }  = useAuth();
   const token = searchParams.get("token");
   const email = searchParams.get("email") ?? "";
 
@@ -73,6 +76,15 @@ export default function ResetPasswordPage() {
   const [isSubmitting,    setIsSubmitting]    = useState(false);
   const [error,           setError]           = useState<string | null>(null);
   const [isDone,          setIsDone]          = useState(false);
+
+  // A reset link can be opened in a browser where a different user is still
+  // signed in. Without clearing that session, the redirect to /login after
+  // reset would land on the stale user's dashboard instead of a login form.
+  useEffect(() => {
+    authService.logout().catch(() => {});
+    localStorage.removeItem("auth_token");
+    setUser(null);
+  }, [setUser]);
 
   useEffect(() => { if (!token) router.replace("/login"); }, [token, router]);
   if (!token) return null;

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authService } from "@/features/auth/services/auth.service";
+import { useAuth } from "@/shared/context/AuthContext";
 import { BRAND } from "@/shared/config/branding.config";
 
 const inputStyle: React.CSSProperties = {
@@ -66,6 +67,7 @@ function PasswordStrength({ password }: { password: string }) {
 export default function SetPasswordPage() {
   const router       = useRouter();
   const searchParams = useSearchParams();
+  const { setUser }  = useAuth();
   const token = searchParams.get("token");
   const email = searchParams.get("email") ?? "";
 
@@ -75,6 +77,17 @@ export default function SetPasswordPage() {
   const [isSubmitting,     setIsSubmitting]     = useState(false);
   const [error,            setError]            = useState<string | null>(null);
   const [isDone,           setIsDone]           = useState(false);
+
+  // An invite link is often opened in the same browser the inviter is still
+  // signed in on. Without clearing that session here, AuthContext keeps the
+  // inviter as the logged-in user for the whole page, and the redirect to
+  // /login after activation lands the invitee on the inviter's dashboard
+  // instead of a real login form. Best-effort: clear local token + cookie.
+  useEffect(() => {
+    authService.logout().catch(() => {});
+    localStorage.removeItem("auth_token");
+    setUser(null);
+  }, [setUser]);
 
   useEffect(() => { if (!token) router.replace("/login"); }, [token, router]);
   if (!token) return null;
