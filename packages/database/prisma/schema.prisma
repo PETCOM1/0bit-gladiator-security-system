@@ -240,6 +240,7 @@ model Tenant {
   visitors     Visitor[]
   incidents    Incident[]
   shifts       Shift[]
+  shiftTemplates ShiftTemplate[]
   patrolLogs   PatrolLog[]
   patrolRoutes PatrolRoute[]
   posts        Post[]
@@ -350,6 +351,22 @@ model Shift {
   @@index([siteId])
   @@index([userId])
   @@index([postId])
+}
+
+model ShiftTemplate {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name      String
+  startTime String // "HH:MM"
+  endTime   String // "HH:MM"
+  color     String @default("#3b82f6")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
 }
 
 model Post {

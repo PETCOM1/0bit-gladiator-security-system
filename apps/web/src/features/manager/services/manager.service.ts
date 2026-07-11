@@ -44,6 +44,12 @@ export const managerService = {
   createPost: (data: { name: string; siteId?: string }) => apiClient.post("/posts", data),
   updatePost: (id: string, data: { name?: string; isActive?: boolean }) => apiClient.patch(`/posts/${id}`, data),
 
+  // Shift Templates
+  getShiftTemplates: () => apiClient.get("/shift-templates/tenant"),
+  createShiftTemplate: (data: { name: string; startTime: string; endTime: string; color?: string }) => apiClient.post("/shift-templates", data),
+  updateShiftTemplate: (id: string, data: { name?: string; startTime?: string; endTime?: string; color?: string }) => apiClient.patch(`/shift-templates/${id}`, data),
+  deleteShiftTemplate: (id: string) => apiClient.delete(`/shift-templates/${id}`),
+
   // Occurrences
   getOccurrences: (siteId?: string) => apiClient.get("/occurrences", { params: { siteId } }),
   createOccurrence: (data: { entryText: string; category?: string; siteId?: string; location?: string; severity?: string; image?: string }) => apiClient.post("/occurrences", data),

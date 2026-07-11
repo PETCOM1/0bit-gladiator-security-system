@@ -116,12 +116,44 @@ export const getTenantShifts = catchAsync(async (req: Request, res: Response) =>
   const shifts = await prisma.shift.findMany({
     where: whereClause,
     orderBy: { startTime: 'desc' },
-    include: { 
-      user: { select: { firstName: true, lastName: true, email: true, avatarUrl: true } }, 
+    include: {
+      user: { select: { firstName: true, lastName: true, email: true, avatarUrl: true } },
       site: { select: { name: true } },
       post: { select: { name: true } }
     }
   });
+
+  // For a guard, also surface who else is assigned to the same post during an
+  // overlapping window — e.g. a second guard covering the same post/shift.
+  if (req.user!.role === Role.GUARD) {
+    const postIds = [...new Set(shifts.filter(s => s.postId).map(s => s.postId as string))];
+    const coShifts = postIds.length > 0
+      ? await prisma.shift.findMany({
+          where: {
+            tenantId,
+            postId: { in: postIds },
+            status: { not: "DRAFT" },
+            userId: { not: null }
+          },
+          include: { user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } } }
+        })
+      : [];
+
+    for (const shift of shifts as any[]) {
+      if (!shift.postId) { shift.pairedGuards = []; continue; }
+      const sStart = new Date(shift.startTime).getTime();
+      const sEnd = shift.endTime ? new Date(shift.endTime).getTime() : sStart + 12 * 60 * 60 * 1000;
+
+      shift.pairedGuards = coShifts
+        .filter(other => {
+          if (other.id === shift.id || other.postId !== shift.postId || other.userId === shift.userId) return false;
+          const oStart = new Date(other.startTime).getTime();
+          const oEnd = other.endTime ? new Date(other.endTime).getTime() : oStart + 12 * 60 * 60 * 1000;
+          return sStart < oEnd && sEnd > oStart;
+        })
+        .map(other => other.user);
+    }
+  }
 
   res.status(HttpStatus.OK).json({ status: "success", data: { shifts } });
 });
@@ -169,20 +201,36 @@ export const publishShifts = catchAsync(async (req: Request, res: Response) => {
 
   const { startDate, endDate } = req.body;
 
-  const result = await prisma.shift.updateMany({
-    where: {
-      tenantId,
-      siteId,
-      status: "DRAFT",
-      startTime: {
-        gte: new Date(startDate),
-        lte: new Date(endDate)
-      }
-    },
-    data: {
-      status: "SCHEDULED"
+  const whereClause = {
+    tenantId,
+    siteId,
+    status: "DRAFT" as const,
+    startTime: {
+      gte: new Date(startDate),
+      lte: new Date(endDate)
     }
+  };
+
+  const draftShifts = await prisma.shift.findMany({
+    where: whereClause,
+    select: { userId: true, startTime: true }
   });
+
+  const result = await prisma.shift.updateMany({
+    where: whereClause,
+    data: { status: "SCHEDULED" }
+  });
+
+  const assignedGuardIds = [...new Set(draftShifts.filter(s => s.userId).map(s => s.userId as string))];
+  if (assignedGuardIds.length > 0) {
+    await prisma.notification.createMany({
+      data: assignedGuardIds.map(userId => ({
+        userId,
+        title: "New shifts published",
+        body: "Your schedule for this week has been published. Check your shifts for details."
+      }))
+    });
+  }
 
   res.status(HttpStatus.OK).json({ status: "success", data: { count: result.count } });
 });

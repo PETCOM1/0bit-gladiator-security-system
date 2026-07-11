@@ -97,6 +97,11 @@ export type Incident = Prisma.IncidentModel
  */
 export type Shift = Prisma.ShiftModel
 /**
+ * Model ShiftTemplate
+ * 
+ */
+export type ShiftTemplate = Prisma.ShiftTemplateModel
+/**
  * Model Post
  * 
  */

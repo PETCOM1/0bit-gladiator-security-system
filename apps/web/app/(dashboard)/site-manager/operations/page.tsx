@@ -117,21 +117,24 @@ function OperationsContent() {
   // Sub-tab inside the "shifts" tab
   const [shiftSubTab, setShiftSubTab] = useState<"templates" | "roster" | "autoschedule" | "coverage">("templates");
 
-  // Shift Templates
+  // Shift Templates — persisted server-side (per tenant); the API seeds a
+  // starter set of four templates the first time a tenant has none.
   interface ShiftTemplate { id: string; name: string; startTime: string; endTime: string; color: string; }
-  const defaultTemplates: ShiftTemplate[] = [
-    { id: "t1", name: "Day Shift",       startTime: "07:00", endTime: "19:00", color: "#f59e0b" },
-    { id: "t2", name: "Night Shift",     startTime: "19:00", endTime: "07:00", color: "#6366f1" },
-    { id: "t3", name: "Patrol Shift",    startTime: "08:00", endTime: "16:00", color: "#10b981" },
-    { id: "t4", name: "Relief Shift",    startTime: "12:00", endTime: "20:00", color: "#3b82f6" },
-  ];
-  const [templates, setTemplates] = useState<ShiftTemplate[]>(defaultTemplates);
+  const [templates, setTemplates] = useState<ShiftTemplate[]>([]);
   const [showAddTemplate, setShowAddTemplate] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState("");
   const [newTemplateStart, setNewTemplateStart] = useState("07:00");
   const [newTemplateEnd, setNewTemplateEnd] = useState("15:00");
   const [newTemplateColor, setNewTemplateColor] = useState("#3b82f6");
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
   const [editTemplateId, setEditTemplateId] = useState<string | null>(null);
+  const [editTemplateName, setEditTemplateName] = useState("");
+  const [editTemplateStart, setEditTemplateStart] = useState("07:00");
+  const [editTemplateEnd, setEditTemplateEnd] = useState("15:00");
+  const [editTemplateColor, setEditTemplateColor] = useState("#3b82f6");
+  const [isSavingEditTemplate, setIsSavingEditTemplate] = useState(false);
+  const [deleteConfirmTemplateId, setDeleteConfirmTemplateId] = useState<string | null>(null);
+  const [isDeletingTemplate, setIsDeletingTemplate] = useState(false);
 
   // New Roster Workspace Filter & Modal States
   const [filterPost, setFilterPost] = useState("");
@@ -141,6 +144,9 @@ function OperationsContent() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [activeShiftForAssign, setActiveShiftForAssign] = useState<any>(null);
   const [assignSearchTerm, setAssignSearchTerm] = useState("");
+  const [deleteConfirmShiftId, setDeleteConfirmShiftId] = useState<string | null>(null);
+  const [showAutoFillConfirm, setShowAutoFillConfirm] = useState(false);
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
 
   // Weekly Roster state
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -184,14 +190,16 @@ function OperationsContent() {
         const res = await managerService.getOccurrences();
         setOccurrences(res.data?.data?.entries || []);
       } else if (activeTab === "shifts") {
-        const [shiftsRes, usersRes, postsRes] = await Promise.all([
+        const [shiftsRes, usersRes, postsRes, templatesRes] = await Promise.all([
           managerService.getTenantShifts(),
           managerService.getTenantUsers(),
-          managerService.getTenantPosts()
+          managerService.getTenantPosts(),
+          managerService.getShiftTemplates()
         ]);
         setShifts(shiftsRes.data?.data?.shifts || []);
         setUsers(usersRes.data?.data?.users || []);
         setPosts(postsRes.data?.data?.posts || []);
+        setTemplates(templatesRes.data?.data?.templates || []);
       } else if (activeTab === "attendance") {
         const res = await managerService.getTenantShifts();
         setShifts(res.data?.data?.shifts || []);
@@ -734,21 +742,72 @@ function OperationsContent() {
           };
 
           // Template actions
-          const handleAddTemplate = () => {
-            if (!newTemplateName.trim()) return;
-            const newT: ShiftTemplate = {
-              id: `t${Date.now()}`,
-              name: newTemplateName.trim(),
-              startTime: newTemplateStart,
-              endTime: newTemplateEnd,
-              color: newTemplateColor
-            };
-            setTemplates(prev => [...prev, newT]);
-            setNewTemplateName(""); setNewTemplateStart("07:00"); setNewTemplateEnd("15:00"); setNewTemplateColor("#3b82f6");
-            setShowAddTemplate(false);
+          const handleAddTemplate = async () => {
+            if (!newTemplateName.trim() || isSavingTemplate) return;
+            setIsSavingTemplate(true);
+            try {
+              await managerService.createShiftTemplate({
+                name: newTemplateName.trim(),
+                startTime: newTemplateStart,
+                endTime: newTemplateEnd,
+                color: newTemplateColor,
+              });
+              setNewTemplateName(""); setNewTemplateStart("07:00"); setNewTemplateEnd("15:00"); setNewTemplateColor("#3b82f6");
+              setShowAddTemplate(false);
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to save shift template");
+            } finally {
+              setIsSavingTemplate(false);
+            }
           };
-          const handleDeleteTemplate = (id: string) => {
-            setTemplates(prev => prev.filter(t => t.id !== id));
+          const handleDeleteTemplate = async (id: string) => {
+            if (deleteConfirmTemplateId !== id) {
+              setDeleteConfirmTemplateId(id);
+              return;
+            }
+            setIsDeletingTemplate(true);
+            try {
+              await managerService.deleteShiftTemplate(id);
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to delete shift template");
+            } finally {
+              setIsDeletingTemplate(false);
+              setDeleteConfirmTemplateId(null);
+            }
+          };
+          const handleCancelDeleteTemplate = () => setDeleteConfirmTemplateId(null);
+          const handleStartEditTemplate = (t: ShiftTemplate) => {
+            setEditTemplateId(t.id);
+            setEditTemplateName(t.name);
+            setEditTemplateStart(t.startTime);
+            setEditTemplateEnd(t.endTime);
+            setEditTemplateColor(t.color);
+          };
+          const handleCancelEditTemplate = () => {
+            setEditTemplateId(null);
+          };
+          const handleSaveEditTemplate = async (id: string) => {
+            if (!editTemplateName.trim() || isSavingEditTemplate) return;
+            setIsSavingEditTemplate(true);
+            try {
+              await managerService.updateShiftTemplate(id, {
+                name: editTemplateName.trim(),
+                startTime: editTemplateStart,
+                endTime: editTemplateEnd,
+                color: editTemplateColor,
+              });
+              setEditTemplateId(null);
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to update shift template");
+            } finally {
+              setIsSavingEditTemplate(false);
+            }
           };
 
           // Shift crud actions
@@ -790,16 +849,22 @@ function OperationsContent() {
             }
           };
 
-          const handleDeleteShift = async (shiftId: string) => {
-            if (!confirm("Are you sure you want to delete this shift requirement?")) return;
+          const handleDeleteShift = async (shiftId: string, isDraft: boolean) => {
+            if (!isDraft && deleteConfirmShiftId !== shiftId) {
+              setDeleteConfirmShiftId(shiftId);
+              return;
+            }
             try {
               await managerService.deleteShift(shiftId);
               loadData();
             } catch (err) {
               console.error(err);
               alert("Failed to delete shift requirement");
+            } finally {
+              setDeleteConfirmShiftId(null);
             }
           };
+          const handleCancelDeleteShift = () => setDeleteConfirmShiftId(null);
 
           const handlePublishRoster = async () => {
             try {
@@ -839,7 +904,7 @@ function OperationsContent() {
                   const startHourMin = `${sDate.getHours().toString().padStart(2, '0')}:${sDate.getMinutes().toString().padStart(2, '0')}`;
                   const startIso = `${dateStr}T${startHourMin}:00`;
                   
-                  let endIso = null;
+                  let endIso: string | null = null;
                   if (eDate) {
                     const endHourMin = `${eDate.getHours().toString().padStart(2, '0')}:${eDate.getMinutes().toString().padStart(2, '0')}`;
                     const isOvernight = endHourMin < startHourMin;
@@ -927,9 +992,10 @@ function OperationsContent() {
             }
           };
 
-          const handleAutoFillRoster = async () => {
-            const vacantShifts = weekShifts.filter(s => !s.userId);
-            if (vacantShifts.length === 0) {
+          const vacantShiftsForAutoFill = weekShifts.filter(s => !s.userId);
+
+          const handleAutoFillRoster = () => {
+            if (vacantShiftsForAutoFill.length === 0) {
               alert("No vacant shifts this week to auto-fill.");
               return;
             }
@@ -938,15 +1004,26 @@ function OperationsContent() {
               alert("No active guards available for auto-fill.");
               return;
             }
+            setShowAutoFillConfirm(true);
+          };
+          const handleCancelAutoFill = () => setShowAutoFillConfirm(false);
 
-            if (!confirm(`Auto-fill ${vacantShifts.length} vacant shifts using available guards?`)) return;
-
+          const handleConfirmAutoFill = async () => {
+            setIsAutoFilling(true);
             try {
+              const vacantShifts = weekShifts.filter(s => !s.userId);
+              const availableGuards = users.filter(u => u.role === "GUARD" && u.accountStatus === "ACTIVE" && !u.onLeave);
+
               const promises: any[] = [];
+              // Track assignments made earlier in this same run so two vacant shifts
+              // in the same batch can't both land on a guard who'd then be double-booked.
+              const runAssignments: { userId: string; start: number; end: number }[] = [];
+
               vacantShifts.forEach(s => {
+                const sStart = new Date(s.startTime).getTime();
+                const sEnd = s.endTime ? new Date(s.endTime).getTime() : sStart + 12 * 60 * 60 * 1000;
+
                 const suitableGuard = availableGuards.find(g => {
-                  const sStart = new Date(s.startTime).getTime();
-                  const sEnd = s.endTime ? new Date(s.endTime).getTime() : sStart + 12 * 60 * 60 * 1000;
                   const hasOverlap = weekShifts.some(other => {
                     if (other.userId !== g.id || !other.endTime) return false;
                     const oStart = new Date(other.startTime).getTime();
@@ -963,12 +1040,22 @@ function OperationsContent() {
                   });
                   if (consecutiveRestViolation) return false;
 
-                  const hours = getGuardWeeklyHours(g.id);
-                  const shiftDuration = s.endTime ? (new Date(s.endTime).getTime() - new Date(s.startTime).getTime()) / (1000 * 60 * 60) : 12;
-                  return (hours + shiftDuration) <= 40;
+                  const runOverlap = runAssignments.some(a => a.userId === g.id && sStart < a.end && sEnd > a.start);
+                  if (runOverlap) return false;
+
+                  const runRestViolation = runAssignments.some(a => a.userId === g.id && sStart >= a.end && (sStart - a.end) < 8 * 60 * 60 * 1000);
+                  if (runRestViolation) return false;
+
+                  const existingHours = getGuardWeeklyHours(g.id);
+                  const runHours = runAssignments
+                    .filter(a => a.userId === g.id)
+                    .reduce((sum, a) => sum + (a.end - a.start) / (1000 * 60 * 60), 0);
+                  const shiftDuration = (sEnd - sStart) / (1000 * 60 * 60);
+                  return (existingHours + runHours + shiftDuration) <= 40;
                 });
 
                 if (suitableGuard) {
+                  runAssignments.push({ userId: suitableGuard.id, start: sStart, end: sEnd });
                   promises.push(managerService.updateShift(s.id, { userId: suitableGuard.id }));
                 }
               });
@@ -984,6 +1071,9 @@ function OperationsContent() {
             } catch (err) {
               console.error(err);
               alert("Failed to auto-fill shifts");
+            } finally {
+              setIsAutoFilling(false);
+              setShowAutoFillConfirm(false);
             }
           };
 
@@ -1004,6 +1094,36 @@ function OperationsContent() {
               console.error(err);
               alert("Failed to assign guard");
             }
+          };
+
+          // Conflict warnings for a candidate guard against the shift being assigned
+          const getCandidateConflicts = (guardId: string): string[] => {
+            if (!activeShiftForAssign) return [];
+            const warnings: string[] = [];
+            const sStart = new Date(activeShiftForAssign.startTime).getTime();
+            const sEnd = activeShiftForAssign.endTime ? new Date(activeShiftForAssign.endTime).getTime() : sStart + 12 * 60 * 60 * 1000;
+
+            const hasOverlap = weekShifts.some(other => {
+              if (other.id === activeShiftForAssign.id || other.userId !== guardId || !other.endTime) return false;
+              const oStart = new Date(other.startTime).getTime();
+              const oEnd = new Date(other.endTime).getTime();
+              return sStart < oEnd && sEnd > oStart;
+            });
+            if (hasOverlap) warnings.push("Double-booked this week");
+
+            const restViolation = weekShifts.some(other => {
+              if (other.id === activeShiftForAssign.id || other.userId !== guardId || !other.endTime) return false;
+              const oEnd = new Date(other.endTime).getTime();
+              const diff = Math.abs(sStart - oEnd);
+              return diff < 8 * 60 * 60 * 1000;
+            });
+            if (restViolation) warnings.push("Less than 8h rest from another shift");
+
+            const hours = getGuardWeeklyHours(guardId);
+            const shiftDuration = (sEnd - sStart) / (1000 * 60 * 60);
+            if (hours + shiftDuration > 40) warnings.push(`Would exceed 40h/week (currently ${hours}h)`);
+
+            return warnings;
           };
 
           // Coverage insights warnings generator
@@ -1120,8 +1240,8 @@ function OperationsContent() {
                         <input type="color" value={newTemplateColor} onChange={e => setNewTemplateColor(e.target.value)} style={{ width: "60px", height: "42px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: "4px", cursor: "pointer", background: "var(--color-bg-subtle)" }} />
                       </div>
                       <div style={{ display: "flex", gap: "8px" }}>
-                        <button onClick={handleAddTemplate} style={{ padding: "10px 20px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: "pointer", fontSize: "13.5px" }}>
-                          Save Template
+                        <button onClick={handleAddTemplate} disabled={isSavingTemplate} style={{ padding: "10px 20px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: isSavingTemplate ? "not-allowed" : "pointer", fontSize: "13.5px", opacity: isSavingTemplate ? 0.7 : 1 }}>
+                          {isSavingTemplate ? "Saving…" : "Save Template"}
                         </button>
                         <button onClick={() => setShowAddTemplate(false)} style={{ padding: "10px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13.5px" }}>
                           Cancel
@@ -1138,37 +1258,89 @@ function OperationsContent() {
                         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = "var(--color-card-shadow)"; }}
                       >
                         {/* Colour bar */}
-                        <div style={{ height: "5px", background: t.color }} />
-                        <div style={{ padding: "20px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <div>
-                              <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)" }}>{t.name}</h4>
-                              <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
-                                <span style={{ fontSize: "20px", fontWeight: 800, color: t.color, letterSpacing: "-0.03em" }}>{t.startTime}</span>
-                                <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>→</span>
-                                <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-secondary)", letterSpacing: "-0.03em" }}>{t.endTime}</span>
+                        <div style={{ height: "5px", background: editTemplateId === t.id ? editTemplateColor : t.color }} />
+                        {editTemplateId === t.id ? (
+                          <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                              <label style={labelStyle}>Shift Name</label>
+                              <input type="text" value={editTemplateName} onChange={e => setEditTemplateName(e.target.value)} style={inputStyle} />
+                            </div>
+                            <div style={{ display: "flex", gap: "10px" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                                <label style={labelStyle}>Start</label>
+                                <input type="time" value={editTemplateStart} onChange={e => setEditTemplateStart(e.target.value)} style={inputStyle} />
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                                <label style={labelStyle}>End</label>
+                                <input type="time" value={editTemplateEnd} onChange={e => setEditTemplateEnd(e.target.value)} style={inputStyle} />
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                <label style={labelStyle}>Colour</label>
+                                <input type="color" value={editTemplateColor} onChange={e => setEditTemplateColor(e.target.value)} style={{ width: "42px", height: "42px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: "4px", cursor: "pointer", background: "var(--color-bg-subtle)" }} />
                               </div>
                             </div>
-                            <button onClick={() => handleDeleteTemplate(t.id)} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: "4px", borderRadius: "6px", display: "flex" }}
-                              onMouseEnter={e => (e.currentTarget.style.color = "var(--color-danger)")}
-                              onMouseLeave={e => (e.currentTarget.style.color = "var(--color-text-muted)")}
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            <div style={{ display: "flex", gap: "8px" }}>
+                              <button onClick={() => handleSaveEditTemplate(t.id)} disabled={isSavingEditTemplate} style={{ flex: 1, padding: "9px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: isSavingEditTemplate ? "not-allowed" : "pointer", fontSize: "13px", opacity: isSavingEditTemplate ? 0.7 : 1 }}>
+                                {isSavingEditTemplate ? "Saving…" : "Save"}
+                              </button>
+                              <button onClick={handleCancelEditTemplate} style={{ padding: "9px 14px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13px" }}>
+                                Cancel
+                              </button>
+                            </div>
                           </div>
-                          <div style={{ marginTop: "12px", padding: "8px 12px", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-md)", fontSize: "12px", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "6px" }}>
-                            <Clock size={13} />
-                            {(() => {
-                              const [sh, sm] = t.startTime.split(":").map(Number);
-                              const [eh, em] = t.endTime.split(":").map(Number);
-                              let mins = (eh * 60 + em) - (sh * 60 + sm);
-                              if (mins < 0) mins += 24 * 60;
-                              const h = Math.floor(mins / 60);
-                              const m = mins % 60;
-                              return `${h}h${m > 0 ? ` ${m}m` : ""} duration`;
-                            })()}
+                        ) : (
+                          <div style={{ padding: "20px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                              <div>
+                                <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)" }}>{t.name}</h4>
+                                <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
+                                  <span style={{ fontSize: "20px", fontWeight: 800, color: t.color, letterSpacing: "-0.03em" }}>{t.startTime}</span>
+                                  <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>→</span>
+                                  <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-secondary)", letterSpacing: "-0.03em" }}>{t.endTime}</span>
+                                </div>
+                              </div>
+                              <div style={{ display: "flex", gap: "2px" }}>
+                                <button onClick={() => handleStartEditTemplate(t)} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: "4px", borderRadius: "6px", display: "flex" }}
+                                  onMouseEnter={e => (e.currentTarget.style.color = "var(--color-accent)")}
+                                  onMouseLeave={e => (e.currentTarget.style.color = "var(--color-text-muted)")}
+                                >
+                                  <Edit3 size={16} />
+                                </button>
+                                <button onClick={() => handleDeleteTemplate(t.id)} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: "4px", borderRadius: "6px", display: "flex" }}
+                                  onMouseEnter={e => (e.currentTarget.style.color = "var(--color-danger)")}
+                                  onMouseLeave={e => (e.currentTarget.style.color = "var(--color-text-muted)")}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </div>
+                            {deleteConfirmTemplateId === t.id && (
+                              <div style={{ marginTop: "12px", padding: "10px 12px", background: "rgba(239, 68, 68, 0.08)", border: "1px solid var(--color-danger)", borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                                <span style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}>Delete this template?</span>
+                                <div style={{ display: "flex", gap: "6px" }}>
+                                  <button onClick={() => handleDeleteTemplate(t.id)} disabled={isDeletingTemplate} style={{ padding: "5px 12px", background: "var(--color-danger)", color: "#fff", border: "none", borderRadius: "var(--radius-sm)", fontWeight: 700, cursor: isDeletingTemplate ? "not-allowed" : "pointer", fontSize: "12px", opacity: isDeletingTemplate ? 0.7 : 1 }}>
+                                    {isDeletingTemplate ? "Deleting…" : "Confirm"}
+                                  </button>
+                                  <button onClick={handleCancelDeleteTemplate} style={{ padding: "5px 12px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-sm)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "12px" }}>
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            <div style={{ marginTop: "12px", padding: "8px 12px", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-md)", fontSize: "12px", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "6px" }}>
+                              <Clock size={13} />
+                              {(() => {
+                                const [sh, sm] = t.startTime.split(":").map(Number);
+                                const [eh, em] = t.endTime.split(":").map(Number);
+                                let mins = (eh * 60 + em) - (sh * 60 + sm);
+                                if (mins < 0) mins += 24 * 60;
+                                const h = Math.floor(mins / 60);
+                                const m = mins % 60;
+                                return `${h}h${m > 0 ? ` ${m}m` : ""} duration`;
+                              })()}
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1341,6 +1513,26 @@ function OperationsContent() {
                     </div>
                   </div>
 
+                  {/* Auto-Fill inline confirmation */}
+                  {showAutoFillConfirm && (
+                    <div style={{ background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent)", borderRadius: "var(--radius-xl)", padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <Wand2 size={16} color="var(--color-accent)" />
+                        <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                          Auto-fill {vacantShiftsForAutoFill.length} vacant shift{vacantShiftsForAutoFill.length === 1 ? "" : "s"} using available guards, respecting rest hours and overtime limits?
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <button onClick={handleConfirmAutoFill} disabled={isAutoFilling} style={{ padding: "8px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: isAutoFilling ? "not-allowed" : "pointer", fontSize: "12.5px", opacity: isAutoFilling ? 0.7 : 1 }}>
+                          {isAutoFilling ? "Filling…" : "Confirm"}
+                        </button>
+                        <button onClick={handleCancelAutoFill} style={{ padding: "8px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "12.5px" }}>
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Roster Grid */}
                   <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflowX: "auto" }}>
                     <table style={{ borderCollapse: "collapse", tableLayout: "fixed", minWidth: "1200px", width: "100%" }}>
@@ -1417,8 +1609,8 @@ function OperationsContent() {
                                           flexDirection: "column",
                                           gap: "6px"
                                         }}>
-                                          <button 
-                                            onClick={() => handleDeleteShift(s.id)}
+                                          <button
+                                            onClick={() => handleDeleteShift(s.id, isDraft)}
                                             style={{ position: "absolute", top: "6px", right: "6px", background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "14px", display: "flex", padding: "2px" }}
                                             onMouseEnter={e => e.currentTarget.style.color = "var(--color-danger)"}
                                             onMouseLeave={e => e.currentTarget.style.color = "var(--color-text-muted)"}
@@ -1432,10 +1624,20 @@ function OperationsContent() {
                                               <span style={{ fontSize: "9px", fontWeight: 700, background: "rgba(245, 158, 11, 0.15)", color: "var(--color-accent)", padding: "1px 5px", borderRadius: "3px" }}>DRAFT</span>
                                             )}
                                           </div>
-                                          
+
                                           <div style={{ fontSize: "10.5px", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "4px" }}>
                                             <Clock size={11} /> {formattedTime}
                                           </div>
+
+                                          {deleteConfirmShiftId === s.id && (
+                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "6px", padding: "6px 8px", background: "var(--color-danger-subtle)", border: "1px solid var(--color-danger)", borderRadius: "var(--radius-md)" }}>
+                                              <span style={{ fontSize: "9.5px", fontWeight: 700, color: "var(--color-danger)" }}>Delete shift?</span>
+                                              <div style={{ display: "flex", gap: "4px" }}>
+                                                <button onClick={() => handleDeleteShift(s.id, isDraft)} style={{ padding: "3px 8px", background: "var(--color-danger)", color: "#fff", border: "none", borderRadius: "4px", fontWeight: 700, cursor: "pointer", fontSize: "9.5px" }}>Confirm</button>
+                                                <button onClick={handleCancelDeleteShift} style={{ padding: "3px 8px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "4px", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "9.5px" }}>Cancel</button>
+                                              </div>
+                                            </div>
+                                          )}
 
                                           {/* Guard assignment */}
                                           {s.userId ? (
@@ -1624,6 +1826,89 @@ function OperationsContent() {
                   )}
                 </div>
               )}
+
+              {/* Assign Guard Modal */}
+              {showAssignModal && activeShiftForAssign && (() => {
+                const shiftGuards = users.filter(u => u.role === "GUARD");
+                const filteredGuards = shiftGuards.filter(g =>
+                  `${g.firstName} ${g.lastName}`.toLowerCase().includes(assignSearchTerm.toLowerCase())
+                );
+                const sDate = new Date(activeShiftForAssign.startTime);
+                const eDate = activeShiftForAssign.endTime ? new Date(activeShiftForAssign.endTime) : null;
+                const timeLabel = `${sDate.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })} · ${sDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}${eDate ? ` – ${eDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}`;
+
+                return (
+                  <div
+                    onClick={() => { setShowAssignModal(false); setActiveShiftForAssign(null); }}
+                    style={{ position: "fixed", inset: 0, background: "rgba(11, 15, 25, 0.6)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "24px" }}
+                  >
+                    <div
+                      className="glass-panel animate-fade-in"
+                      style={{ borderRadius: "var(--radius-xl)", boxShadow: "0 24px 64px rgba(0,0,0,0.4)", width: "100%", maxWidth: "440px", maxHeight: "80vh", display: "flex", flexDirection: "column", overflow: "hidden" }}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Assign Guard</h3>
+                          <button onClick={() => { setShowAssignModal(false); setActiveShiftForAssign(null); }} style={{ background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", display: "flex" }}><X size={18} /></button>
+                        </div>
+                        <p style={{ margin: "4px 0 0 0", fontSize: "12.5px", color: "var(--color-text-muted)" }}>{timeLabel}</p>
+                        <div style={{ position: "relative", marginTop: "12px" }}>
+                          <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
+                          <input
+                            type="text"
+                            placeholder="Search guards…"
+                            value={assignSearchTerm}
+                            onChange={e => setAssignSearchTerm(e.target.value)}
+                            style={{ ...inputStyle, width: "100%", paddingLeft: "32px", boxSizing: "border-box" }}
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ padding: "8px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "4px" }}>
+                        {activeShiftForAssign.userId && (
+                          <button
+                            onClick={() => handleSelectGuardForShift(null)}
+                            style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 12px", background: "transparent", border: "none", borderRadius: "var(--radius-md)", cursor: "pointer", textAlign: "left", color: "var(--color-danger)", fontSize: "13px", fontWeight: 600 }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "var(--color-bg-subtle)")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                          >
+                            <X size={14} /> Unassign current guard
+                          </button>
+                        )}
+
+                        {filteredGuards.length === 0 && (
+                          <div style={{ padding: "24px 12px", textAlign: "center", fontSize: "13px", color: "var(--color-text-muted)" }}>No guards found.</div>
+                        )}
+
+                        {filteredGuards.map(g => {
+                          const conflicts = getCandidateConflicts(g.id);
+                          const isCurrent = activeShiftForAssign.userId === g.id;
+                          return (
+                            <button
+                              key={g.id}
+                              onClick={() => handleSelectGuardForShift(g.id)}
+                              disabled={isCurrent}
+                              style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "10px 12px", background: isCurrent ? "var(--color-accent-subtle)" : "transparent", border: "none", borderRadius: "var(--radius-md)", cursor: isCurrent ? "default" : "pointer", textAlign: "left" }}
+                              onMouseEnter={e => { if (!isCurrent) (e.currentTarget as HTMLElement).style.background = "var(--color-bg-subtle)"; }}
+                              onMouseLeave={e => { if (!isCurrent) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                            >
+                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                <span style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--color-text-primary)" }}>{g.firstName} {g.lastName}{isCurrent ? " (current)" : ""}</span>
+                                {conflicts.length > 0 && <AlertTriangle size={13} color="var(--color-danger)" />}
+                              </div>
+                              {conflicts.map((c, idx) => (
+                                <span key={idx} style={{ fontSize: "10.5px", fontWeight: 600, color: "var(--color-danger)" }}>{c}</span>
+                              ))}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
             </div>
           );

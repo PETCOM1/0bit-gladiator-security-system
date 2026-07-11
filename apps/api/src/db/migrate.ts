@@ -226,6 +226,20 @@ export async function runMigrationsAndSeed(): Promise<void> {
       );
     `);
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS "ShiftTemplate" (
+        "id"        TEXT NOT NULL,
+        "tenantId"  TEXT NOT NULL,
+        "name"      TEXT NOT NULL,
+        "startTime" TEXT NOT NULL,
+        "endTime"   TEXT NOT NULL,
+        "color"     TEXT NOT NULL DEFAULT '#3b82f6',
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "ShiftTemplate_pkey" PRIMARY KEY ("id")
+      );
+    `);
+
     // ── Idempotent column additions (for databases created before these fields) ─
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "city"        TEXT;`);
     await client.query(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "country"     TEXT;`);
@@ -252,6 +266,7 @@ export async function runMigrationsAndSeed(): Promise<void> {
     await client.query(`CREATE INDEX        IF NOT EXISTS "TicketMessage_ticketId_idx" ON "TicketMessage"("ticketId");`);
     await client.query(`CREATE INDEX        IF NOT EXISTS "Tenant_subscriptionTierId_idx" ON "Tenant"("subscriptionTierId");`);
     await client.query(`CREATE INDEX        IF NOT EXISTS "Tenant_createdById_idx" ON "Tenant"("createdById");`);
+    await client.query(`CREATE INDEX        IF NOT EXISTS "ShiftTemplate_tenantId_idx" ON "ShiftTemplate"("tenantId");`);
 
     // ── Foreign keys (safe to re-run — DO block catches duplicate) ───────────
     await client.query(`
@@ -294,6 +309,12 @@ export async function runMigrationsAndSeed(): Promise<void> {
       DO $$ BEGIN
         ALTER TABLE "TicketMessage" ADD CONSTRAINT "TicketMessage_ticketId_fkey"
           FOREIGN KEY ("ticketId") REFERENCES "SupportTicket"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE "ShiftTemplate" ADD CONSTRAINT "ShiftTemplate_tenantId_fkey"
+          FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
       EXCEPTION WHEN duplicate_object THEN null; END $$;
     `);
     await client.query(`

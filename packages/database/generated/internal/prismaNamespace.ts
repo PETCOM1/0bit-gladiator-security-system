@@ -395,6 +395,7 @@ export const ModelName = {
   Visitor: 'Visitor',
   Incident: 'Incident',
   Shift: 'Shift',
+  ShiftTemplate: 'ShiftTemplate',
   Post: 'Post',
   OccurrenceBookEntry: 'OccurrenceBookEntry',
   PatrolRoute: 'PatrolRoute',
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "payment" | "user" | "auditLog" | "notification" | "systemSetting" | "subscriptionTier" | "tenant" | "site" | "visitor" | "incident" | "shift" | "post" | "occurrenceBookEntry" | "patrolRoute" | "patrolCheckpoint" | "patrolLog" | "supportTicket" | "ticketMessage"
+    modelProps: "payment" | "user" | "auditLog" | "notification" | "systemSetting" | "subscriptionTier" | "tenant" | "site" | "visitor" | "incident" | "shift" | "shiftTemplate" | "post" | "occurrenceBookEntry" | "patrolRoute" | "patrolCheckpoint" | "patrolLog" | "supportTicket" | "ticketMessage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1235,6 +1236,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ShiftTemplate: {
+      payload: Prisma.$ShiftTemplatePayload<ExtArgs>
+      fields: Prisma.ShiftTemplateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShiftTemplateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShiftTemplateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload>
+        }
+        findFirst: {
+          args: Prisma.ShiftTemplateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShiftTemplateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload>
+        }
+        findMany: {
+          args: Prisma.ShiftTemplateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload>[]
+        }
+        create: {
+          args: Prisma.ShiftTemplateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload>
+        }
+        createMany: {
+          args: Prisma.ShiftTemplateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShiftTemplateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload>[]
+        }
+        delete: {
+          args: Prisma.ShiftTemplateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload>
+        }
+        update: {
+          args: Prisma.ShiftTemplateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload>
+        }
+        deleteMany: {
+          args: Prisma.ShiftTemplateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShiftTemplateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShiftTemplateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload>[]
+        }
+        upsert: {
+          args: Prisma.ShiftTemplateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftTemplatePayload>
+        }
+        aggregate: {
+          args: Prisma.ShiftTemplateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShiftTemplate>
+        }
+        groupBy: {
+          args: Prisma.ShiftTemplateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShiftTemplateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShiftTemplateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShiftTemplateCountAggregateOutputType> | number
+        }
+      }
+    }
     Post: {
       payload: Prisma.$PostPayload<ExtArgs>
       fields: Prisma.PostFieldRefs
@@ -1984,6 +2059,20 @@ export const ShiftScalarFieldEnum = {
 export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof ShiftScalarFieldEnum]
 
 
+export const ShiftTemplateScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  name: 'name',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  color: 'color',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShiftTemplateScalarFieldEnum = (typeof ShiftTemplateScalarFieldEnum)[keyof typeof ShiftTemplateScalarFieldEnum]
+
+
 export const PostScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -2460,6 +2549,7 @@ export type GlobalOmitConfig = {
   visitor?: Prisma.VisitorOmit
   incident?: Prisma.IncidentOmit
   shift?: Prisma.ShiftOmit
+  shiftTemplate?: Prisma.ShiftTemplateOmit
   post?: Prisma.PostOmit
   occurrenceBookEntry?: Prisma.OccurrenceBookEntryOmit
   patrolRoute?: Prisma.PatrolRouteOmit

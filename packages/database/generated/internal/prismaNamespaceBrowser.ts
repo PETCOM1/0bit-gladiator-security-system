@@ -62,6 +62,7 @@ export const ModelName = {
   Visitor: 'Visitor',
   Incident: 'Incident',
   Shift: 'Shift',
+  ShiftTemplate: 'ShiftTemplate',
   Post: 'Post',
   OccurrenceBookEntry: 'OccurrenceBookEntry',
   PatrolRoute: 'PatrolRoute',
@@ -277,6 +278,20 @@ export const ShiftScalarFieldEnum = {
 } as const
 
 export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof ShiftScalarFieldEnum]
+
+
+export const ShiftTemplateScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  name: 'name',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  color: 'color',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShiftTemplateScalarFieldEnum = (typeof ShiftTemplateScalarFieldEnum)[keyof typeof ShiftTemplateScalarFieldEnum]
 
 
 export const PostScalarFieldEnum = {

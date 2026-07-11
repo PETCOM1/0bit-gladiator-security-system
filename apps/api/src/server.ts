@@ -28,6 +28,7 @@ import siteRoutes         from "./modules/sites/site.routes.js";
 import visitorRoutes      from "./modules/visitors/visitor.routes.js";
 import incidentRoutes     from "./modules/incidents/incident.routes.js";
 import shiftRoutes        from "./modules/shifts/shift.routes.js";
+import shiftTemplateRoutes from "./modules/shift-templates/shift-template.routes.js";
 import postRoutes         from "./modules/sites/post.routes.js";
 import occurrenceRoutes   from "./modules/occurrence/occurrence.routes.js";
 import ticketRoutes       from "./modules/tickets/ticket.routes.js";
@@ -120,6 +121,7 @@ app.use(`${API}/ob-entries`,    occurrenceRoutes);
 app.use(`${API}/visitors`,      visitorRoutes);
 app.use(`${API}/incidents`,     incidentRoutes);
 app.use(`${API}/shifts`,        shiftRoutes);
+app.use(`${API}/shift-templates`, shiftTemplateRoutes);
 app.use(`${API}/tickets`,       ticketRoutes);
 app.use(`${API}/plans`,         planRoutes);
 
