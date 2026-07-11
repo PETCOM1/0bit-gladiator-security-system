@@ -41,6 +41,7 @@ export type RegistrationMode = (typeof RegistrationMode)[keyof typeof Registrati
 
 
 export const ShiftStatus = {
+  DRAFT: 'DRAFT',
   SCHEDULED: 'SCHEDULED',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED'

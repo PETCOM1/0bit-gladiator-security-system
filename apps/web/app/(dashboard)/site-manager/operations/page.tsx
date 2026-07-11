@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, Suspense } from "react";
+import type { SearchParams } from "next/dist/server/request/search-params";
 import { useSearchParams, useRouter } from "next/navigation";
 import { 
   FolderKanban, CheckCircle2, Calendar, ClipboardCheck, Contact, MapPin, 
@@ -119,11 +120,10 @@ function OperationsContent() {
   // Shift Templates
   interface ShiftTemplate { id: string; name: string; startTime: string; endTime: string; color: string; }
   const defaultTemplates: ShiftTemplate[] = [
-    { id: "t1", name: "Day Shift",       startTime: "06:00", endTime: "18:00", color: "#f59e0b" },
-    { id: "t2", name: "Night Shift",     startTime: "18:00", endTime: "06:00", color: "#6366f1" },
-    { id: "t3", name: "Morning Shift",   startTime: "06:00", endTime: "14:00", color: "#10b981" },
-    { id: "t4", name: "Afternoon Shift", startTime: "14:00", endTime: "22:00", color: "#3b82f6" },
-    { id: "t5", name: "Night Patrol",    startTime: "22:00", endTime: "06:00", color: "#8b5cf6" },
+    { id: "t1", name: "Day Shift",       startTime: "07:00", endTime: "19:00", color: "#f59e0b" },
+    { id: "t2", name: "Night Shift",     startTime: "19:00", endTime: "07:00", color: "#6366f1" },
+    { id: "t3", name: "Patrol Shift",    startTime: "08:00", endTime: "16:00", color: "#10b981" },
+    { id: "t4", name: "Relief Shift",    startTime: "12:00", endTime: "20:00", color: "#3b82f6" },
   ];
   const [templates, setTemplates] = useState<ShiftTemplate[]>(defaultTemplates);
   const [showAddTemplate, setShowAddTemplate] = useState(false);
@@ -132,6 +132,15 @@ function OperationsContent() {
   const [newTemplateEnd, setNewTemplateEnd] = useState("15:00");
   const [newTemplateColor, setNewTemplateColor] = useState("#3b82f6");
   const [editTemplateId, setEditTemplateId] = useState<string | null>(null);
+
+  // New Roster Workspace Filter & Modal States
+  const [filterPost, setFilterPost] = useState("");
+  const [filterGuard, setFilterGuard] = useState("");
+  const [filterTemplate, setFilterTemplate] = useState("");
+
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [activeShiftForAssign, setActiveShiftForAssign] = useState<any>(null);
+  const [assignSearchTerm, setAssignSearchTerm] = useState("");
 
   // Weekly Roster state
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -572,8 +581,7 @@ function OperationsContent() {
           </div>
         )}
 
-
-        {/* TAB 2: SHIFT MANAGEMENT — 4 Sub-tabs */}
+        {/* TAB 2: SHIFT MANAGEMENT — Post-Centric Workspace */}
         {activeTab === "shifts" && (() => {
           // ── Helper: build date from week start + day offset
           const getRosterDate = (dayIndex: number) => {
@@ -582,7 +590,150 @@ function OperationsContent() {
             return base;
           };
 
-          // ── Template handlers
+          const weekRange = (() => {
+            const start = new Date(rosterWeekStart + "T00:00:00");
+            const end = new Date(start);
+            end.setDate(end.getDate() + 6);
+            end.setHours(23, 59, 59, 999);
+            return { start, end };
+          })();
+
+          // Filter shifts for the active week
+          const weekShifts = shifts.filter(s => {
+            const shiftDate = new Date(s.startTime);
+            return shiftDate >= weekRange.start && shiftDate <= weekRange.end;
+          });
+
+          // Calculations for Coverage stats
+          const totalShifts = weekShifts.length;
+          const filledShifts = weekShifts.filter(s => s.userId).length;
+          const vacantShiftsCount = totalShifts - filledShifts;
+          const coveragePercentage = totalShifts > 0 ? Math.round((filledShifts / totalShifts) * 100) : 100;
+          const uniqueGuardsScheduled = new Set(weekShifts.filter(s => s.userId).map(s => s.userId)).size;
+          const guardsOnLeave = users.filter(u => u.role === "GUARD" && u.onLeave).length;
+
+          // Double Booking Warning
+          const getDoubleBookingWarning = (s: any) => {
+            if (!s.userId || !s.endTime) return null;
+            const sStart = new Date(s.startTime).getTime();
+            const sEnd = new Date(s.endTime).getTime();
+            const overlap = weekShifts.find(other => {
+              if (other.id === s.id || other.userId !== s.userId || !other.endTime) return false;
+              const oStart = new Date(other.startTime).getTime();
+              const oEnd = new Date(other.endTime).getTime();
+              return sStart < oEnd && sEnd > oStart;
+            });
+            if (overlap) {
+              return `⚠️ Double booked on ${overlap.post?.name || "another post"}`;
+            }
+            return null;
+          };
+
+          // Consecutive Rest violation
+          const getConsecutiveRestWarning = (s: any) => {
+            if (!s.userId || !s.endTime) return null;
+            const sStart = new Date(s.startTime).getTime();
+            const restThreshold = 8 * 60 * 60 * 1000;
+            const violation = weekShifts.find(other => {
+              if (other.id === s.id || other.userId !== s.userId || !other.endTime) return false;
+              const oEnd = new Date(other.endTime).getTime();
+              const timeDiff = sStart - oEnd;
+              return timeDiff > 0 && timeDiff < restThreshold;
+            });
+            if (violation) {
+              return `⚠️ Consecutive shifts violation (<8h rest)`;
+            }
+            return null;
+          };
+
+          // Weekly Hours
+          const getGuardWeeklyHours = (userId: string) => {
+            if (!userId) return 0;
+            const guardShifts = weekShifts.filter(s => s.userId === userId && s.endTime);
+            let totalMs = 0;
+            guardShifts.forEach(s => {
+              const diff = new Date(s.endTime!).getTime() - new Date(s.startTime).getTime();
+              if (diff > 0) totalMs += diff;
+            });
+            return totalMs / (1000 * 60 * 60);
+          };
+
+          const getOvertimeWarning = (userId: string) => {
+            const hours = getGuardWeeklyHours(userId);
+            if (hours > 40) {
+              return `⚠️ Overtime limit exceeded (${hours.toFixed(1)} hrs)`;
+            }
+            return null;
+          };
+
+          const getLeaveWarning = (userId: string) => {
+            const guard = users.find(u => u.id === userId);
+            if (guard?.onLeave) {
+              return `⚠️ Guard is currently on leave`;
+            }
+            return null;
+          };
+
+          const getShiftWarnings = (s: any): string[] => {
+            const warnings: string[] = [];
+            const db = getDoubleBookingWarning(s);
+            if (db) warnings.push(db);
+            const cr = getConsecutiveRestWarning(s);
+            if (cr) warnings.push(cr);
+            if (s.userId) {
+              const ot = getOvertimeWarning(s.userId as string);
+              if (ot) warnings.push(ot);
+              const lv = getLeaveWarning(s.userId as string);
+              if (lv) warnings.push(lv);
+            }
+            return warnings;
+          };
+
+          const overtimeAssignments = users.filter(u => u.role === "GUARD" && getGuardWeeklyHours(u.id) > 40).length;
+
+          const coverageData = DAYS.map((day, dayIndex) => {
+            const rosterDayDate = getRosterDate(dayIndex);
+            const dayShifts = weekShifts.filter(s => {
+              const shiftDate = new Date(s.startTime);
+              return shiftDate.toDateString() === rosterDayDate.toDateString();
+            });
+            const templateCoverage = templates.map(tmpl => {
+              const assigned = dayShifts.filter(s => {
+                if (!s.userId) return false;
+                const sDate = new Date(s.startTime);
+                const startHour = sDate.getHours().toString().padStart(2, "0");
+                const startMin = sDate.getMinutes().toString().padStart(2, "0");
+                return `${startHour}:${startMin}` === tmpl.startTime;
+              }).length;
+              return { template: tmpl, assigned };
+            });
+            const rosterCount = dayShifts.filter(s => s.userId).length;
+            const hasGap = dayShifts.some(s => !s.userId) || dayShifts.length === 0;
+            const offDutyCount = users.filter(u => u.role === "GUARD" && !dayShifts.some(s => s.userId === u.id)).length;
+            const vacantCount = dayShifts.filter(s => !s.userId).length;
+            return { day, dayIndex, rosterCount, hasGap, templateCoverage, offDutyCount, vacantCount };
+          });
+
+          // Date Navigator
+          const handlePrevWeek = () => {
+            const d = new Date(rosterWeekStart + "T00:00:00");
+            d.setDate(d.getDate() - 7);
+            setRosterWeekStart(d.toISOString().split("T")[0]);
+          };
+          const handleNextWeek = () => {
+            const d = new Date(rosterWeekStart + "T00:00:00");
+            d.setDate(d.getDate() + 7);
+            setRosterWeekStart(d.toISOString().split("T")[0]);
+          };
+          const handleTodayWeek = () => {
+            const d = new Date();
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            const mon = new Date(d.setDate(diff));
+            setRosterWeekStart(mon.toISOString().split("T")[0]);
+          };
+
+          // Template actions
           const handleAddTemplate = () => {
             if (!newTemplateName.trim()) return;
             const newT: ShiftTemplate = {
@@ -600,99 +751,303 @@ function OperationsContent() {
             setTemplates(prev => prev.filter(t => t.id !== id));
           };
 
-          // ── Roster handlers
-          const setRosterCell = (userId: string, dayIndex: number, value: string) => {
-            setRoster(prev => ({
-              ...prev,
-              [userId]: { ...(prev[userId] || {}), [dayIndex]: value }
-            }));
-            setActiveCellKey(null);
-          };
+          // Shift crud actions
+          const handleCreateDraftShift = async (postId: string, dayIndex: number, templateId: string) => {
+            const targetDate = getRosterDate(dayIndex);
+            const dateStr = targetDate.toISOString().split("T")[0];
+            const tmpl = templates.find(t => t.id === templateId);
+            if (!tmpl) return;
 
-          const handleSaveRoster = async () => {
-            setIsSavingRoster(true);
-            const toCreate: Array<{ userId: string; startTime: string; endTime: string; postId?: string }> = [];
-            for (const [userId, days] of Object.entries(roster)) {
-              for (const [dayIndexStr, templateId] of Object.entries(days)) {
-                if (!templateId || templateId === "OFF") continue;
-                const tmpl = templates.find(t => t.id === templateId);
-                if (!tmpl) continue;
-                const dayIndex = parseInt(dayIndexStr);
-                const dayDate = getRosterDate(dayIndex).toISOString().split("T")[0];
-                // Handle overnight shifts (end < start)
-                const endDate = tmpl.endTime < tmpl.startTime
-                  ? getRosterDate(dayIndex + 1).toISOString().split("T")[0]
-                  : dayDate;
-                const postId = rosterPosts[userId]?.[dayIndex] || undefined;
-                toCreate.push({
-                  userId,
-                  startTime: `${dayDate}T${tmpl.startTime}`,
-                  endTime: `${endDate}T${tmpl.endTime}`,
-                  postId
-                });
-              }
-            }
+            const startIso = `${dateStr}T${tmpl.startTime}:00`;
+            const isOvernight = tmpl.endTime < tmpl.startTime;
+            const endDateStr = isOvernight 
+              ? new Date(targetDate.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0] 
+              : dateStr;
+            const endIso = `${endDateStr}T${tmpl.endTime}:00`;
+
             try {
-              await Promise.all(toCreate.map(s => managerService.createShift(s)));
-              alert(`✅ ${toCreate.length} shift(s) saved successfully!`);
+              await managerService.createShift({
+                postId,
+                startTime: startIso,
+                endTime: endIso,
+                userId: null,
+                status: "DRAFT"
+              });
               loadData();
             } catch (err) {
-              alert("Failed to save some shifts. Please try again.");
-            } finally {
-              setIsSavingRoster(false);
+              console.error(err);
+              alert("Failed to add shift requirement");
             }
           };
 
-          // ── Auto-Schedule generator
-          const handleGenerateRoster = () => {
-            setIsGenerating(true);
-            const availableGuards = users.filter(u => !u.onLeave);
-            const generated: Record<string, Record<number, string>> = {};
-            // Initialize all guards to empty
-            availableGuards.forEach(u => { generated[u.id] = {}; });
-            // Assign per requirement across all 7 days
-            DAYS.forEach((_, dayIndex) => {
-              let guardPool = [...availableGuards];
-              for (const req of autoRequirements) {
-                if (req.count <= 0) continue;
-                const picked = guardPool.splice(0, req.count);
-                picked.forEach(g => {
-                  generated[g.id] = { ...(generated[g.id] || {}), [dayIndex]: req.templateId };
+          const handleUnassignShift = async (shiftId: string) => {
+            try {
+              await managerService.updateShift(shiftId, { userId: null });
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to unassign guard");
+            }
+          };
+
+          const handleDeleteShift = async (shiftId: string) => {
+            if (!confirm("Are you sure you want to delete this shift requirement?")) return;
+            try {
+              await managerService.deleteShift(shiftId);
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to delete shift requirement");
+            }
+          };
+
+          const handlePublishRoster = async () => {
+            try {
+              const { start, end } = weekRange;
+              const res = await managerService.publishShifts({
+                startDate: start.toISOString(),
+                endDate: end.toISOString()
+              });
+              alert(`✅ Published ${res.data?.data?.count || 0} shifts! Guards have been notified.`);
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to publish roster");
+            }
+          };
+
+          // Automation actions
+          const handleCopyMondaySchedule = async () => {
+            const mondayDateStr = getRosterDate(0).toDateString();
+            const mondayShifts = weekShifts.filter(s => new Date(s.startTime).toDateString() === mondayDateStr);
+            
+            if (mondayShifts.length === 0) {
+              alert("No shifts scheduled on Monday to copy.");
+              return;
+            }
+            if (!confirm(`This will copy Monday's ${mondayShifts.length} shift requirements to Tuesday–Sunday of this week as drafts. Continue?`)) return;
+
+            try {
+              const promises: any[] = [];
+              for (let dayOffset = 1; dayOffset <= 6; dayOffset++) {
+                const targetDate = getRosterDate(dayOffset);
+                const dateStr = targetDate.toISOString().split("T")[0];
+
+                mondayShifts.forEach(s => {
+                  const sDate = new Date(s.startTime);
+                  const eDate = s.endTime ? new Date(s.endTime) : null;
+                  const startHourMin = `${sDate.getHours().toString().padStart(2, '0')}:${sDate.getMinutes().toString().padStart(2, '0')}`;
+                  const startIso = `${dateStr}T${startHourMin}:00`;
+                  
+                  let endIso = null;
+                  if (eDate) {
+                    const endHourMin = `${eDate.getHours().toString().padStart(2, '0')}:${eDate.getMinutes().toString().padStart(2, '0')}`;
+                    const isOvernight = endHourMin < startHourMin;
+                    const endDateStr = isOvernight 
+                      ? new Date(targetDate.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0] 
+                      : dateStr;
+                    endIso = `${endDateStr}T${endHourMin}:00`;
+                  }
+
+                  promises.push(managerService.createShift({
+                    postId: s.postId,
+                    userId: s.userId,
+                    startTime: startIso,
+                    endTime: endIso,
+                    status: "DRAFT"
+                  }));
                 });
               }
-              // remaining guards get OFF
-              guardPool.forEach(g => {
-                generated[g.id] = { ...(generated[g.id] || {}), [dayIndex]: "OFF" };
-              });
-            });
-            setAutoResult(generated);
-            setIsGenerating(false);
+              await Promise.all(promises);
+              alert(`✅ Copied Monday's schedule to other days!`);
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to copy Monday's schedule");
+            }
           };
 
-          const handleApplyAutoRoster = () => {
-            if (!autoResult) return;
-            setRoster(autoResult);
-            setAutoResult(null);
-            setShiftSubTab("roster");
-          };
+          const handleDuplicatePreviousWeek = async () => {
+            const prevMon = new Date(rosterWeekStart + "T00:00:00");
+            prevMon.setDate(prevMon.getDate() - 7);
+            const prevSun = new Date(prevMon);
+            prevSun.setDate(prevSun.getDate() + 6);
+            prevSun.setHours(23, 59, 59, 999);
 
-          // ── Coverage calculator
-          const coverageData = DAYS.map((day, dayIndex) => {
-            const dayShifts = shifts.filter(s => {
+            const prevWeekShifts = shifts.filter(s => {
               const shiftDate = new Date(s.startTime);
-              const rosterDayDate = getRosterDate(dayIndex);
-              return shiftDate.toDateString() === rosterDayDate.toDateString();
+              return shiftDate >= prevMon && shiftDate <= prevSun;
             });
-            const templateCoverage = templates.map(tmpl => {
-              const assigned = dayShifts.filter(s => {
-                const startHour = new Date(s.startTime).getHours().toString().padStart(2, "0");
-                const startMin = new Date(s.startTime).getMinutes().toString().padStart(2, "0");
-                return `${startHour}:${startMin}` === tmpl.startTime;
-              }).length;
-              return { template: tmpl, assigned };
-            });
-            return { day, dayIndex, templateCoverage, total: dayShifts.length };
+
+            if (prevWeekShifts.length === 0) {
+              alert("No shifts found in the previous week to duplicate.");
+              return;
+            }
+            if (!confirm(`Duplicate ${prevWeekShifts.length} shifts from last week into this week as drafts?`)) return;
+
+            try {
+              const promises = prevWeekShifts.map(s => {
+                const sDate = new Date(s.startTime);
+                const eDate = s.endTime ? new Date(s.endTime) : null;
+                const newStart = new Date(sDate.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+                const newEnd = eDate ? new Date(eDate.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString() : null;
+
+                return managerService.createShift({
+                  postId: s.postId,
+                  userId: s.userId,
+                  startTime: newStart,
+                  endTime: newEnd,
+                  status: "DRAFT"
+                });
+              });
+              await Promise.all(promises);
+              alert("✅ Duplicated previous week's roster successfully!");
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to duplicate previous week's roster");
+            }
+          };
+
+          const handleBulkClear = async () => {
+            if (weekShifts.length === 0) return;
+            const action = confirm("Click OK to DELETE all shift requirements this week, or CANCEL to just UNASSIGN guards from them.");
+            try {
+              if (action) {
+                await Promise.all(weekShifts.map(s => managerService.deleteShift(s.id)));
+                alert("✅ Deleted all shift requirements this week.");
+              } else {
+                await Promise.all(weekShifts.filter(s => s.userId).map(s => managerService.updateShift(s.id, { userId: null })));
+                alert("✅ Unassigned all guards from shifts this week.");
+              }
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to bulk clear shifts");
+            }
+          };
+
+          const handleAutoFillRoster = async () => {
+            const vacantShifts = weekShifts.filter(s => !s.userId);
+            if (vacantShifts.length === 0) {
+              alert("No vacant shifts this week to auto-fill.");
+              return;
+            }
+            const availableGuards = users.filter(u => u.role === "GUARD" && u.accountStatus === "ACTIVE" && !u.onLeave);
+            if (availableGuards.length === 0) {
+              alert("No active guards available for auto-fill.");
+              return;
+            }
+
+            if (!confirm(`Auto-fill ${vacantShifts.length} vacant shifts using available guards?`)) return;
+
+            try {
+              const promises: any[] = [];
+              vacantShifts.forEach(s => {
+                const suitableGuard = availableGuards.find(g => {
+                  const sStart = new Date(s.startTime).getTime();
+                  const sEnd = s.endTime ? new Date(s.endTime).getTime() : sStart + 12 * 60 * 60 * 1000;
+                  const hasOverlap = weekShifts.some(other => {
+                    if (other.userId !== g.id || !other.endTime) return false;
+                    const oStart = new Date(other.startTime).getTime();
+                    const oEnd = new Date(other.endTime).getTime();
+                    return sStart < oEnd && sEnd > oStart;
+                  });
+                  if (hasOverlap) return false;
+
+                  const consecutiveRestViolation = weekShifts.some(other => {
+                    if (other.userId !== g.id || !other.endTime) return false;
+                    const oEnd = new Date(other.endTime).getTime();
+                    const diff = sStart - oEnd;
+                    return diff > 0 && diff < 8 * 60 * 60 * 1000;
+                  });
+                  if (consecutiveRestViolation) return false;
+
+                  const hours = getGuardWeeklyHours(g.id);
+                  const shiftDuration = s.endTime ? (new Date(s.endTime).getTime() - new Date(s.startTime).getTime()) / (1000 * 60 * 60) : 12;
+                  return (hours + shiftDuration) <= 40;
+                });
+
+                if (suitableGuard) {
+                  promises.push(managerService.updateShift(s.id, { userId: suitableGuard.id }));
+                }
+              });
+
+              if (promises.length === 0) {
+                alert("Could not automatically fill shifts without violating rest hours, overtime limits, or double bookings.");
+                return;
+              }
+
+              await Promise.all(promises);
+              alert(`✅ Successfully filled ${promises.length} shifts!`);
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to auto-fill shifts");
+            }
+          };
+
+          const handleOpenAssignModal = (shift: any) => {
+            setActiveShiftForAssign(shift);
+            setAssignSearchTerm("");
+            setShowAssignModal(true);
+          };
+
+          const handleSelectGuardForShift = async (guardId: string | null) => {
+            if (!activeShiftForAssign) return;
+            try {
+              await managerService.updateShift(activeShiftForAssign.id, { userId: guardId });
+              setShowAssignModal(false);
+              setActiveShiftForAssign(null);
+              loadData();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to assign guard");
+            }
+          };
+
+          // Coverage insights warnings generator
+          const coverageInsights: string[] = [];
+          weekShifts.filter(s => !s.userId).forEach(s => {
+            const dateObj = new Date(s.startTime);
+            const dayName = dateObj.toLocaleDateString("en-US", { weekday: "long" });
+            const postName = posts.find(p => p.id === s.postId)?.name || "Post";
+            const tmplName = templates.find(t => {
+              const startHourMin = `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
+              return t.startTime === startHourMin;
+            })?.name || "Shift";
+            coverageInsights.push(`⚠️ ${postName} has no ${tmplName} on ${dayName}.`);
           });
+
+          const uniqueScheduledGuardIds = Array.from(new Set(weekShifts.filter(s => s.userId).map(s => s.userId)));
+          uniqueScheduledGuardIds.forEach(gid => {
+            const guard = users.find(u => u.id === gid);
+            if (!guard) return;
+            const hours = getGuardWeeklyHours(gid);
+            if (hours > 40) {
+              coverageInsights.push(`⚠️ ${guard.firstName} ${guard.lastName} exceeds weekly overtime limits (${hours.toFixed(1)} hours).`);
+            }
+          });
+
+          weekShifts.forEach(s => {
+            if (!s.userId) return;
+            const consecWarning = getConsecutiveRestWarning(s);
+            if (consecWarning) {
+              const guard = users.find(u => u.id === s.userId);
+              const dateObj = new Date(s.startTime);
+              const dayName = dateObj.toLocaleDateString("en-US", { weekday: "long" });
+              coverageInsights.push(`⚠️ ${guard?.firstName} ${guard?.lastName} is scheduled on consecutive shifts without rest on ${dayName}.`);
+            }
+          });
+
+          const draftShiftsCount = weekShifts.filter(s => s.status === "DRAFT").length;
+          if (draftShiftsCount > 0) {
+            coverageInsights.push(`⚠️ ${draftShiftsCount} shifts remain unassigned or in draft mode.`);
+          }
+
+          if (coverageInsights.length === 0) {
+            coverageInsights.push("✓ All critical posts are covered.");
+          }
 
           const subTabBtnStyle = (active: boolean) => ({
             padding: "8px 16px",
@@ -750,7 +1105,7 @@ function OperationsContent() {
                     <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-accent)", padding: "24px", display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "flex-end", boxShadow: "0 0 0 3px var(--color-accent-subtle)" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "160px" }}>
                         <label style={labelStyle}>Shift Name</label>
-                        <input type="text" placeholder="e.g. Evening Shift" value={newTemplateName} onChange={e => setNewTemplateName(e.target.value)} style={inputStyle} />
+                        <input type="text" placeholder="e.g. Day Shift" value={newTemplateName} onChange={e => setNewTemplateName(e.target.value)} style={inputStyle} />
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                         <label style={labelStyle}>Start Time</label>
@@ -820,53 +1175,169 @@ function OperationsContent() {
                 </div>
               )}
 
-              {/* ─── SUB-TAB 2: WEEKLY ROSTER ─── */}
+              {/* ─── SUB-TAB 2: WEEKLY ROSTER WORKSPACE ─── */}
               {shiftSubTab === "roster" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  {/* Controls row */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
-                    <div>
-                      <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Weekly Roster</h3>
-                      <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--color-text-muted)" }}>Click any cell to assign a shift or mark a guard as Off Duty.</p>
-                    </div>
-                    <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <label style={{ ...labelStyle, marginBottom: 0 }}>Week Starting</label>
-                        <input type="date" value={rosterWeekStart} onChange={e => setRosterWeekStart(e.target.value)} style={{ ...inputStyle, width: "160px", padding: "8px 12px" }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  
+                  {/* Draft Alert Banner */}
+                  {draftShiftsCount > 0 && (
+                    <div style={{ background: "rgba(245, 158, 11, 0.1)", border: "1px solid var(--color-accent)", borderRadius: "var(--radius-xl)", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "var(--color-card-shadow)", animation: "fadeIn 0.3s ease" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <AlertTriangle size={18} color="var(--color-accent)" />
+                        <div>
+                          <span style={{ fontWeight: 700, color: "var(--color-text-primary)", fontSize: "14px" }}>Unpublished Draft Changes</span>
+                          <p style={{ margin: "2px 0 0 0", fontSize: "12.5px", color: "var(--color-text-secondary)" }}>
+                            You have <strong>{draftShiftsCount}</strong> draft assignments this week. Security officers will not receive schedule alerts or see these slots until published.
+                          </p>
+                        </div>
                       </div>
                       <button 
-                        onClick={() => setHideAssignedRoster(prev => !prev)} 
-                        style={{ 
-                          display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", 
-                          background: hideAssignedRoster ? "rgba(245, 158, 11, 0.15)" : "transparent", 
-                          border: hideAssignedRoster ? "1px solid var(--color-accent)" : "1px solid var(--color-border)", 
-                          borderRadius: "var(--radius-md)", 
-                          color: hideAssignedRoster ? "var(--color-accent)" : "var(--color-text-secondary)", 
-                          cursor: "pointer", fontSize: "13px", fontWeight: 600, marginTop: "18px" 
-                        }}
+                        onClick={handlePublishRoster} 
+                        style={{ padding: "8px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: "pointer", fontSize: "13px" }}
                       >
-                        <Eye size={14} /> {hideAssignedRoster ? "Showing Unassigned Only" : "Hide Assigned Guards"}
-                      </button>
-                      <button onClick={() => { setRoster({}); setRosterPosts({}); }} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13px", fontWeight: 600, marginTop: "18px" }}>
-                        <RefreshCw size={14} /> Clear
-                      </button>
-                      <button onClick={handleSaveRoster} disabled={isSavingRoster} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", background: "var(--color-success)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: "pointer", fontSize: "13px", marginTop: "18px" }}>
-                        <Save size={14} /> {isSavingRoster ? "Saving..." : "Save Roster"}
+                        Publish Roster
                       </button>
                     </div>
-                  </div>
+                  )}
 
-                  {/* Legend */}
-                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                    {templates.map(t => (
-                      <div key={t.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--color-text-secondary)" }}>
-                        <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: t.color, flexShrink: 0 }} />
-                        {t.name} ({t.startTime}–{t.endTime})
+                  {/* Coverage stats row */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "12px" }}>
+                    {[
+                      { label: "Total Posts", val: posts.length, color: "var(--color-accent)" },
+                      { label: "Total Shifts", val: totalShifts, color: "var(--color-text-secondary)" },
+                      { label: "Filled Shifts", val: filledShifts, color: "var(--color-success)" },
+                      { label: "Vacant Shifts", val: vacantShiftsCount, color: vacantShiftsCount > 0 ? "var(--color-danger)" : "var(--color-text-muted)" },
+                      { label: "Coverage %", val: `${coveragePercentage}%`, color: coveragePercentage === 100 ? "var(--color-success)" : "#f59e0b" },
+                      { label: "Guards Active", val: uniqueGuardsScheduled, color: "var(--color-accent)" },
+                      { label: "Guards on Leave", val: guardsOnLeave, color: guardsOnLeave > 0 ? "var(--color-warning)" : "var(--color-text-muted)" },
+                      { label: "Overtime Guards", val: overtimeAssignments, color: overtimeAssignments > 0 ? "#f59e0b" : "var(--color-text-muted)" },
+                    ].map((stat, idx) => (
+                      <div key={idx} style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-lg)", border: "1px solid var(--color-border)", padding: "12px 16px", display: "flex", flexDirection: "column", gap: "4px", boxShadow: "var(--color-card-shadow)" }}>
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>{stat.label}</span>
+                        <span style={{ fontSize: "20px", fontWeight: 800, color: stat.color }}>{stat.val}</span>
                       </div>
                     ))}
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--color-text-secondary)" }}>
-                      <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: "var(--color-danger)", flexShrink: 0 }} />
-                      Off Duty
+                  </div>
+
+                  {/* Date selection & Filter row */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+                    
+                    {/* Week Navigation */}
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <button onClick={handlePrevWeek} style={{ padding: "8px 14px", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", borderRadius: "var(--radius-md)", color: "var(--color-text-primary)", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}>
+                        ← Prev Week
+                      </button>
+                      <button onClick={handleTodayWeek} style={{ padding: "8px 14px", border: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-md)", color: "var(--color-text-primary)", cursor: "pointer", fontSize: "13px", fontWeight: 700 }}>
+                        Today
+                      </button>
+                      <button onClick={handleNextWeek} style={{ padding: "8px 14px", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", borderRadius: "var(--radius-md)", color: "var(--color-text-primary)", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}>
+                        Next Week →
+                      </button>
+                      <div style={{ position: "relative" }}>
+                        <input type="date" value={rosterWeekStart} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRosterWeekStart(e.target.value)} style={{ ...inputStyle, width: "160px", padding: "8px 12px" }} />
+                      </div>
+                    </div>
+
+                    {/* Roster Filters */}
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                      <div style={{ position: "relative" }}>
+                        <Search size={13} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
+                        <input 
+                          type="text" 
+                          placeholder="Search guard..." 
+                          value={filterGuard}
+                          onChange={e => setFilterGuard(e.target.value)}
+                          style={{ ...inputStyle, paddingLeft: "30px", width: "160px", padding: "6px 10px 6px 30px" }}
+                        />
+                      </div>
+                      
+                      <select 
+                        value={filterPost} 
+                        onChange={e => setFilterPost(e.target.value)}
+                        style={{ ...selectStyle, width: "140px", padding: "6px 10px" }}
+                      >
+                        <option value="">All Posts</option>
+                        {posts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      </select>
+
+                      <select 
+                        value={filterTemplate} 
+                        onChange={e => setFilterTemplate(e.target.value)}
+                        style={{ ...selectStyle, width: "140px", padding: "6px 10px" }}
+                      >
+                        <option value="">All Shifts</option>
+                        {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                      </select>
+                    </div>
+
+                  </div>
+
+                  {/* Daily Heatmap Card Strip */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "12px", marginBottom: "10px" }}>
+                    {DAYS.map((day, di) => {
+                      const dateObj = getRosterDate(di);
+                      const dateStr = dateObj.toDateString();
+                      const dayShifts = weekShifts.filter(s => new Date(s.startTime).toDateString() === dateStr);
+                      const dayFilled = dayShifts.filter(s => s.userId).length;
+                      const dayTotal = dayShifts.length;
+                      const dayCoverage = dayTotal > 0 ? Math.round((dayFilled / dayTotal) * 100) : 0;
+                      
+                      let color = "var(--color-text-muted)";
+                      let bg = "var(--color-bg-subtle)";
+                      let statusText = "No shifts required";
+                      if (dayTotal > 0) {
+                        if (dayFilled === dayTotal) {
+                          color = "var(--color-success)";
+                          bg = "var(--color-success-subtle)";
+                          statusText = "🟢 Fully Covered";
+                        } else if (dayFilled / dayTotal >= 0.8) {
+                          color = "#f59e0b";
+                          bg = "rgba(245, 158, 11, 0.1)";
+                          statusText = "🟡 Nearly Full";
+                        } else if (dayFilled / dayTotal >= 0.5) {
+                          color = "#ef6c00";
+                          bg = "rgba(239, 108, 0, 0.1)";
+                          statusText = "🟠 Understaffed";
+                        } else {
+                          color = "var(--color-danger)";
+                          bg = "var(--color-danger-subtle)";
+                          statusText = "🔴 Critical Coverage";
+                        }
+                      }
+
+                      return (
+                        <div key={day} style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-lg)", border: `1px solid var(--color-border)`, borderTop: `4px solid ${dayTotal > 0 ? color : "var(--color-border)"}`, padding: "12px 14px", display: "flex", flexDirection: "column", gap: "6px", boxShadow: "var(--color-card-shadow)" }}>
+                          <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text-secondary)", textTransform: "uppercase" }}>{day}</div>
+                          <div style={{ fontSize: "13px", fontWeight: 800, color: "var(--color-text-primary)" }}>{dateObj.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</div>
+                          {dayTotal > 0 ? (
+                            <>
+                              <div style={{ fontSize: "12px", fontWeight: 700, color: color }}>{dayFilled} / {dayTotal} Filled ({dayCoverage}%)</div>
+                              <div style={{ fontSize: "11px", color: "var(--color-text-secondary)" }}>{statusText}</div>
+                            </>
+                          ) : (
+                            <div style={{ fontSize: "11px", color: "var(--color-text-muted)", fontStyle: "italic" }}>No shifts scheduled</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Smart Automation Toolbar */}
+                  <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", padding: "14px 20px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", boxShadow: "var(--color-card-shadow)" }}>
+                    <span style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "6px" }}><Wand2 size={16} color="var(--color-accent)" /> Automation Tools</span>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                      <button onClick={handleDuplicatePreviousWeek} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 12px", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", fontSize: "12.5px", fontWeight: 600, cursor: "pointer" }}>
+                        <Copy size={13} /> Duplicate Previous Week
+                      </button>
+                      <button onClick={handleCopyMondaySchedule} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 12px", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", fontSize: "12.5px", fontWeight: 600, cursor: "pointer" }}>
+                        <Copy size={13} /> Copy Monday's Schedule
+                      </button>
+                      <button onClick={handleAutoFillRoster} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 12px", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", borderRadius: "var(--radius-md)", color: "var(--color-accent)", fontSize: "12.5px", fontWeight: 700, cursor: "pointer" }}>
+                        <Wand2 size={13} /> Auto-Fill Roster
+                      </button>
+                      <button onClick={handleBulkClear} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 12px", border: "1px solid var(--color-border)", background: "transparent", borderRadius: "var(--radius-md)", color: "var(--color-danger)", fontSize: "12.5px", fontWeight: 700, cursor: "pointer" }}>
+                        <RefreshCw size={13} /> Bulk Clear / Reset
+                      </button>
                     </div>
                   </div>
 
@@ -875,7 +1346,7 @@ function OperationsContent() {
                     <table style={{ borderCollapse: "collapse", tableLayout: "fixed", minWidth: "1200px", width: "100%" }}>
                       <thead>
                         <tr style={{ background: "var(--color-bg-subtle)", borderBottom: "2px solid var(--color-border)" }}>
-                          <th style={{ width: "16%", padding: "16px 20px", textAlign: "left", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>Guard</th>
+                          <th style={{ width: "16%", padding: "16px 20px", textAlign: "left", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>Post</th>
                           {DAYS.map((day, di) => {
                             const d = getRosterDate(di);
                             const isToday = d.toDateString() === new Date().toDateString();
@@ -889,269 +1360,223 @@ function OperationsContent() {
                         </tr>
                       </thead>
                       <tbody>
-                        {(() => {
-                          const visibleUsers = users.filter((u: any) => {
-                            if (!hideAssignedRoster) return true;
-                            const userRoster = roster[u.id] || {};
-                            return !Object.values(userRoster).some(val => val !== "" && val !== "OFF");
-                          });
-
-                          if (visibleUsers.length === 0) {
-                            return <tr><td colSpan={8} style={{ padding: "60px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "14px" }}>No unassigned guards left. All are scheduled!</td></tr>;
-                          }
-
-                          return visibleUsers.map((u: any, ui: number) => (
-                            <tr key={u.id} style={{ borderBottom: ui < visibleUsers.length - 1 ? "1px solid var(--color-border)" : "none" }}
-                              onMouseEnter={e => (e.currentTarget.style.background = "var(--color-bg-subtle)")}
-                              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                            >
-                            {/* Guard name column */}
-                            <td style={{ padding: "24px 20px", whiteSpace: "nowrap", verticalAlign: "middle" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "var(--color-accent-subtle)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, color: "var(--color-accent)", flexShrink: 0 }}>
-                                  {u.firstName?.[0]}{u.lastName?.[0]}
-                                </div>
-                                <div>
-                                  <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>{u.firstName} {u.lastName}</div>
-                                  {u.onLeave ? (
-                                    <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--color-warning)", background: "var(--color-warning-subtle)", padding: "2px 8px", borderRadius: "4px", display: "inline-block", marginTop: "2px" }}>ON LEAVE</span>
-                                  ) : (
-                                    <span style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>Available</span>
-                                  )}
+                        {posts.filter(p => !filterPost || p.id === filterPost).map((post, pi) => (
+                          <tr key={post.id} style={{ borderBottom: pi < posts.length - 1 ? "1px solid var(--color-border)" : "none" }}>
+                            {/* Post Info Column */}
+                            <td style={{ padding: "20px 20px", verticalAlign: "top", background: "var(--color-bg-subtle)" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>{post.name}</div>
+                                <div style={{ fontSize: "11px", color: "var(--color-text-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
+                                  <MapPin size={11} /> Configured post
                                 </div>
                               </div>
                             </td>
-                            {/* Day cells */}
+                            {/* Day Cells */}
                             {DAYS.map((_, dayIndex) => {
-                              const cellKey = `${u.id}-${dayIndex}`;
-                              const assigned = roster[u.id]?.[dayIndex] ?? "";
-                              const assignedPost = rosterPosts[u.id]?.[dayIndex] ?? "";
-                              const tmpl = templates.find(t => t.id === assigned);
-                              const postObj = posts.find((p: any) => p.id === assignedPost);
-                              const isActive = activeCellKey === cellKey;
+                              const dateStr = getRosterDate(dayIndex).toDateString();
+                              let cellShifts = weekShifts.filter(s => s.postId === post.id && new Date(s.startTime).toDateString() === dateStr);
+                              
+                              if (filterGuard) {
+                                cellShifts = cellShifts.filter(s => s.userId && `${s.user?.firstName} ${s.user?.lastName}`.toLowerCase().includes(filterGuard.toLowerCase()));
+                              }
+                              if (filterTemplate) {
+                                cellShifts = cellShifts.filter(s => {
+                                  const dateObj = new Date(s.startTime);
+                                  const startHourMin = `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
+                                  const tmpl = templates.find(t => t.startTime === startHourMin);
+                                  return tmpl?.id === filterTemplate;
+                                });
+                              }
+
                               return (
-                                <td key={dayIndex} style={{ padding: "8px 8px", textAlign: "center", position: "relative", verticalAlign: "middle" }}>
-                                  {/* Cell button */}
-                                  <button
-                                    onClick={() => setActiveCellKey(isActive ? null : cellKey)}
-                                    style={{
-                                      width: "100%",
-                                      minWidth: "100px",
-                                      padding: "10px 8px",
-                                      borderRadius: "var(--radius-md)",
-                                      border: isActive ? "2px solid var(--color-accent)" : `1px solid ${tmpl ? tmpl.color + "55" : "var(--color-border)"}`,
-                                      cursor: "pointer",
-                                      background: assigned === "OFF" ? "var(--color-danger-subtle)" : tmpl ? `${tmpl.color}18` : "var(--color-bg-subtle)",
-                                      color: assigned === "OFF" ? "var(--color-danger)" : tmpl ? tmpl.color : "var(--color-text-muted)",
-                                      transition: "all var(--transition-fast)",
-                                      minHeight: "96px",
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      gap: "4px"
-                                    }}
-                                  >
-                                    {assigned === "OFF" ? (
-                                      <>
-                                        <Ban size={14} />
-                                        <span style={{ fontSize: "11px", fontWeight: 800 }}>OFF DUTY</span>
-                                      </>
-                                    ) : tmpl ? (
-                                      <>
-                                        <span style={{ fontSize: "12px", fontWeight: 800, lineHeight: 1.2 }}>{tmpl.name}</span>
-                                        <span style={{ fontSize: "10px", opacity: 0.8 }}>{tmpl.startTime}–{tmpl.endTime}</span>
-                                        {postObj ? (
-                                          <span style={{ fontSize: "10px", fontWeight: 700, background: tmpl.color + "33", padding: "2px 6px", borderRadius: "4px", color: tmpl.color, display: "flex", alignItems: "center", gap: "3px", marginTop: "2px" }}>
-                                            <MapPin size={9} /> {postObj.name}
-                                          </span>
-                                        ) : (
-                                          <span style={{ fontSize: "10px", color: "var(--color-text-muted)", fontStyle: "italic" }}>No post</span>
-                                        )}
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Plus size={16} />
-                                        <span style={{ fontSize: "10px" }}>Assign</span>
-                                      </>
-                                    )}
-                                  </button>
+                                <td key={dayIndex} style={{ padding: "8px", verticalAlign: "top", borderLeft: "1px solid var(--color-border)" }}>
+                                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", minHeight: "100px" }}>
+                                    {cellShifts.map(s => {
+                                      const sDate = new Date(s.startTime);
+                                      const startHourMin = `${sDate.getHours().toString().padStart(2, '0')}:${sDate.getMinutes().toString().padStart(2, '0')}`;
+                                      const matchedTmpl = templates.find(t => t.startTime === startHourMin);
+                                      const tmplColor = matchedTmpl ? matchedTmpl.color : "#6366f1";
+                                      const tmplName = matchedTmpl ? matchedTmpl.name : "Shift";
+                                      const formattedTime = s.endTime 
+                                        ? `${sDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}–${new Date(s.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                                        : sDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                                      
+                                      const warnings = getShiftWarnings(s);
+                                      const isDraft = s.status === "DRAFT";
 
-                                  {/* Popup picker — wider, two-section */}
-                                  {isActive && (
-                                    <div
-                                      onClick={e => e.stopPropagation()}
-                                      style={{ position: "absolute", top: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", boxShadow: "0 12px 36px rgba(0,0,0,0.25)", zIndex: 200, minWidth: "260px", overflow: "hidden" }}
-                                    >
-                                      {/* Section: Shift */}
-                                      <div style={{ padding: "10px 14px", background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)", fontSize: "10px", fontWeight: 800, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: "6px" }}>
-                                        <Calendar size={11} /> Shift Template
-                                      </div>
-                                      {templates.map(t => {
-                                        const isSelected = assigned === t.id;
-                                        return (
-                                          <button key={t.id}
-                                            onClick={() => {
-                                              setRoster(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: t.id } }));
-                                            }}
-                                            style={{ width: "100%", padding: "10px 14px", background: isSelected ? t.color + "18" : "transparent", border: "none", borderLeft: isSelected ? `3px solid ${t.color}` : "3px solid transparent", color: "var(--color-text-primary)", cursor: "pointer", fontSize: "13px", fontWeight: isSelected ? 700 : 500, textAlign: "left", display: "flex", alignItems: "center", gap: "10px" }}
-                                            onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                                            onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = "transparent"; }}
+                                      return (
+                                        <div key={s.id} style={{ 
+                                          background: "var(--color-card-bg)", 
+                                          border: `1px solid var(--color-border)`, 
+                                          borderLeft: `4px solid ${tmplColor}`, 
+                                          borderRadius: "var(--radius-md)", 
+                                          padding: "8px 10px", 
+                                          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                          position: "relative",
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          gap: "6px"
+                                        }}>
+                                          <button 
+                                            onClick={() => handleDeleteShift(s.id)}
+                                            style={{ position: "absolute", top: "6px", right: "6px", background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "14px", display: "flex", padding: "2px" }}
+                                            onMouseEnter={e => e.currentTarget.style.color = "var(--color-danger)"}
+                                            onMouseLeave={e => e.currentTarget.style.color = "var(--color-text-muted)"}
                                           >
-                                            <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: t.color, flexShrink: 0 }} />
-                                            <span>{t.name}</span>
-                                            <span style={{ fontSize: "11px", color: "var(--color-text-muted)", marginLeft: "auto" }}>{t.startTime}–{t.endTime}</span>
+                                            <X size={12} />
                                           </button>
-                                        );
-                                      })}
 
-                                      {/* Section: Post */}
-                                      <div style={{ padding: "10px 14px", background: "var(--color-bg-subtle)", borderTop: "1px solid var(--color-border)", borderBottom: "1px solid var(--color-border)", fontSize: "10px", fontWeight: 800, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: "6px" }}>
-                                        <MapPin size={11} /> Assign Post
-                                      </div>
-                                      <button
-                                        onClick={() => setRosterPosts(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "" } }))}
-                                        style={{ width: "100%", padding: "9px 14px", background: !assignedPost ? "var(--color-bg-subtle)" : "transparent", border: "none", borderLeft: !assignedPost ? "3px solid var(--color-text-muted)" : "3px solid transparent", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "12.5px", fontWeight: !assignedPost ? 700 : 500, textAlign: "left", display: "flex", alignItems: "center", gap: "8px" }}
-                                        onMouseEnter={e => { if (assignedPost) e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                                        onMouseLeave={e => { if (assignedPost) e.currentTarget.style.background = "transparent"; }}
+                                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                            <span style={{ fontSize: "11px", fontWeight: 800, color: tmplColor }}>{tmplName}</span>
+                                            {isDraft && (
+                                              <span style={{ fontSize: "9px", fontWeight: 700, background: "rgba(245, 158, 11, 0.15)", color: "var(--color-accent)", padding: "1px 5px", borderRadius: "3px" }}>DRAFT</span>
+                                            )}
+                                          </div>
+                                          
+                                          <div style={{ fontSize: "10.5px", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "4px" }}>
+                                            <Clock size={11} /> {formattedTime}
+                                          </div>
+
+                                          {/* Guard assignment */}
+                                          {s.userId ? (
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginTop: "4px" }}>
+                                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "4px" }}>
+                                                <span 
+                                                  onClick={() => handleOpenAssignModal(s)}
+                                                  style={{ fontSize: "11.5px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "4px", cursor: "pointer", textDecoration: "underline" }}
+                                                >
+                                                  👤 {s.user?.firstName} {s.user?.lastName}
+                                                </span>
+                                                <button 
+                                                  onClick={() => handleUnassignShift(s.id)}
+                                                  style={{ padding: "2px 4px", fontSize: "9px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "4px", color: "var(--color-text-secondary)", cursor: "pointer" }}
+                                                >
+                                                  Unassign
+                                                </button>
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <button 
+                                              onClick={() => handleOpenAssignModal(s)}
+                                              style={{ marginTop: "4px", padding: "6px 8px", width: "100%", border: "1px dashed var(--color-accent)", background: "var(--color-accent-subtle)", color: "var(--color-accent)", borderRadius: "var(--radius-md)", fontSize: "11px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}
+                                            >
+                                              <Plus size={12} /> Assign Guard
+                                            </button>
+                                          )}
+
+                                          {/* Warnings */}
+                                          {warnings.map((w, idx) => (
+                                            <div key={idx} style={{ fontSize: "9.5px", fontWeight: 700, color: "var(--color-danger)", background: "var(--color-danger-subtle)", padding: "3px 6px", borderRadius: "4px", marginTop: "2px" }}>
+                                              {w}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      );
+                                    })}
+                                    
+                                    {/* Add Shift Requirement Dropdown Cell */}
+                                    <div style={{ marginTop: "auto", position: "relative" }}>
+                                      <select 
+                                        value="" 
+                                        onChange={e => {
+                                          if (e.target.value) {
+                                            handleCreateDraftShift(post.id, dayIndex, e.target.value);
+                                            e.target.value = "";
+                                          }
+                                        }}
+                                        style={{ width: "100%", padding: "5px 8px", fontSize: "11px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "transparent", color: "var(--color-text-muted)", cursor: "pointer", fontWeight: 600 }}
                                       >
-                                        <X size={12} /> No specific post
-                                      </button>
-                                      {posts.map((p: any) => {
-                                        const isPostSelected = assignedPost === p.id;
-                                        return (
-                                          <button key={p.id}
-                                            onClick={() => setRosterPosts(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: p.id } }))}
-                                            style={{ width: "100%", padding: "9px 14px", background: isPostSelected ? "var(--color-accent-subtle)" : "transparent", border: "none", borderLeft: isPostSelected ? "3px solid var(--color-accent)" : "3px solid transparent", color: isPostSelected ? "var(--color-accent)" : "var(--color-text-primary)", cursor: "pointer", fontSize: "12.5px", fontWeight: isPostSelected ? 700 : 500, textAlign: "left", display: "flex", alignItems: "center", gap: "8px" }}
-                                            onMouseEnter={e => { if (!isPostSelected) e.currentTarget.style.background = "var(--color-bg-subtle)"; }}
-                                            onMouseLeave={e => { if (!isPostSelected) e.currentTarget.style.background = "transparent"; }}
-                                          >
-                                            <MapPin size={12} color={isPostSelected ? "var(--color-accent)" : "var(--color-text-muted)"} /> {p.name}
-                                          </button>
-                                        );
-                                      })}
-                                      {posts.length === 0 && (
-                                        <div style={{ padding: "10px 14px", fontSize: "12px", color: "var(--color-text-muted)", fontStyle: "italic" }}>No posts configured for this site.</div>
-                                      )}
-
-                                      {/* Footer actions */}
-                                      <div style={{ borderTop: "1px solid var(--color-border)", display: "flex", gap: "0" }}>
-                                        <button
-                                          onClick={() => {
-                                            if (assigned) setActiveCellKey(null);
-                                          }}
-                                          style={{ flex: 1, padding: "10px 14px", background: "transparent", border: "none", borderRight: "1px solid var(--color-border)", color: "var(--color-success)", cursor: "pointer", fontSize: "12.5px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
-                                          onMouseEnter={e => (e.currentTarget.style.background = "var(--color-success-subtle)")}
-                                          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                                        >
-                                          ✓ Done
-                                        </button>
-                                        <button
-                                          onClick={() => {
-                                            setRoster(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "OFF" } }));
-                                            setRosterPosts(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "" } }));
-                                            setActiveCellKey(null);
-                                          }}
-                                          style={{ flex: 1, padding: "10px 14px", background: "transparent", border: "none", borderRight: "1px solid var(--color-border)", color: "var(--color-danger)", cursor: "pointer", fontSize: "12.5px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
-                                          onMouseEnter={e => (e.currentTarget.style.background = "var(--color-danger-subtle)")}
-                                          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                                        >
-                                          <Ban size={12} /> Off
-                                        </button>
-                                        <button
-                                          onClick={() => {
-                                            setRoster(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "" } }));
-                                            setRosterPosts(prev => ({ ...prev, [u.id]: { ...(prev[u.id] || {}), [dayIndex]: "" } }));
-                                            setActiveCellKey(null);
-                                          }}
-                                          style={{ flex: 1, padding: "10px 14px", background: "transparent", border: "none", color: "var(--color-text-muted)", cursor: "pointer", fontSize: "12.5px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
-                                          onMouseEnter={e => (e.currentTarget.style.background = "var(--color-bg-subtle)")}
-                                          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                                        >
-                                          <X size={12} /> Clear
-                                        </button>
-                                      </div>
+                                        <option value="">➕ Add Shift...</option>
+                                        {templates.map(t => (
+                                          <option key={t.id} value={t.id}>{t.name} ({t.startTime}–{t.endTime})</option>
+                                        ))}
+                                      </select>
                                     </div>
-                                  )}
+                                  </div>
                                 </td>
                               );
                             })}
                           </tr>
-                        ))})()}
+                        ))}
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Coverage Audit Insights Section */}
+                  <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", padding: "20px 24px", boxShadow: "var(--color-card-shadow)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                    <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px" }}><ShieldAlert size={16} color="var(--color-accent)" /> Roster Coverage Audit</h4>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {coverageInsights.map((insight, idx) => (
+                        <div key={idx} style={{ fontSize: "13px", color: insight.startsWith("✓") ? "var(--color-success)" : "var(--color-text-secondary)", fontWeight: insight.startsWith("✓") ? 600 : 500 }}>
+                          {insight}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                 </div>
               )}
 
-
-              {/* ─── SUB-TAB 4: SHIFT COVERAGE ─── */}
+              {/* ─── SUB-TAB 3: SHIFT COVERAGE ─── */}
               {shiftSubTab === "coverage" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
-                    <div>
-                      <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Shift Coverage Dashboard</h3>
-                      <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--color-text-muted)" }}>Monitor staffing levels across all shifts and days. Quickly spot gaps and conflicts.</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Shift Coverage Dashboard</h3>
+                        <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--color-text-muted)" }}>Monitor staffing levels across all shifts and days. Quickly spot gaps and conflicts.</p>
+                      </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      <label style={{ ...labelStyle, marginBottom: 0 }}>Week Starting</label>
-                      <input type="date" value={rosterWeekStart} onChange={e => setRosterWeekStart(e.target.value)} style={{ ...inputStyle, width: "180px", padding: "8px 12px" }} />
-                    </div>
-                  </div>
 
-                  {/* Coverage summary cards */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
-                    {coverageData.map(({ day, dayIndex, templateCoverage, total }) => {
-                      const rosterCount = Object.values(roster).filter(days => days[dayIndex] && days[dayIndex] !== "OFF").length;
-                      const hasGap = rosterCount === 0;
-                      return (
-                        <div key={day} style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: `1px solid ${hasGap ? "var(--color-danger)" : "var(--color-card-border)"}`, boxShadow: hasGap ? "0 0 0 3px var(--color-danger-subtle)" : "var(--color-card-shadow)", overflow: "hidden" }}>
-                          <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: hasGap ? "var(--color-danger-subtle)" : "var(--color-bg-subtle)" }}>
-                            <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--color-text-primary)" }}>{day} <span style={{ fontWeight: 400, color: "var(--color-text-muted)", fontSize: "12px" }}>{getRosterDate(dayIndex).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span></div>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                              {hasGap ? (
-                                <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-danger)", display: "flex", alignItems: "center", gap: "4px" }}>
-                                  <AlertTriangle size={13} /> NO COVER
-                                </span>
-                              ) : (
-                                <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-success)", display: "flex", alignItems: "center", gap: "4px" }}>
-                                  <CheckCircle2 size={13} /> {rosterCount} assigned
-                                </span>
-                              )}
+                    {/* Coverage summary cards */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
+                      {coverageData.map(({ day, dayIndex, rosterCount, hasGap, templateCoverage, offDutyCount, vacantCount }) => {
+                        return (
+                          <div key={day} style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: `1px solid ${hasGap ? "var(--color-danger)" : "var(--color-card-border)"}`, boxShadow: hasGap ? "0 0 0 3px var(--color-danger-subtle)" : "var(--color-card-shadow)", overflow: "hidden" }}>
+                            <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: hasGap ? "var(--color-danger-subtle)" : "var(--color-bg-subtle)" }}>
+                              <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--color-text-primary)" }}>{day} <span style={{ fontWeight: 400, color: "var(--color-text-muted)", fontSize: "12px" }}>{getRosterDate(dayIndex).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span></div>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                {hasGap ? (
+                                  <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-danger)", display: "flex", alignItems: "center", gap: "4px" }}>
+                                    <AlertTriangle size={13} /> NO COVER
+                                  </span>
+                                ) : (
+                                  <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-success)", display: "flex", alignItems: "center", gap: "4px" }}>
+                                    <CheckCircle2 size={13} /> {rosterCount} assigned
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                            {templates.map(t => {
-                              const assignedForShift = Object.values(roster).filter(days => days[dayIndex] === t.id).length;
-                              return (
-                                <div key={t.id}>
-                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)" }}>
-                                      <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: t.color, flexShrink: 0 }} />
-                                      {t.name}
+                            <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                              {templateCoverage.map(({ template, assigned }) => {
+                                return (
+                                  <div key={template.id}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                                      <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)" }}>
+                                        <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: template.color, flexShrink: 0 }} />
+                                        {template.name}
+                                      </div>
+                                      <span style={{ fontSize: "12px", fontWeight: 700, color: assigned === 0 ? "var(--color-text-muted)" : template.color }}>{assigned} guards</span>
                                     </div>
-                                    <span style={{ fontSize: "12px", fontWeight: 700, color: assignedForShift === 0 ? "var(--color-text-muted)" : t.color }}>{assignedForShift} guards</span>
+                                    <div style={{ height: "6px", background: "var(--color-bg-subtle)", borderRadius: "4px", overflow: "hidden" }}>
+                                      <div style={{ height: "100%", width: `${Math.min(100, (assigned / Math.max(1, users.length)) * 100)}%`, background: template.color, borderRadius: "4px", transition: "width 0.5s ease" }} />
+                                    </div>
                                   </div>
-                                  <div style={{ height: "6px", background: "var(--color-bg-subtle)", borderRadius: "4px", overflow: "hidden" }}>
-                                    <div style={{ height: "100%", width: `${Math.min(100, (assignedForShift / Math.max(1, users.length)) * 100)}%`, background: t.color, borderRadius: "4px", transition: "width 0.5s ease" }} />
-                                  </div>
-                                </div>
-                              );
-                            })}
-                            {/* Off duty count */}
-                            <div style={{ paddingTop: "8px", borderTop: "1px solid var(--color-border)", fontSize: "12px", color: "var(--color-text-muted)", display: "flex", justifyContent: "space-between" }}>
-                              <span>Off Duty</span>
-                              <span style={{ fontWeight: 600 }}>{Object.values(roster).filter(days => days[dayIndex] === "OFF").length}</span>
-                            </div>
-                            <div style={{ fontSize: "12px", color: "var(--color-text-muted)", display: "flex", justifyContent: "space-between" }}>
-                              <span>Unassigned</span>
-                              <span style={{ fontWeight: 600 }}>{users.length - Object.values(roster).filter(days => days[dayIndex] !== undefined && days[dayIndex] !== "").length}</span>
+                                );
+                              })}
+                              {/* Off duty count */}
+                              <div style={{ paddingTop: "8px", borderTop: "1px solid var(--color-border)", fontSize: "12px", color: "var(--color-text-muted)", display: "flex", justifyContent: "space-between" }}>
+                                <span>Off Duty / Unassigned</span>
+                                <span style={{ fontWeight: 600 }}>{offDutyCount}</span>
+                              </div>
+                              <div style={{ fontSize: "12px", color: "var(--color-text-muted)", display: "flex", justifyContent: "space-between" }}>
+                                <span>Vacant Slots</span>
+                                <span style={{ fontWeight: 600 }}>{vacantCount}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
 
                   {/* Live shift records from the API */}
                   {shifts.length > 0 && (
@@ -1517,7 +1942,7 @@ function OperationsContent() {
   );
 }
 
-export default function SupervisorOperationsConsole() {
+export default function SupervisorOperationsConsole({}: { params?: Promise<Record<string, string>>; searchParams?: Promise<SearchParams> }) {
   return (
     <Suspense fallback={
       <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", gap: "12px", padding: "80px", color: "var(--color-text-muted)" }}>

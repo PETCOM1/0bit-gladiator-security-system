@@ -30,6 +30,7 @@ enum RegistrationMode {
 }
 
 enum ShiftStatus {
+  DRAFT
   SCHEDULED
   IN_PROGRESS
   COMPLETED
@@ -330,8 +331,8 @@ model Shift {
   siteId   String
   site     Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   startTime       DateTime
   endTime         DateTime?

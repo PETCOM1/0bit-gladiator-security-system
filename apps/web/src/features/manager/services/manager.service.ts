@@ -32,7 +32,10 @@ export const managerService = {
 
   // Shifts & Attendance
   getTenantShifts: () => apiClient.get("/shifts/tenant"),
-  createShift: (data: { userId: string; startTime: string; endTime: string; postId?: string; siteId?: string }) => apiClient.post("/shifts", data),
+  createShift: (data: { userId?: string | null; startTime: string; endTime: string | null; postId?: string | null; siteId?: string; status?: string }) => apiClient.post("/shifts", data),
+  updateShift: (id: string, data: { userId?: string | null; startTime?: string; endTime?: string | null; postId?: string | null; status?: string }) => apiClient.patch(`/shifts/${id}`, data),
+  deleteShift: (id: string) => apiClient.delete(`/shifts/${id}`),
+  publishShifts: (data: { startDate: string; endDate: string; siteId?: string }) => apiClient.post("/shifts/publish", data),
   startShift: (data: { shiftId?: string }) => apiClient.post("/shifts/start", data),
   endShift: (id: string) => apiClient.post(`/shifts/${id}/end`),
 

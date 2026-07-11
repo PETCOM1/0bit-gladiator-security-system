@@ -18,17 +18,17 @@ export const createShift = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
-  const { userId, startTime, endTime, postId } = req.body;
+  const { userId, startTime, endTime, postId, status } = req.body;
 
   const shift = await prisma.shift.create({
     data: { 
       tenantId, 
       siteId, 
-      userId, 
+      userId: userId || null, 
       startTime: new Date(startTime), 
-      endTime: new Date(endTime), 
-      postId,
-      status: "SCHEDULED" 
+      endTime: endTime ? new Date(endTime) : null, 
+      postId: postId || null,
+      status: status || "SCHEDULED" 
     }
   });
   
@@ -110,6 +110,7 @@ export const getTenantShifts = catchAsync(async (req: Request, res: Response) =>
   }
   if (req.user!.role === Role.GUARD) {
     whereClause.userId = req.user!.userId;
+    whereClause.status = { not: "DRAFT" };
   }
 
   const shifts = await prisma.shift.findMany({
@@ -123,4 +124,65 @@ export const getTenantShifts = catchAsync(async (req: Request, res: Response) =>
   });
 
   res.status(HttpStatus.OK).json({ status: "success", data: { shifts } });
+});
+
+// Update a shift
+export const updateShift = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { userId, startTime, endTime, postId, status } = req.body;
+
+  const updateData: any = {};
+  if (userId !== undefined) updateData.userId = userId || null;
+  if (startTime !== undefined) updateData.startTime = new Date(startTime);
+  if (endTime !== undefined) updateData.endTime = endTime ? new Date(endTime) : null;
+  if (postId !== undefined) updateData.postId = postId || null;
+  if (status !== undefined) updateData.status = status;
+
+  const shift = await prisma.shift.update({
+    where: { id },
+    data: updateData
+  });
+
+  res.status(HttpStatus.OK).json({ status: "success", data: { shift } });
+});
+
+// Delete a shift
+export const deleteShift = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await prisma.shift.delete({ where: { id } });
+  res.status(HttpStatus.NO_CONTENT).send();
+});
+
+// Publish draft shifts for a site/week
+export const publishShifts = catchAsync(async (req: Request, res: Response) => {
+  const tenantId = req.user!.tenantId;
+  const siteId = req.user!.role === "MANAGER" ? req.body.siteId : req.user!.siteId;
+  
+  if (!tenantId || !siteId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant/site context" });
+
+  const site = await prisma.site.findUnique({ where: { id: siteId } });
+  if (site?.isFrozen) {
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      message: "This site has been frozen by the Tenant Manager. Operational activities are locked."
+    });
+  }
+
+  const { startDate, endDate } = req.body;
+
+  const result = await prisma.shift.updateMany({
+    where: {
+      tenantId,
+      siteId,
+      status: "DRAFT",
+      startTime: {
+        gte: new Date(startDate),
+        lte: new Date(endDate)
+      }
+    },
+    data: {
+      status: "SCHEDULED"
+    }
+  });
+
+  res.status(HttpStatus.OK).json({ status: "success", data: { count: result.count } });
 });

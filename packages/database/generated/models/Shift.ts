@@ -193,7 +193,7 @@ export type ShiftGroupByOutputType = {
   id: string
   tenantId: string
   siteId: string
-  userId: string
+  userId: string | null
   startTime: Date
   endTime: Date | null
   actualStartTime: Date | null
@@ -229,7 +229,7 @@ export type ShiftWhereInput = {
   id?: Prisma.StringFilter<"Shift"> | string
   tenantId?: Prisma.StringFilter<"Shift"> | string
   siteId?: Prisma.StringFilter<"Shift"> | string
-  userId?: Prisma.StringFilter<"Shift"> | string
+  userId?: Prisma.StringNullableFilter<"Shift"> | string | null
   startTime?: Prisma.DateTimeFilter<"Shift"> | Date | string
   endTime?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
   actualStartTime?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
@@ -240,7 +240,7 @@ export type ShiftWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Shift"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   site?: Prisma.XOR<Prisma.SiteScalarRelationFilter, Prisma.SiteWhereInput>
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   post?: Prisma.XOR<Prisma.PostNullableScalarRelationFilter, Prisma.PostWhereInput> | null
 }
 
@@ -248,7 +248,7 @@ export type ShiftOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrderInput | Prisma.SortOrder
   actualStartTime?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -270,7 +270,7 @@ export type ShiftWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ShiftWhereInput | Prisma.ShiftWhereInput[]
   tenantId?: Prisma.StringFilter<"Shift"> | string
   siteId?: Prisma.StringFilter<"Shift"> | string
-  userId?: Prisma.StringFilter<"Shift"> | string
+  userId?: Prisma.StringNullableFilter<"Shift"> | string | null
   startTime?: Prisma.DateTimeFilter<"Shift"> | Date | string
   endTime?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
   actualStartTime?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
@@ -281,7 +281,7 @@ export type ShiftWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Shift"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   site?: Prisma.XOR<Prisma.SiteScalarRelationFilter, Prisma.SiteWhereInput>
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   post?: Prisma.XOR<Prisma.PostNullableScalarRelationFilter, Prisma.PostWhereInput> | null
 }, "id">
 
@@ -289,7 +289,7 @@ export type ShiftOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrderInput | Prisma.SortOrder
   actualStartTime?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -310,7 +310,7 @@ export type ShiftScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Shift"> | string
   tenantId?: Prisma.StringWithAggregatesFilter<"Shift"> | string
   siteId?: Prisma.StringWithAggregatesFilter<"Shift"> | string
-  userId?: Prisma.StringWithAggregatesFilter<"Shift"> | string
+  userId?: Prisma.StringNullableWithAggregatesFilter<"Shift"> | string | null
   startTime?: Prisma.DateTimeWithAggregatesFilter<"Shift"> | Date | string
   endTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Shift"> | Date | string | null
   actualStartTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Shift"> | Date | string | null
@@ -332,7 +332,7 @@ export type ShiftCreateInput = {
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutShiftsInput
   site: Prisma.SiteCreateNestedOneWithoutShiftsInput
-  user: Prisma.UserCreateNestedOneWithoutShiftsInput
+  user?: Prisma.UserCreateNestedOneWithoutShiftsInput
   post?: Prisma.PostCreateNestedOneWithoutShiftsInput
 }
 
@@ -340,7 +340,7 @@ export type ShiftUncheckedCreateInput = {
   id?: string
   tenantId: string
   siteId: string
-  userId: string
+  userId?: string | null
   startTime: Date | string
   endTime?: Date | string | null
   actualStartTime?: Date | string | null
@@ -362,7 +362,7 @@ export type ShiftUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutShiftsNestedInput
   site?: Prisma.SiteUpdateOneRequiredWithoutShiftsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
+  user?: Prisma.UserUpdateOneWithoutShiftsNestedInput
   post?: Prisma.PostUpdateOneWithoutShiftsNestedInput
 }
 
@@ -370,7 +370,7 @@ export type ShiftUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   actualStartTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -385,7 +385,7 @@ export type ShiftCreateManyInput = {
   id?: string
   tenantId: string
   siteId: string
-  userId: string
+  userId?: string | null
   startTime: Date | string
   endTime?: Date | string | null
   actualStartTime?: Date | string | null
@@ -411,7 +411,7 @@ export type ShiftUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   actualStartTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -710,7 +710,7 @@ export type ShiftScalarWhereInput = {
   id?: Prisma.StringFilter<"Shift"> | string
   tenantId?: Prisma.StringFilter<"Shift"> | string
   siteId?: Prisma.StringFilter<"Shift"> | string
-  userId?: Prisma.StringFilter<"Shift"> | string
+  userId?: Prisma.StringNullableFilter<"Shift"> | string | null
   startTime?: Prisma.DateTimeFilter<"Shift"> | Date | string
   endTime?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
   actualStartTime?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
@@ -731,14 +731,14 @@ export type ShiftCreateWithoutTenantInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   site: Prisma.SiteCreateNestedOneWithoutShiftsInput
-  user: Prisma.UserCreateNestedOneWithoutShiftsInput
+  user?: Prisma.UserCreateNestedOneWithoutShiftsInput
   post?: Prisma.PostCreateNestedOneWithoutShiftsInput
 }
 
 export type ShiftUncheckedCreateWithoutTenantInput = {
   id?: string
   siteId: string
-  userId: string
+  userId?: string | null
   startTime: Date | string
   endTime?: Date | string | null
   actualStartTime?: Date | string | null
@@ -785,14 +785,14 @@ export type ShiftCreateWithoutSiteInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutShiftsInput
-  user: Prisma.UserCreateNestedOneWithoutShiftsInput
+  user?: Prisma.UserCreateNestedOneWithoutShiftsInput
   post?: Prisma.PostCreateNestedOneWithoutShiftsInput
 }
 
 export type ShiftUncheckedCreateWithoutSiteInput = {
   id?: string
   tenantId: string
-  userId: string
+  userId?: string | null
   startTime: Date | string
   endTime?: Date | string | null
   actualStartTime?: Date | string | null
@@ -840,14 +840,14 @@ export type ShiftCreateWithoutPostInput = {
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutShiftsInput
   site: Prisma.SiteCreateNestedOneWithoutShiftsInput
-  user: Prisma.UserCreateNestedOneWithoutShiftsInput
+  user?: Prisma.UserCreateNestedOneWithoutShiftsInput
 }
 
 export type ShiftUncheckedCreateWithoutPostInput = {
   id?: string
   tenantId: string
   siteId: string
-  userId: string
+  userId?: string | null
   startTime: Date | string
   endTime?: Date | string | null
   actualStartTime?: Date | string | null
@@ -942,7 +942,7 @@ export type ShiftUncheckedUpdateManyWithoutUserInput = {
 export type ShiftCreateManyTenantInput = {
   id?: string
   siteId: string
-  userId: string
+  userId?: string | null
   startTime: Date | string
   endTime?: Date | string | null
   actualStartTime?: Date | string | null
@@ -963,14 +963,14 @@ export type ShiftUpdateWithoutTenantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   site?: Prisma.SiteUpdateOneRequiredWithoutShiftsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
+  user?: Prisma.UserUpdateOneWithoutShiftsNestedInput
   post?: Prisma.PostUpdateOneWithoutShiftsNestedInput
 }
 
 export type ShiftUncheckedUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   actualStartTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -984,7 +984,7 @@ export type ShiftUncheckedUpdateWithoutTenantInput = {
 export type ShiftUncheckedUpdateManyWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   actualStartTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -998,7 +998,7 @@ export type ShiftUncheckedUpdateManyWithoutTenantInput = {
 export type ShiftCreateManySiteInput = {
   id?: string
   tenantId: string
-  userId: string
+  userId?: string | null
   startTime: Date | string
   endTime?: Date | string | null
   actualStartTime?: Date | string | null
@@ -1019,14 +1019,14 @@ export type ShiftUpdateWithoutSiteInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutShiftsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
+  user?: Prisma.UserUpdateOneWithoutShiftsNestedInput
   post?: Prisma.PostUpdateOneWithoutShiftsNestedInput
 }
 
 export type ShiftUncheckedUpdateWithoutSiteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   actualStartTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1040,7 +1040,7 @@ export type ShiftUncheckedUpdateWithoutSiteInput = {
 export type ShiftUncheckedUpdateManyWithoutSiteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   actualStartTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1055,7 +1055,7 @@ export type ShiftCreateManyPostInput = {
   id?: string
   tenantId: string
   siteId: string
-  userId: string
+  userId?: string | null
   startTime: Date | string
   endTime?: Date | string | null
   actualStartTime?: Date | string | null
@@ -1076,14 +1076,14 @@ export type ShiftUpdateWithoutPostInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutShiftsNestedInput
   site?: Prisma.SiteUpdateOneRequiredWithoutShiftsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
+  user?: Prisma.UserUpdateOneWithoutShiftsNestedInput
 }
 
 export type ShiftUncheckedUpdateWithoutPostInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   actualStartTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1097,7 +1097,7 @@ export type ShiftUncheckedUpdateManyWithoutPostInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   actualStartTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1124,7 +1124,7 @@ export type ShiftSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.Shift$userArgs<ExtArgs>
   post?: boolean | Prisma.Shift$postArgs<ExtArgs>
 }, ExtArgs["result"]["shift"]>
 
@@ -1143,7 +1143,7 @@ export type ShiftSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.Shift$userArgs<ExtArgs>
   post?: boolean | Prisma.Shift$postArgs<ExtArgs>
 }, ExtArgs["result"]["shift"]>
 
@@ -1162,7 +1162,7 @@ export type ShiftSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.Shift$userArgs<ExtArgs>
   post?: boolean | Prisma.Shift$postArgs<ExtArgs>
 }, ExtArgs["result"]["shift"]>
 
@@ -1185,19 +1185,19 @@ export type ShiftOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
 export type ShiftInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.Shift$userArgs<ExtArgs>
   post?: boolean | Prisma.Shift$postArgs<ExtArgs>
 }
 export type ShiftIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.Shift$userArgs<ExtArgs>
   post?: boolean | Prisma.Shift$postArgs<ExtArgs>
 }
 export type ShiftIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.Shift$userArgs<ExtArgs>
   post?: boolean | Prisma.Shift$postArgs<ExtArgs>
 }
 
@@ -1206,14 +1206,14 @@ export type $ShiftPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
     site: Prisma.$SitePayload<ExtArgs>
-    user: Prisma.$UserPayload<ExtArgs>
+    user: Prisma.$UserPayload<ExtArgs> | null
     post: Prisma.$PostPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     tenantId: string
     siteId: string
-    userId: string
+    userId: string | null
     startTime: Date
     endTime: Date | null
     actualStartTime: Date | null
@@ -1618,7 +1618,7 @@ export interface Prisma__ShiftClient<T, Null = never, ExtArgs extends runtime.Ty
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   site<T extends Prisma.SiteDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SiteDefaultArgs<ExtArgs>>): Prisma.Prisma__SiteClient<runtime.Types.Result.GetResult<Prisma.$SitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.Shift$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Shift$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   post<T extends Prisma.Shift$postArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Shift$postArgs<ExtArgs>>): Prisma.Prisma__PostClient<runtime.Types.Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2059,6 +2059,25 @@ export type ShiftDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Shifts to delete.
    */
   limit?: number
+}
+
+/**
+ * Shift.user
+ */
+export type Shift$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**
