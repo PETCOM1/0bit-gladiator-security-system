@@ -1831,6 +1831,7 @@ export const UserScalarFieldEnum = {
   googleRefreshToken: 'googleRefreshToken',
   tenantId: 'tenantId',
   siteId: 'siteId',
+  postId: 'postId',
   invitedById: 'invitedById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

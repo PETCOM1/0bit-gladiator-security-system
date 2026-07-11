@@ -329,35 +329,55 @@ function OperationsContent() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%" }}>
       {/* Title */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-        <div>
-          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-            <FolderKanban size={24} color="var(--color-accent)" /> Site Operations Console
-          </h1>
-          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-            Consolidated supervisor ledger for occurrence logs, scheduling, attendance tracking, visitors, and patrols.
-          </p>
+      {activeTab !== "shifts" && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div>
+            <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
+              <FolderKanban size={24} color="var(--color-accent)" /> Site Operations Console
+            </h1>
+            <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+              Consolidated supervisor ledger for occurrence logs, scheduling, attendance tracking, and visitors.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Full-width header when in Shift Scheduling */}
+      {activeTab === "shifts" && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--color-border)", paddingBottom: "16px", marginBottom: "4px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <button 
+              onClick={() => handleTabChange("occurrence")}
+              style={{ 
+                padding: "8px 16px", background: "var(--color-bg-subtle)", 
+                border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", 
+                fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)", 
+                cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" 
+              }}
+            >
+              ← Back to Operations
+            </button>
+            <h1 style={{ fontSize: "20px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px", margin: 0 }}>
+              <Calendar size={20} color="var(--color-accent)" /> Shift Scheduling Console
+            </h1>
+          </div>
+        </div>
+      )}
 
       {/* Tab Navigation Menu */}
-      <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)", gap: "8px", overflowX: "auto" }}>
-        <button onClick={() => handleTabChange("occurrence")} style={tabButtonStyle(activeTab === "occurrence")}>
-          <CheckCircle2 size={16} /> Occurrence Book
-        </button>
-        <button onClick={() => handleTabChange("shifts")} style={tabButtonStyle(activeTab === "shifts")}>
-          <Calendar size={16} /> Shift Scheduling
-        </button>
-        <button onClick={() => handleTabChange("attendance")} style={tabButtonStyle(activeTab === "attendance")}>
-          <ClipboardCheck size={16} /> Attendance Tracking
-        </button>
-        <button onClick={() => handleTabChange("visitors")} style={tabButtonStyle(activeTab === "visitors")}>
-          <Contact size={16} /> Visitor Logs
-        </button>
-        <button onClick={() => handleTabChange("patrols")} style={tabButtonStyle(activeTab === "patrols")}>
-          <MapPin size={16} /> Patrol Management
-        </button>
-      </div>
+      {activeTab !== "shifts" && (
+        <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)", gap: "8px", overflowX: "auto" }}>
+          <button onClick={() => handleTabChange("occurrence")} style={tabButtonStyle(activeTab === "occurrence")}>
+            <CheckCircle2 size={16} /> Occurrence Book
+          </button>
+          <button onClick={() => handleTabChange("attendance")} style={tabButtonStyle(activeTab === "attendance")}>
+            <ClipboardCheck size={16} /> Attendance Tracking
+          </button>
+          <button onClick={() => handleTabChange("visitors")} style={tabButtonStyle(activeTab === "visitors")}>
+            <Contact size={16} /> Visitor Logs
+          </button>
+        </div>
+      )}
 
       {/* View Content Block */}
       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -1493,16 +1513,7 @@ function OperationsContent() {
           </div>
         )}
 
-        {/* TAB 5: PATROL MANAGEMENT */}
-        {activeTab === "patrols" && (
-          <div style={{ background: "var(--color-card-bg)", padding: "40px", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", textAlign: "center" }}>
-            <MapPin size={48} color="var(--color-text-muted)" />
-            <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "var(--color-text-primary)" }}>Patrol Route Monitoring</h3>
-            <p style={{ margin: 0, fontSize: "14px", color: "var(--color-text-secondary)", maxWidth: "450px", lineHeight: 1.5 }}>
-              Track checkpoints, NFC scans, and guard patrol compliance logs in real-time. This automated auditing system is currently being set up.
-            </p>
-          </div>
-        )}
+
 
       </div>
 

@@ -49,6 +49,7 @@ export type UserMinAggregateOutputType = {
   googleRefreshToken: string | null
   tenantId: string | null
   siteId: string | null
+  postId: string | null
   invitedById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -79,6 +80,7 @@ export type UserMaxAggregateOutputType = {
   googleRefreshToken: string | null
   tenantId: string | null
   siteId: string | null
+  postId: string | null
   invitedById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -109,6 +111,7 @@ export type UserCountAggregateOutputType = {
   googleRefreshToken: number
   tenantId: number
   siteId: number
+  postId: number
   invitedById: number
   createdAt: number
   updatedAt: number
@@ -141,6 +144,7 @@ export type UserMinAggregateInputType = {
   googleRefreshToken?: true
   tenantId?: true
   siteId?: true
+  postId?: true
   invitedById?: true
   createdAt?: true
   updatedAt?: true
@@ -171,6 +175,7 @@ export type UserMaxAggregateInputType = {
   googleRefreshToken?: true
   tenantId?: true
   siteId?: true
+  postId?: true
   invitedById?: true
   createdAt?: true
   updatedAt?: true
@@ -201,6 +206,7 @@ export type UserCountAggregateInputType = {
   googleRefreshToken?: true
   tenantId?: true
   siteId?: true
+  postId?: true
   invitedById?: true
   createdAt?: true
   updatedAt?: true
@@ -304,6 +310,7 @@ export type UserGroupByOutputType = {
   googleRefreshToken: string | null
   tenantId: string | null
   siteId: string | null
+  postId: string | null
   invitedById: string | null
   createdAt: Date
   updatedAt: Date
@@ -355,11 +362,13 @@ export type UserWhereInput = {
   googleRefreshToken?: Prisma.StringNullableFilter<"User"> | string | null
   tenantId?: Prisma.StringNullableFilter<"User"> | string | null
   siteId?: Prisma.StringNullableFilter<"User"> | string | null
+  postId?: Prisma.StringNullableFilter<"User"> | string | null
   invitedById?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
   site?: Prisma.XOR<Prisma.SiteNullableScalarRelationFilter, Prisma.SiteWhereInput> | null
+  post?: Prisma.XOR<Prisma.PostNullableScalarRelationFilter, Prisma.PostWhereInput> | null
   invitedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   invitees?: Prisma.UserListRelationFilter
   tenantsOnboarded?: Prisma.TenantListRelationFilter
@@ -399,11 +408,13 @@ export type UserOrderByWithRelationInput = {
   googleRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrderInput | Prisma.SortOrder
   siteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  postId?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   site?: Prisma.SiteOrderByWithRelationInput
+  post?: Prisma.PostOrderByWithRelationInput
   invitedBy?: Prisma.UserOrderByWithRelationInput
   invitees?: Prisma.UserOrderByRelationAggregateInput
   tenantsOnboarded?: Prisma.TenantOrderByRelationAggregateInput
@@ -446,11 +457,13 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   googleRefreshToken?: Prisma.StringNullableFilter<"User"> | string | null
   tenantId?: Prisma.StringNullableFilter<"User"> | string | null
   siteId?: Prisma.StringNullableFilter<"User"> | string | null
+  postId?: Prisma.StringNullableFilter<"User"> | string | null
   invitedById?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
   site?: Prisma.XOR<Prisma.SiteNullableScalarRelationFilter, Prisma.SiteWhereInput> | null
+  post?: Prisma.XOR<Prisma.PostNullableScalarRelationFilter, Prisma.PostWhereInput> | null
   invitedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   invitees?: Prisma.UserListRelationFilter
   tenantsOnboarded?: Prisma.TenantListRelationFilter
@@ -490,6 +503,7 @@ export type UserOrderByWithAggregationInput = {
   googleRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrderInput | Prisma.SortOrder
   siteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  postId?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -526,6 +540,7 @@ export type UserScalarWhereWithAggregatesInput = {
   googleRefreshToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   tenantId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   siteId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  postId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   invitedById?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -558,6 +573,7 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -597,6 +613,7 @@ export type UserUncheckedCreateInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -640,6 +657,7 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -679,6 +697,7 @@ export type UserUncheckedUpdateInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -720,6 +739,7 @@ export type UserCreateManyInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -777,6 +797,7 @@ export type UserUncheckedUpdateManyInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -822,6 +843,7 @@ export type UserCountOrderByAggregateInput = {
   googleRefreshToken?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
+  postId?: Prisma.SortOrder
   invitedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -852,6 +874,7 @@ export type UserMaxOrderByAggregateInput = {
   googleRefreshToken?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
+  postId?: Prisma.SortOrder
   invitedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -882,6 +905,7 @@ export type UserMinOrderByAggregateInput = {
   googleRefreshToken?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
+  postId?: Prisma.SortOrder
   invitedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1136,6 +1160,48 @@ export type UserUpdateOneRequiredWithoutShiftsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutShiftsInput, Prisma.UserUpdateWithoutShiftsInput>, Prisma.UserUncheckedUpdateWithoutShiftsInput>
 }
 
+export type UserCreateNestedManyWithoutPostInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPostInput, Prisma.UserUncheckedCreateWithoutPostInput> | Prisma.UserCreateWithoutPostInput[] | Prisma.UserUncheckedCreateWithoutPostInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPostInput | Prisma.UserCreateOrConnectWithoutPostInput[]
+  createMany?: Prisma.UserCreateManyPostInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutPostInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPostInput, Prisma.UserUncheckedCreateWithoutPostInput> | Prisma.UserCreateWithoutPostInput[] | Prisma.UserUncheckedCreateWithoutPostInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPostInput | Prisma.UserCreateOrConnectWithoutPostInput[]
+  createMany?: Prisma.UserCreateManyPostInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateManyWithoutPostNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPostInput, Prisma.UserUncheckedCreateWithoutPostInput> | Prisma.UserCreateWithoutPostInput[] | Prisma.UserUncheckedCreateWithoutPostInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPostInput | Prisma.UserCreateOrConnectWithoutPostInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutPostInput | Prisma.UserUpsertWithWhereUniqueWithoutPostInput[]
+  createMany?: Prisma.UserCreateManyPostInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutPostInput | Prisma.UserUpdateWithWhereUniqueWithoutPostInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutPostInput | Prisma.UserUpdateManyWithWhereWithoutPostInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutPostNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPostInput, Prisma.UserUncheckedCreateWithoutPostInput> | Prisma.UserCreateWithoutPostInput[] | Prisma.UserUncheckedCreateWithoutPostInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPostInput | Prisma.UserCreateOrConnectWithoutPostInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutPostInput | Prisma.UserUpsertWithWhereUniqueWithoutPostInput[]
+  createMany?: Prisma.UserCreateManyPostInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutPostInput | Prisma.UserUpdateWithWhereUniqueWithoutPostInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutPostInput | Prisma.UserUpdateManyWithWhereWithoutPostInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
 export type UserCreateNestedOneWithoutOccurrenceBooksInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutOccurrenceBooksInput, Prisma.UserUncheckedCreateWithoutOccurrenceBooksInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutOccurrenceBooksInput
@@ -1219,6 +1285,7 @@ export type UserCreateWithoutInviteesInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
@@ -1257,6 +1324,7 @@ export type UserUncheckedCreateWithoutInviteesInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1304,6 +1372,7 @@ export type UserCreateWithoutInvitedByInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
@@ -1342,6 +1411,7 @@ export type UserUncheckedCreateWithoutInvitedByInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
@@ -1405,6 +1475,7 @@ export type UserUpdateWithoutInviteesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
@@ -1443,6 +1514,7 @@ export type UserUncheckedUpdateWithoutInviteesInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1502,6 +1574,7 @@ export type UserScalarWhereInput = {
   googleRefreshToken?: Prisma.StringNullableFilter<"User"> | string | null
   tenantId?: Prisma.StringNullableFilter<"User"> | string | null
   siteId?: Prisma.StringNullableFilter<"User"> | string | null
+  postId?: Prisma.StringNullableFilter<"User"> | string | null
   invitedById?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -1534,6 +1607,7 @@ export type UserCreateWithoutAuditLogsInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -1572,6 +1646,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1630,6 +1705,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -1668,6 +1744,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1710,6 +1787,7 @@ export type UserCreateWithoutNotificationsInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -1748,6 +1826,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1806,6 +1885,7 @@ export type UserUpdateWithoutNotificationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -1844,6 +1924,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1886,6 +1967,7 @@ export type UserCreateWithoutTenantsOnboardedInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
@@ -1924,6 +2006,7 @@ export type UserUncheckedCreateWithoutTenantsOnboardedInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1970,6 +2053,7 @@ export type UserCreateWithoutTenantInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -2008,6 +2092,7 @@ export type UserUncheckedCreateWithoutTenantInput = {
   googleId?: string | null
   googleRefreshToken?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2072,6 +2157,7 @@ export type UserUpdateWithoutTenantsOnboardedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
@@ -2110,6 +2196,7 @@ export type UserUncheckedUpdateWithoutTenantsOnboardedInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2167,6 +2254,7 @@ export type UserCreateWithoutSiteInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -2205,6 +2293,7 @@ export type UserUncheckedCreateWithoutSiteInput = {
   googleId?: string | null
   googleRefreshToken?: string | null
   tenantId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2274,6 +2363,7 @@ export type UserCreateWithoutVisitorsLoggedInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -2312,6 +2402,7 @@ export type UserUncheckedCreateWithoutVisitorsLoggedInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2370,6 +2461,7 @@ export type UserUpdateWithoutVisitorsLoggedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -2408,6 +2500,7 @@ export type UserUncheckedUpdateWithoutVisitorsLoggedInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2450,6 +2543,7 @@ export type UserCreateWithoutIncidentsReportedInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -2488,6 +2582,7 @@ export type UserUncheckedCreateWithoutIncidentsReportedInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2546,6 +2641,7 @@ export type UserUpdateWithoutIncidentsReportedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -2584,6 +2680,7 @@ export type UserUncheckedUpdateWithoutIncidentsReportedInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2626,6 +2723,7 @@ export type UserCreateWithoutShiftsInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -2664,6 +2762,7 @@ export type UserUncheckedCreateWithoutShiftsInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2722,6 +2821,7 @@ export type UserUpdateWithoutShiftsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -2760,6 +2860,7 @@ export type UserUncheckedUpdateWithoutShiftsInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2773,6 +2874,114 @@ export type UserUncheckedUpdateWithoutShiftsInput = {
   occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
   ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
   ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutPostInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  onLeave?: boolean
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
+  site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
+  invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutPostInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  onLeave?: boolean
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitees?: Prisma.UserUncheckedCreateNestedManyWithoutInvitedByInput
+  tenantsOnboarded?: Prisma.TenantUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  visitorsLogged?: Prisma.VisitorUncheckedCreateNestedManyWithoutLoggedByInput
+  incidentsReported?: Prisma.IncidentUncheckedCreateNestedManyWithoutReportedByInput
+  patrolLogs?: Prisma.PatrolLogUncheckedCreateNestedManyWithoutUserInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedCreateNestedManyWithoutUserInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+  ticketMessages?: Prisma.TicketMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutPostInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPostInput, Prisma.UserUncheckedCreateWithoutPostInput>
+}
+
+export type UserCreateManyPostInputEnvelope = {
+  data: Prisma.UserCreateManyPostInput | Prisma.UserCreateManyPostInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithWhereUniqueWithoutPostInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPostInput, Prisma.UserUncheckedUpdateWithoutPostInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPostInput, Prisma.UserUncheckedCreateWithoutPostInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutPostInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPostInput, Prisma.UserUncheckedUpdateWithoutPostInput>
+}
+
+export type UserUpdateManyWithWhereWithoutPostInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutPostInput>
 }
 
 export type UserCreateWithoutOccurrenceBooksInput = {
@@ -2802,6 +3011,7 @@ export type UserCreateWithoutOccurrenceBooksInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -2840,6 +3050,7 @@ export type UserUncheckedCreateWithoutOccurrenceBooksInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2898,6 +3109,7 @@ export type UserUpdateWithoutOccurrenceBooksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -2936,6 +3148,7 @@ export type UserUncheckedUpdateWithoutOccurrenceBooksInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2978,6 +3191,7 @@ export type UserCreateWithoutPatrolLogsInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -3016,6 +3230,7 @@ export type UserUncheckedCreateWithoutPatrolLogsInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3074,6 +3289,7 @@ export type UserUpdateWithoutPatrolLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -3112,6 +3328,7 @@ export type UserUncheckedUpdateWithoutPatrolLogsInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3154,6 +3371,7 @@ export type UserCreateWithoutTicketsCreatedInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -3192,6 +3410,7 @@ export type UserUncheckedCreateWithoutTicketsCreatedInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3250,6 +3469,7 @@ export type UserUpdateWithoutTicketsCreatedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -3288,6 +3508,7 @@ export type UserUncheckedUpdateWithoutTicketsCreatedInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3330,6 +3551,7 @@ export type UserCreateWithoutTicketMessagesInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
   site?: Prisma.SiteCreateNestedOneWithoutUsersInput
+  post?: Prisma.PostCreateNestedOneWithoutUsersInput
   invitedBy?: Prisma.UserCreateNestedOneWithoutInviteesInput
   invitees?: Prisma.UserCreateNestedManyWithoutInvitedByInput
   tenantsOnboarded?: Prisma.TenantCreateNestedManyWithoutCreatedByInput
@@ -3368,6 +3590,7 @@ export type UserUncheckedCreateWithoutTicketMessagesInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3426,6 +3649,7 @@ export type UserUpdateWithoutTicketMessagesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -3464,6 +3688,7 @@ export type UserUncheckedUpdateWithoutTicketMessagesInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3504,6 +3729,7 @@ export type UserCreateManyInvitedByInput = {
   googleRefreshToken?: string | null
   tenantId?: string | null
   siteId?: string | null
+  postId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -3535,6 +3761,7 @@ export type UserUpdateWithoutInvitedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
@@ -3573,6 +3800,7 @@ export type UserUncheckedUpdateWithoutInvitedByInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
@@ -3613,6 +3841,7 @@ export type UserUncheckedUpdateManyWithoutInvitedByInput = {
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -3641,6 +3870,7 @@ export type UserCreateManyTenantInput = {
   googleId?: string | null
   googleRefreshToken?: string | null
   siteId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3672,6 +3902,7 @@ export type UserUpdateWithoutTenantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -3710,6 +3941,7 @@ export type UserUncheckedUpdateWithoutTenantInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3750,6 +3982,7 @@ export type UserUncheckedUpdateManyWithoutTenantInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3779,6 +4012,7 @@ export type UserCreateManySiteInput = {
   googleId?: string | null
   googleRefreshToken?: string | null
   tenantId?: string | null
+  postId?: string | null
   invitedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3810,6 +4044,7 @@ export type UserUpdateWithoutSiteInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  post?: Prisma.PostUpdateOneWithoutUsersNestedInput
   invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
   invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
   tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
@@ -3848,6 +4083,7 @@ export type UserUncheckedUpdateWithoutSiteInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3888,6 +4124,149 @@ export type UserUncheckedUpdateManyWithoutSiteInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type UserCreateManyPostInput = {
+  id?: string
+  email: string
+  password: string
+  role?: $Enums.Role
+  accountStatus?: $Enums.AccountStatus
+  onLeave?: boolean
+  firstName?: string | null
+  lastName?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  phone?: string | null
+  verificationCode?: string | null
+  verificationExpires?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpires?: Date | string | null
+  lastActiveAt?: Date | string | null
+  city?: string | null
+  country?: string | null
+  language?: string | null
+  dateOfBirth?: Date | string | null
+  googleId?: string | null
+  googleRefreshToken?: string | null
+  tenantId?: string | null
+  siteId?: string | null
+  invitedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type UserUpdateWithoutPostInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  onLeave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
+  site?: Prisma.SiteUpdateOneWithoutUsersNestedInput
+  invitedBy?: Prisma.UserUpdateOneWithoutInviteesNestedInput
+  invitees?: Prisma.UserUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPostInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  onLeave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitees?: Prisma.UserUncheckedUpdateManyWithoutInvitedByNestedInput
+  tenantsOnboarded?: Prisma.TenantUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  visitorsLogged?: Prisma.VisitorUncheckedUpdateManyWithoutLoggedByNestedInput
+  incidentsReported?: Prisma.IncidentUncheckedUpdateManyWithoutReportedByNestedInput
+  patrolLogs?: Prisma.PatrolLogUncheckedUpdateManyWithoutUserNestedInput
+  occurrenceBooks?: Prisma.OccurrenceBookEntryUncheckedUpdateManyWithoutUserNestedInput
+  ticketsCreated?: Prisma.SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+  ticketMessages?: Prisma.TicketMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutPostInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  onLeave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4039,11 +4418,13 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   googleRefreshToken?: boolean
   tenantId?: boolean
   siteId?: boolean
+  postId?: boolean
   invitedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
   site?: boolean | Prisma.User$siteArgs<ExtArgs>
+  post?: boolean | Prisma.User$postArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
   invitees?: boolean | Prisma.User$inviteesArgs<ExtArgs>
   tenantsOnboarded?: boolean | Prisma.User$tenantsOnboardedArgs<ExtArgs>
@@ -4084,11 +4465,13 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   googleRefreshToken?: boolean
   tenantId?: boolean
   siteId?: boolean
+  postId?: boolean
   invitedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
   site?: boolean | Prisma.User$siteArgs<ExtArgs>
+  post?: boolean | Prisma.User$postArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -4117,11 +4500,13 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   googleRefreshToken?: boolean
   tenantId?: boolean
   siteId?: boolean
+  postId?: boolean
   invitedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
   site?: boolean | Prisma.User$siteArgs<ExtArgs>
+  post?: boolean | Prisma.User$postArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -4150,15 +4535,17 @@ export type UserSelectScalar = {
   googleRefreshToken?: boolean
   tenantId?: boolean
   siteId?: boolean
+  postId?: boolean
   invitedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "role" | "accountStatus" | "onLeave" | "firstName" | "lastName" | "displayName" | "avatarUrl" | "phone" | "verificationCode" | "verificationExpires" | "passwordResetToken" | "passwordResetExpires" | "lastActiveAt" | "city" | "country" | "language" | "dateOfBirth" | "googleId" | "googleRefreshToken" | "tenantId" | "siteId" | "invitedById" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "role" | "accountStatus" | "onLeave" | "firstName" | "lastName" | "displayName" | "avatarUrl" | "phone" | "verificationCode" | "verificationExpires" | "passwordResetToken" | "passwordResetExpires" | "lastActiveAt" | "city" | "country" | "language" | "dateOfBirth" | "googleId" | "googleRefreshToken" | "tenantId" | "siteId" | "postId" | "invitedById" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
   site?: boolean | Prisma.User$siteArgs<ExtArgs>
+  post?: boolean | Prisma.User$postArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
   invitees?: boolean | Prisma.User$inviteesArgs<ExtArgs>
   tenantsOnboarded?: boolean | Prisma.User$tenantsOnboardedArgs<ExtArgs>
@@ -4176,11 +4563,13 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
   site?: boolean | Prisma.User$siteArgs<ExtArgs>
+  post?: boolean | Prisma.User$postArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
 }
 export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
   site?: boolean | Prisma.User$siteArgs<ExtArgs>
+  post?: boolean | Prisma.User$postArgs<ExtArgs>
   invitedBy?: boolean | Prisma.User$invitedByArgs<ExtArgs>
 }
 
@@ -4189,6 +4578,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs> | null
     site: Prisma.$SitePayload<ExtArgs> | null
+    post: Prisma.$PostPayload<ExtArgs> | null
     invitedBy: Prisma.$UserPayload<ExtArgs> | null
     invitees: Prisma.$UserPayload<ExtArgs>[]
     tenantsOnboarded: Prisma.$TenantPayload<ExtArgs>[]
@@ -4227,6 +4617,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     googleRefreshToken: string | null
     tenantId: string | null
     siteId: string | null
+    postId: string | null
     invitedById: string | null
     createdAt: Date
     updatedAt: Date
@@ -4626,6 +5017,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.User$tenantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tenantArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   site<T extends Prisma.User$siteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$siteArgs<ExtArgs>>): Prisma.Prisma__SiteClient<runtime.Types.Result.GetResult<Prisma.$SitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  post<T extends Prisma.User$postArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postArgs<ExtArgs>>): Prisma.Prisma__PostClient<runtime.Types.Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   invitedBy<T extends Prisma.User$invitedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$invitedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   invitees<T extends Prisma.User$inviteesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$inviteesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tenantsOnboarded<T extends Prisma.User$tenantsOnboardedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tenantsOnboardedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4691,6 +5083,7 @@ export interface UserFieldRefs {
   readonly googleRefreshToken: Prisma.FieldRef<"User", 'String'>
   readonly tenantId: Prisma.FieldRef<"User", 'String'>
   readonly siteId: Prisma.FieldRef<"User", 'String'>
+  readonly postId: Prisma.FieldRef<"User", 'String'>
   readonly invitedById: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -5130,6 +5523,25 @@ export type User$siteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs 
    */
   include?: Prisma.SiteInclude<ExtArgs> | null
   where?: Prisma.SiteWhereInput
+}
+
+/**
+ * User.post
+ */
+export type User$postArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Post
+   */
+  select?: Prisma.PostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Post
+   */
+  omit?: Prisma.PostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PostInclude<ExtArgs> | null
+  where?: Prisma.PostWhereInput
 }
 
 /**

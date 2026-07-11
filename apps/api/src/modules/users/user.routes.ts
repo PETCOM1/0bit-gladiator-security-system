@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { protect } from "../../middleware/auth.middleware.js";
-import { getProfile, updateProfile, changePassword, inviteUser, getTenantUsers, updateUserRole, assignToSite, disableUser, toggleUserLeave } from "./user.controller.js";
+import { getProfile, updateProfile, changePassword, inviteUser, getTenantUsers, updateUserRole, assignToSite, disableUser, toggleUserLeave, assignToPost } from "./user.controller.js";
+
 
 const router = Router();
 router.use(protect);
@@ -91,6 +92,12 @@ router.patch(
   "/:id/site",
   authorize([Role.MANAGER]),
   assignToSite
+);
+
+router.patch(
+  "/:id/post",
+  authorize([Role.MANAGER, Role.SITE_MANAGER]),
+  assignToPost
 );
 
 /**

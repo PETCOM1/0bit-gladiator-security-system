@@ -16,6 +16,7 @@ export const managerService = {
   inviteUser: (data: { email: string; firstName: string; lastName: string; role: "SITE_MANAGER" | "GUARD"; siteId?: string }) => apiClient.post("/users/invite", data),
   updateUserRole: (id: string, role: string) => apiClient.patch(`/users/${id}/role`, { role }),
   assignUserToSite: (id: string, siteId: string) => apiClient.patch(`/users/${id}/site`, { siteId }),
+  assignUserToPost: (id: string, postId: string | null) => apiClient.patch(`/users/${id}/post`, { postId }),
   disableUser: (id: string) => apiClient.patch(`/users/${id}/status`),
   toggleUserLeave: (id: string) => apiClient.patch(`/users/${id}/leave`),
 

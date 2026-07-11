@@ -379,7 +379,7 @@ export default function SiteDetailsView({ siteId, hideBackButton, hideExtraTabs 
         {/* TAB: OVERVIEW */}
         {activeTab === "overview" && (() => {
           // 1. KPI Calculations
-          const totalPersonnel = site.users?.length || 0;
+          const totalPersonnel = site.users?.filter((u: any) => u.role === "GUARD").length || 0;
           const checkedInGuards = site.shifts?.filter((s: any) => s.status === "IN_PROGRESS") || [];
           const checkedInCount = checkedInGuards.length;
           const totalPostsCount = site.posts?.length || 0;
@@ -743,14 +743,15 @@ export default function SiteDetailsView({ siteId, hideBackButton, hideExtraTabs 
                     </h3>
                     
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                      {[
-                        { label: "Add OB Log", action: () => setActiveTab("incidents") },
-                        { label: "Register Visitor", action: () => setActiveTab("visitors") },
+                      {(hideExtraTabs ? [
+                        { label: "View Personnel", action: () => router.push("/site-manager/officers") },
+                        { label: "View Today's Shifts", action: () => router.push("/site-manager/shifts") },
+                        { label: "View Site Analytics", action: () => router.push("/site-manager/analytics") }
+                      ] : [
                         { label: "View Personnel", action: () => setActiveTab("personnel") },
                         { label: "View Shifts", action: () => setActiveTab("shifts") },
-                        { label: "View Posts", action: () => setActiveTab("posts") },
-                        { label: "Report Incident", action: () => setActiveTab("incidents") }
-                      ].map((a, idx) => (
+                        { label: "View Posts", action: () => setActiveTab("posts") }
+                      ]).map((a, idx) => (
                         <button
                           key={idx}
                           onClick={a.action}

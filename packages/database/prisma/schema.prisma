@@ -131,6 +131,8 @@ model User {
   tenant   Tenant? @relation(fields: [tenantId], references: [id])
   siteId   String?
   site     Site?   @relation(fields: [siteId], references: [id])
+  postId   String?
+  post     Post?   @relation(fields: [postId], references: [id])
 
   invitedById       String?
   invitedBy         User?          @relation("UserInvites", fields: [invitedById], references: [id])
@@ -362,6 +364,7 @@ model Post {
   updatedAt DateTime @updatedAt
 
   shifts    Shift[]
+  users     User[]
 
   @@index([tenantId])
   @@index([siteId])

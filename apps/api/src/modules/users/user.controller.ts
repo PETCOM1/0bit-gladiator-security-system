@@ -14,6 +14,9 @@ const PROFILE_SELECT = {
   city: true, country: true, language: true, dateOfBirth: true,
   lastActiveAt: true, createdAt: true,
   onLeave: true,
+  siteId: true,
+  postId: true,
+  post: { select: { id: true, name: true } }
 } as const;
 
 // ── Get profile ────────────────────────────────────────────────────────────────
@@ -207,4 +210,33 @@ export const toggleUserLeave = catchAsync(async (req: Request, res: Response) =>
   });
 
   res.status(HttpStatus.OK).json({ status: "success", message: "User leave status updated", data: { user: updatedUser } });
+});
+
+export const assignToPost = catchAsync(async (req: Request, res: Response) => {
+  const tenantId = req.user!.tenantId;
+  const { id } = req.params;
+  const { postId } = req.body;
+
+  if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
+
+  const user = await prisma.user.findFirst({ where: { id, tenantId } });
+  if (!user) return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
+
+  // If Site Supervisor is calling, verify the post belongs to their site
+  if (req.user!.role === "SITE_MANAGER") {
+    if (user.siteId !== req.user!.siteId) {
+      return res.status(HttpStatus.FORBIDDEN).json({ message: "You can only assign posts to officers on your site" });
+    }
+    if (postId) {
+      const post = await prisma.post.findFirst({ where: { id: postId, siteId: req.user!.siteId } });
+      if (!post) return res.status(HttpStatus.BAD_REQUEST).json({ message: "Invalid post for your site" });
+    }
+  }
+
+  await prisma.user.update({
+    where: { id },
+    data: { postId: postId || null }
+  });
+
+  res.status(HttpStatus.OK).json({ status: "success", message: "User post updated successfully" });
 });
