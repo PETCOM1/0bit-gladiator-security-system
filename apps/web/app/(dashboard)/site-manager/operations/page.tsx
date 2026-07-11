@@ -875,15 +875,15 @@ function OperationsContent() {
 
                   {/* Roster Grid */}
                   <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", boxShadow: "var(--color-card-shadow)", overflowX: "auto" }}>
-                    <table style={{ borderCollapse: "collapse", tableLayout: "auto", minWidth: "1100px", width: "100%" }}>
+                    <table style={{ borderCollapse: "collapse", tableLayout: "fixed", minWidth: "1200px", width: "100%" }}>
                       <thead>
                         <tr style={{ background: "var(--color-bg-subtle)", borderBottom: "2px solid var(--color-border)" }}>
-                          <th style={{ padding: "16px 20px", textAlign: "left", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", minWidth: "200px", whiteSpace: "nowrap" }}>Guard</th>
+                          <th style={{ width: "16%", padding: "16px 20px", textAlign: "left", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>Guard</th>
                           {DAYS.map((day, di) => {
                             const d = getRosterDate(di);
                             const isToday = d.toDateString() === new Date().toDateString();
                             return (
-                              <th key={day} style={{ padding: "16px 10px", textAlign: "center", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", minWidth: "120px", color: isToday ? "var(--color-accent)" : "var(--color-text-muted)", background: isToday ? "var(--color-accent-subtle)" : "transparent", borderBottom: isToday ? "3px solid var(--color-accent)" : "2px solid transparent" }}>
+                              <th key={day} style={{ width: "12%", padding: "16px 10px", textAlign: "center", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: isToday ? "var(--color-accent)" : "var(--color-text-muted)", background: isToday ? "var(--color-accent-subtle)" : "transparent", borderBottom: isToday ? "3px solid var(--color-accent)" : "2px solid transparent" }}>
                                 <div style={{ fontWeight: isToday ? 800 : 700 }}>{day}</div>
                                 <div style={{ fontSize: "12px", fontWeight: isToday ? 700 : 500, marginTop: "3px" }}>{d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</div>
                               </th>

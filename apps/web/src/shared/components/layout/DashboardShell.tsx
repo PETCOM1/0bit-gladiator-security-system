@@ -7,6 +7,7 @@ import TopNav from "./TopNav";
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isFullScreenShift, setIsFullScreenShift] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -16,6 +17,48 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    const checkFullScreen = () => {
+      const isShiftTab = window.location.pathname === "/site-manager/operations" && window.location.search.includes("tab=shifts");
+      setIsFullScreenShift(isShiftTab);
+    };
+    
+    checkFullScreen();
+    window.addEventListener("popstate", checkFullScreen);
+    
+    const originalPushState = window.history.pushState;
+    const originalReplaceState = window.history.replaceState;
+    
+    window.history.pushState = function(...args) {
+      originalPushState.apply(this, args);
+      checkFullScreen();
+    };
+    window.history.replaceState = function(...args) {
+      originalReplaceState.apply(this, args);
+      checkFullScreen();
+    };
+    
+    return () => {
+      window.removeEventListener("popstate", checkFullScreen);
+      window.history.pushState = originalPushState;
+      window.history.replaceState = originalReplaceState;
+    };
+  }, []);
+
+  if (isFullScreenShift) {
+    return (
+      <div style={{
+        width: "100vw",
+        height: "100vh",
+        overflowY: "auto",
+        backgroundColor: "var(--color-bg)",
+        padding: "24px 32px"
+      }}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div style={{
