@@ -3,114 +3,24 @@
 import React, { useState, useEffect } from "react";
 import {
   Users, UserCheck, Shield, Clock, CheckCircle2, ShieldAlert, DoorOpen,
-  TrendingUp, AlertTriangle, MapPin, Award, UserX, Timer, Download,
-  RefreshCw, BookOpen, LogIn, Activity, ChevronRight,
+  TrendingUp, AlertTriangle, MapPin, Award, UserX, Timer,
+  BookOpen, LogIn, Activity, ChevronRight, FileBarChart,
+  Layers, Repeat, CalendarClock,
 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { exportSiteAnalyticsReport } from "@/shared/utils/pdf";
+import { exportSiteAnalyticsReport, exportOccurrenceBookReport, exportVisitorBookReport } from "@/shared/utils/pdf";
 import { managerService } from "@/features/manager/services/manager.service";
 import { useAuth } from "@/shared/context/AuthContext";
+import {
+  cardStyle, dateLabelStyle, dateInputStyle, applyBtnStyle,
+  KpiCard, SectionAnchor, StatTile, MiniTrendChart, EmptyList, CategoryBar, PersonBadge,
+  COVERAGE_COLORS, AnalyticsHeader, LoadingSpinner, ErrorState,
+} from "@/shared/components/analytics/AnalyticsKit";
 
-const cardStyle: React.CSSProperties = {
-  background: "var(--color-card-bg)",
-  border: "1px solid var(--color-card-border)",
-  borderRadius: "var(--radius-xl)",
-  boxShadow: "var(--color-card-shadow)",
-  padding: "20px 24px",
-};
-
-const sectionTitleStyle: React.CSSProperties = {
-  fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)",
-  display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px",
-};
-
-const sectionSubStyle: React.CSSProperties = {
-  fontSize: "12.5px", color: "var(--color-text-muted)", marginBottom: "18px",
-};
-
-const chartTooltipStyle = { background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "8px", boxShadow: "var(--color-card-shadow)" };
-const chartTooltipItemStyle = { color: "var(--color-text-primary)", fontSize: "13px", fontWeight: 600 };
-
-function KpiCard({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: React.ReactNode; tone?: string }) {
-  return (
-    <div style={{ ...cardStyle, padding: "18px 20px", display: "flex", alignItems: "center", gap: "14px" }}>
-      <div style={{ width: "38px", height: "38px", borderRadius: "var(--radius-md)", background: tone || "var(--color-accent-subtle)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "var(--color-accent)" }}>
-        {icon}
-      </div>
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: "21px", fontWeight: 800, color: "var(--color-text-primary)", lineHeight: 1, letterSpacing: "-0.02em" }}>{value}</div>
-        <div style={{ fontSize: "11.5px", color: "var(--color-text-muted)", marginTop: "5px", fontWeight: 600 }}>{label}</div>
-      </div>
-    </div>
-  );
-}
-
-function SectionAnchor({ id, icon, title, subtitle }: { id: string; icon: React.ReactNode; title: string; subtitle: string }) {
-  return (
-    <div id={id} style={{ scrollMarginTop: "90px" }}>
-      <div style={sectionTitleStyle}>{icon} {title}</div>
-      <div style={sectionSubStyle}>{subtitle}</div>
-    </div>
-  );
-}
-
-function StatTile({ label, value, color }: { label: string; value: React.ReactNode; color?: string }) {
-  return (
-    <div style={{ background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: "14px 16px" }}>
-      <div style={{ fontSize: "20px", fontWeight: 800, color: color || "var(--color-text-primary)", letterSpacing: "-0.02em" }}>{value}</div>
-      <div style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</div>
-    </div>
-  );
-}
-
-function MiniTrendChart({ data, dataKey, xKey, color, unit }: { data: any[]; dataKey: string; xKey: string; color: string; unit?: string }) {
-  return (
-    <div style={{ height: "160px", width: "100%" }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-          <XAxis dataKey={xKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "var(--color-text-muted)" }} dy={6} />
-          <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 10, fill: "var(--color-text-muted)" }} width={30} />
-          <Tooltip contentStyle={chartTooltipStyle} itemStyle={chartTooltipItemStyle} formatter={(v: any) => [`${v}${unit || ""}`, ""]} />
-          <Line type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-function EmptyList({ text }: { text: string }) {
-  return <div style={{ fontSize: "12.5px", color: "var(--color-text-muted)", fontStyle: "italic", padding: "8px 0" }}>{text}</div>;
-}
-
-function PersonBadge({ name, meta }: { name: string; meta?: string }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 12px", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)" }}>
-      <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--color-text-primary)" }}>{name}</span>
-      {meta && <span style={{ fontSize: "11.5px", color: "var(--color-text-muted)", fontWeight: 600 }}>{meta}</span>}
-    </div>
-  );
-}
-
-const COVERAGE_COLORS: Record<string, { dot: string; bg: string; border: string; label: string }> = {
-  full: { dot: "#22c55e", bg: "rgba(34,197,94,0.1)", border: "rgba(34,197,94,0.3)", label: "Fully Covered" },
-  minor: { dot: "#eab308", bg: "rgba(234,179,8,0.1)", border: "rgba(234,179,8,0.3)", label: "Minor Gaps" },
-  understaffed: { dot: "#f97316", bg: "rgba(249,115,22,0.1)", border: "rgba(249,115,22,0.3)", label: "Understaffed" },
-  critical: { dot: "#ef4444", bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.3)", label: "Critical" },
-};
-
-const NAV_SECTIONS = [
-  { id: "kpis", label: "Overview" },
-  { id: "attendance", label: "Attendance" },
-  { id: "coverage", label: "Shift Coverage" },
-  { id: "posts", label: "Post Performance" },
-  { id: "personnel", label: "Personnel" },
-  { id: "incidents", label: "Incidents" },
-  { id: "visitors", label: "Visitors" },
-  { id: "ob", label: "Occurrence Book" },
-  { id: "weekly", label: "Weekly Coverage" },
-  { id: "alerts", label: "Alerts" },
-  { id: "trends", label: "Trends" },
+type TabId = "overview" | "occurrence" | "visitors";
+const TABS: Array<{ id: TabId; label: string }> = [
+  { id: "overview", label: "Overview" },
+  { id: "occurrence", label: "Occurrence Book" },
+  { id: "visitors", label: "Visitor Book" },
 ];
 
 export default function SiteManagerAnalyticsPage() {
@@ -118,6 +28,7 @@ export default function SiteManagerAnalyticsPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
 
   const loadData = async () => {
     try {
@@ -134,6 +45,93 @@ export default function SiteManagerAnalyticsPage() {
   };
 
   useEffect(() => { if (user?.siteId) loadData(); else setLoading(false); }, [user?.siteId]);
+
+  // ── Visitor Log & Occurrence Book Log — separate, date-ranged, printable ──
+  const toISODate = (d: Date) => d.toISOString().split("T")[0];
+  const defaultLogEnd = toISODate(new Date());
+  const defaultLogStart = toISODate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+
+  const [visitorLogStart, setVisitorLogStart] = useState(defaultLogStart);
+  const [visitorLogEnd, setVisitorLogEnd] = useState(defaultLogEnd);
+  const [visitorLog, setVisitorLog] = useState<any[]>([]);
+  const [visitorLogLoading, setVisitorLogLoading] = useState(true);
+
+  const [obLogStart, setObLogStart] = useState(defaultLogStart);
+  const [obLogEnd, setObLogEnd] = useState(defaultLogEnd);
+  const [obLog, setObLog] = useState<any[]>([]);
+  const [obLogLoading, setObLogLoading] = useState(true);
+
+  const loadVisitorLog = async (start: string, end: string) => {
+    setVisitorLogLoading(true);
+    try {
+      const res = await managerService.getVisitors({ startDate: start, endDate: end });
+      setVisitorLog(res.data.data.visitors || []);
+    } catch (err) {
+      console.error("Failed to load visitor log:", err);
+    } finally {
+      setVisitorLogLoading(false);
+    }
+  };
+
+  const loadObLog = async (start: string, end: string) => {
+    setObLogLoading(true);
+    try {
+      const res = await managerService.getOccurrences({ startDate: start, endDate: end });
+      setObLog(res.data.data.entries || []);
+    } catch (err) {
+      console.error("Failed to load occurrence book log:", err);
+    } finally {
+      setObLogLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!user?.siteId) return;
+    loadVisitorLog(visitorLogStart, visitorLogEnd);
+    loadObLog(obLogStart, obLogEnd);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.siteId]);
+
+  const handlePrintVisitorLog = () => {
+    if (!data) return;
+    exportVisitorBookReport({
+      siteName: data.site?.name || "Site",
+      generatedDate: new Date().toLocaleString(),
+      dateRange: `${visitorLogStart} to ${visitorLogEnd}`,
+      today: data.visitorAnalytics.today,
+      thisWeek: data.visitorAnalytics.thisWeek,
+      onSite: data.visitorAnalytics.onSite,
+      avgVisitDurationMinutes: data.visitorAnalytics.avgVisitDurationMinutes,
+      frequentVisitors: data.visitorAnalytics.frequentVisitors,
+      visitors: visitorLog.map((v: any) => ({
+        checkInTime: v.checkInTime,
+        name: v.name,
+        company: v.company || "",
+        personVisiting: v.personVisiting || "",
+        purpose: v.purpose || "",
+        checkOutTime: v.checkOutTime || null,
+      })),
+    }, `Visitor_Book_Report_${visitorLogStart}_to_${visitorLogEnd}.pdf`);
+  };
+
+  const handlePrintObLog = () => {
+    if (!data) return;
+    exportOccurrenceBookReport({
+      siteName: data.site?.name || "Site",
+      generatedDate: new Date().toLocaleString(),
+      dateRange: `${obLogStart} to ${obLogEnd}`,
+      entriesToday: data.occurrenceBook.entriesToday,
+      entriesThisWeek: data.occurrenceBook.entriesThisWeek,
+      byCategory: data.occurrenceBook.byCategory,
+      peakReportingPeriods: data.occurrenceBook.peakReportingPeriods,
+      entries: obLog.map((e: any) => ({
+        createdAt: e.createdAt,
+        category: e.category,
+        loggedBy: e.user ? `${e.user.firstName || ""} ${e.user.lastName || ""}`.trim() : "—",
+        entryText: e.entryText,
+      })),
+    }, `Occurrence_Book_Report_${obLogStart}_to_${obLogEnd}.pdf`);
+  };
 
   const handleDownloadPDF = () => {
     if (!data) return;
@@ -153,6 +151,12 @@ export default function SiteManagerAnalyticsPage() {
     }, `Site_Analytics_${(data.site?.name || "site").replace(/\s+/g, "_")}.pdf`);
   };
 
+  const handleActiveTabPDF = () => {
+    if (activeTab === "occurrence") handlePrintObLog();
+    else if (activeTab === "visitors") handlePrintVisitorLog();
+    else handleDownloadPDF();
+  };
+
   if (!user?.siteId) {
     return (
       <div style={{ padding: "40px", textAlign: "center", color: "var(--color-text-muted)" }}>
@@ -161,53 +165,26 @@ export default function SiteManagerAnalyticsPage() {
     );
   }
 
-  if (loading) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "300px" }}>
-        <div style={{ width: "36px", height: "36px", border: "3px solid var(--color-border)", borderTopColor: "var(--color-accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <div style={{ padding: "40px", textAlign: "center", color: "var(--color-danger)" }}>
-        {error || "No data available."}
-        <div><button onClick={loadData} style={{ marginTop: "12px", padding: "8px 16px", background: "var(--color-accent)", color: "var(--color-accent-text)", border: "none", borderRadius: "var(--radius-md)", cursor: "pointer" }}>Retry</button></div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingSpinner />;
+  if (error || !data) return <ErrorState message={error || "No data available."} onRetry={loadData} />;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "32px", width: "100%", paddingBottom: "40px" }}>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px" }}>
-        <div>
-          <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}>Site Analytics</h1>
-          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-            {data.site?.name} — operational insights, staffing, attendance, and incidents
-          </p>
-        </div>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button onClick={loadData} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)", cursor: "pointer" }}>
-            <RefreshCw size={14} /> Refresh
-          </button>
-          <button onClick={handleDownloadPDF} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", background: "var(--color-accent)", border: "none", borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600, color: "var(--color-accent-text)", cursor: "pointer", boxShadow: "var(--color-card-shadow)" }}>
-            <Download size={15} /> Export PDF Report
-          </button>
-        </div>
-      </div>
+      <AnalyticsHeader
+        icon={<FileBarChart size={20} />}
+        title="Site Analytics"
+        subtitle={`${data.site?.name} — operational insights, staffing, attendance, and incidents`}
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onRefresh={loadData}
+        onDownload={handleActiveTabPDF}
+        downloadDisabled={activeTab === "occurrence" ? obLog.length === 0 : activeTab === "visitors" ? visitorLog.length === 0 : false}
+      />
 
-      {/* Section nav */}
-      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", position: "sticky", top: "0", zIndex: 10, background: "var(--color-bg)", padding: "8px 0" }}>
-        {NAV_SECTIONS.map(s => (
-          <a key={s.id} href={`#${s.id}`} style={{ padding: "6px 12px", borderRadius: "999px", border: "1px solid var(--color-border)", background: "var(--color-card-bg)", fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)", textDecoration: "none", whiteSpace: "nowrap" }}>
-            {s.label}
-          </a>
-        ))}
-      </div>
-
+      {/* ── Overview tab ─────────────────────────────────────────────────── */}
+      {activeTab === "overview" && (
+      <>
       {/* ── KPIs ─────────────────────────────────────────────────────────── */}
       <div id="kpis" style={{ scrollMarginTop: "90px", display: "flex", flexDirection: "column", gap: "16px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "12px" }}>
@@ -372,16 +349,30 @@ export default function SiteManagerAnalyticsPage() {
         </div>
       </div>
 
+      </>
+      )}
+
+      {/* ── Visitor Book tab ─────────────────────────────────────────────── */}
+      {activeTab === "visitors" && (
+      <>
       {/* ── Visitor Analytics ────────────────────────────────────────────── */}
-      <div style={cardStyle}>
-        <SectionAnchor id="visitors" icon={<DoorOpen size={16} color="var(--color-accent)" />} title="Visitor Analytics" subtitle="Visitor traffic and dwell time" />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px", marginBottom: "20px" }}>
-          <StatTile label="Visitors Today" value={data.visitorAnalytics.today} />
-          <StatTile label="Visitors This Week" value={data.visitorAnalytics.thisWeek} />
-          <StatTile label="Currently On Site" value={data.visitorAnalytics.onSite} />
-          <StatTile label="Avg Visit Duration" value={data.visitorAnalytics.avgVisitDurationMinutes !== null ? `${data.visitorAnalytics.avgVisitDurationMinutes}m` : "—"} />
+      <div id="visitors" style={{ scrollMarginTop: "90px", display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "12px" }}>
+          <KpiCard icon={<DoorOpen size={18} />} label="Visitors Today" value={data.visitorAnalytics.today} />
+          <KpiCard icon={<Users size={18} />} label="Visitors This Week" value={data.visitorAnalytics.thisWeek} />
+          <KpiCard icon={<UserCheck size={18} />} label="Currently On Site" value={data.visitorAnalytics.onSite} />
+          <KpiCard icon={<Clock size={18} />} label="Avg Visit Duration" value={data.visitorAnalytics.avgVisitDurationMinutes !== null ? `${data.visitorAnalytics.avgVisitDurationMinutes}m` : "—"} />
+          <KpiCard icon={<Repeat size={18} />} label="Repeat Visitors (90d)" value={data.visitorAnalytics.frequentVisitors.length} />
         </div>
-        <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "8px" }}>Frequent Visitors (90 days)</div>
+      </div>
+
+      <div style={cardStyle}>
+        <SectionAnchor icon={<TrendingUp size={16} color="var(--color-accent)" />} title="Visitor Traffic Trend" subtitle="Daily visitor check-ins over the last 14 days" />
+        <MiniTrendChart data={data.trends.visitors} dataKey="count" xKey="label" color="#f59e0b" />
+      </div>
+
+      <div style={cardStyle}>
+        <SectionAnchor icon={<Repeat size={16} color="var(--color-accent)" />} title="Frequent Visitors" subtitle="Visitors with 2 or more visits in the last 90 days" />
         {data.visitorAnalytics.frequentVisitors.length === 0 ? <EmptyList text="No repeat visitors yet." /> : (
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             {data.visitorAnalytics.frequentVisitors.map((v: any, i: number) => <PersonBadge key={i} name={v.name} meta={`${v.count} visits`} />)}
@@ -389,38 +380,139 @@ export default function SiteManagerAnalyticsPage() {
         )}
       </div>
 
-      {/* ── Occurrence Book Analytics ────────────────────────────────────── */}
+      {/* ── Visitor Log (separate, date-ranged, printable) ──────────────── */}
       <div style={cardStyle}>
-        <SectionAnchor id="ob" icon={<BookOpen size={16} color="var(--color-accent)" />} title="Occurrence Book Analytics" subtitle="OB entry activity and reporting patterns" />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px", marginBottom: "20px" }}>
-          <StatTile label="Entries Today" value={data.occurrenceBook.entriesToday} />
-          <StatTile label="Entries This Week" value={data.occurrenceBook.entriesThisWeek} />
+        <SectionAnchor id="visitor-log" icon={<DoorOpen size={16} color="var(--color-accent)" />} title="Visitor Log" subtitle="Full visitor register for a chosen date range — printable on its own" />
+        <div style={{ display: "flex", alignItems: "flex-end", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
+          <div>
+            <label style={dateLabelStyle}>Start Date</label>
+            <input type="date" value={visitorLogStart} onChange={e => setVisitorLogStart(e.target.value)} style={dateInputStyle} />
+          </div>
+          <div>
+            <label style={dateLabelStyle}>End Date</label>
+            <input type="date" value={visitorLogEnd} onChange={e => setVisitorLogEnd(e.target.value)} style={dateInputStyle} />
+          </div>
+          <button onClick={() => loadVisitorLog(visitorLogStart, visitorLogEnd)} style={applyBtnStyle}>Apply</button>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
-          <div>
-            <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "8px" }}>Most Common Categories</div>
-            {data.occurrenceBook.mostCommon.length === 0 ? <EmptyList text="No OB entries in the last 90 days." /> : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {data.occurrenceBook.mostCommon.map((c: any) => (
-                  <div key={c.category} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-md)" }}>
-                    <span style={{ fontSize: "13px", color: "var(--color-text-primary)", fontWeight: 600 }}>{c.category}</span>
-                    <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--color-accent)" }}>{c.count}</span>
-                  </div>
+        {visitorLogLoading ? (
+          <EmptyList text="Loading…" />
+        ) : visitorLog.length === 0 ? (
+          <EmptyList text="No visitors logged in this date range." />
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
+                  {["Date/Time", "Name", "Company", "Visiting", "Purpose", "Check-out"].map(h => (
+                    <th key={h} style={{ textAlign: "left", padding: "8px 12px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {visitorLog.map((v: any) => (
+                  <tr key={v.id} style={{ borderBottom: "1px solid var(--color-border)" }}>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", color: "var(--color-text-primary)" }}>{new Date(v.checkInTime).toLocaleString()}</td>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", fontWeight: 700, color: "var(--color-text-primary)" }}>{v.name}</td>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", color: "var(--color-text-secondary)" }}>{v.company || "—"}</td>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", color: "var(--color-text-secondary)" }}>{v.personVisiting || "—"}</td>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", color: "var(--color-text-secondary)" }}>{v.purpose || "—"}</td>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", color: v.checkOutTime ? "var(--color-text-secondary)" : "var(--color-accent)" }}>{v.checkOutTime ? new Date(v.checkOutTime).toLocaleString() : "Still on site"}</td>
+                  </tr>
                 ))}
-              </div>
-            )}
+              </tbody>
+            </table>
           </div>
-          <div>
-            <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "8px" }}>Peak Reporting Periods</div>
-            {data.occurrenceBook.peakReportingPeriods.length === 0 ? <EmptyList text="Not enough data yet." /> : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {data.occurrenceBook.peakReportingPeriods.map((p: any, i: number) => <PersonBadge key={i} name={p.hourRange} meta={`${p.count} entries`} />)}
-              </div>
-            )}
-          </div>
+        )}
+      </div>
+      </>
+      )}
+
+      {/* ── Occurrence Book tab ──────────────────────────────────────────── */}
+      {activeTab === "occurrence" && (
+      <>
+      {/* ── Occurrence Book Analytics ────────────────────────────────────── */}
+      <div id="ob" style={{ scrollMarginTop: "90px", display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "12px" }}>
+          <KpiCard icon={<BookOpen size={18} />} label="Entries Today" value={data.occurrenceBook.entriesToday} />
+          <KpiCard icon={<CalendarClock size={18} />} label="Entries This Week" value={data.occurrenceBook.entriesThisWeek} />
+          <KpiCard icon={<Layers size={18} />} label="Categories Tracked" value={data.occurrenceBook.byCategory.length} />
+          <KpiCard icon={<TrendingUp size={18} />} label="Top Category" value={data.occurrenceBook.mostCommon[0]?.category || "—"} />
         </div>
       </div>
 
+      <div style={cardStyle}>
+        <SectionAnchor icon={<TrendingUp size={16} color="var(--color-accent)" />} title="Reporting Trend" subtitle="Daily OB entries over the last 14 days" />
+        <MiniTrendChart data={data.trends.occurrenceBook} dataKey="count" xKey="label" color="#8b5cf6" />
+      </div>
+
+      <div style={cardStyle}>
+        <SectionAnchor icon={<Layers size={16} color="var(--color-accent)" />} title="Entries By Category" subtitle="All logged categories, most reported first" />
+        {data.occurrenceBook.byCategory.length === 0 ? <EmptyList text="No OB entries in the last 90 days." /> : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {data.occurrenceBook.byCategory.map((c: any) => (
+              <CategoryBar key={c.category} label={c.category} count={c.count} max={data.occurrenceBook.byCategory[0].count} color="#8b5cf6" />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={cardStyle}>
+        <SectionAnchor icon={<Clock size={16} color="var(--color-accent)" />} title="Peak Reporting Periods" subtitle="Hours of the day with the most OB activity" />
+        {data.occurrenceBook.peakReportingPeriods.length === 0 ? <EmptyList text="Not enough data yet." /> : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "10px" }}>
+            {data.occurrenceBook.peakReportingPeriods.map((p: any, i: number) => <PersonBadge key={i} name={p.hourRange} meta={`${p.count} entries`} />)}
+          </div>
+        )}
+      </div>
+
+      {/* ── Occurrence Book Log (separate, date-ranged, printable) ──────── */}
+      <div style={cardStyle}>
+        <SectionAnchor id="ob-log" icon={<BookOpen size={16} color="var(--color-accent)" />} title="Occurrence Book Log" subtitle="Full OB register for a chosen date range — printable on its own" />
+        <div style={{ display: "flex", alignItems: "flex-end", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
+          <div>
+            <label style={dateLabelStyle}>Start Date</label>
+            <input type="date" value={obLogStart} onChange={e => setObLogStart(e.target.value)} style={dateInputStyle} />
+          </div>
+          <div>
+            <label style={dateLabelStyle}>End Date</label>
+            <input type="date" value={obLogEnd} onChange={e => setObLogEnd(e.target.value)} style={dateInputStyle} />
+          </div>
+          <button onClick={() => loadObLog(obLogStart, obLogEnd)} style={applyBtnStyle}>Apply</button>
+        </div>
+        {obLogLoading ? (
+          <EmptyList text="Loading…" />
+        ) : obLog.length === 0 ? (
+          <EmptyList text="No occurrence book entries in this date range." />
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
+                  {["Date/Time", "Category", "Logged By", "Entry"].map(h => (
+                    <th key={h} style={{ textAlign: "left", padding: "8px 12px", fontSize: "11px", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {obLog.map((e: any) => (
+                  <tr key={e.id} style={{ borderBottom: "1px solid var(--color-border)" }}>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", color: "var(--color-text-primary)", whiteSpace: "nowrap" }}>{new Date(e.createdAt).toLocaleString()}</td>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", fontWeight: 700, color: "var(--color-text-primary)" }}>{e.category}</td>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", color: "var(--color-text-secondary)" }}>{e.user ? `${e.user.firstName || ""} ${e.user.lastName || ""}`.trim() : "—"}</td>
+                    <td style={{ padding: "9px 12px", fontSize: "12.5px", color: "var(--color-text-secondary)" }}>{e.entryText}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+      </>
+      )}
+
+      {/* ── Weekly Coverage / Alerts / Trends (Overview tab, continued) ──── */}
+      {activeTab === "overview" && (
+      <>
       {/* ── Weekly Coverage Overview ─────────────────────────────────────── */}
       <div style={cardStyle}>
         <SectionAnchor id="weekly" icon={<Activity size={16} color="var(--color-accent)" />} title="Weekly Coverage Overview" subtitle="Staffing snapshot for the current week (Mon–Sun)" />
@@ -506,6 +598,8 @@ export default function SiteManagerAnalyticsPage() {
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

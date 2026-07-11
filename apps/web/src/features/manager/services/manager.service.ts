@@ -27,7 +27,7 @@ export const managerService = {
   updateIncidentStatus: (id: string, data: { status?: string; severity?: string }) => apiClient.patch(`/incidents/${id}`, data),
 
   // Visitors
-  getVisitors: () => apiClient.get("/visitors"),
+  getVisitors: (params?: { startDate?: string; endDate?: string }) => apiClient.get("/visitors", { params }),
   checkInVisitor: (data: { name: string; idNumber?: string; company?: string; personVisiting?: string; vehicleReg?: string; purpose?: string; siteId?: string }) => apiClient.post("/visitors", data),
   checkOutVisitor: (id: string) => apiClient.patch(`/visitors/${id}/checkout`),
 
@@ -52,7 +52,7 @@ export const managerService = {
   deleteShiftTemplate: (id: string) => apiClient.delete(`/shift-templates/${id}`),
 
   // Occurrences
-  getOccurrences: (siteId?: string) => apiClient.get("/occurrences", { params: { siteId } }),
+  getOccurrences: (params?: { siteId?: string; startDate?: string; endDate?: string }) => apiClient.get("/occurrences", { params }),
   createOccurrence: (data: { entryText: string; category?: string; siteId?: string; location?: string; severity?: string; image?: string }) => apiClient.post("/occurrences", data),
 
   // Profile & Settings

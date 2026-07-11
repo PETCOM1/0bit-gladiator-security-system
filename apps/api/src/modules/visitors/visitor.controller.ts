@@ -48,12 +48,27 @@ export const checkOutVisitor = catchAsync(async (req: Request, res: Response) =>
 export const getVisitors = catchAsync(async (req: Request, res: Response) => {
   const tenantId = req.user!.tenantId;
   const siteId = req.user!.role === "MANAGER" ? null : req.user!.siteId; // Manager sees all sites
+  const startDate = req.query.startDate as string | undefined;
+  const endDate = req.query.endDate as string | undefined;
   if (!tenantId) return res.status(403).json({ message: "No tenant context" });
 
-  const visitors = await prisma.visitor.findMany({ 
-    where: { tenantId, ...(siteId && { siteId }) },
+  const hasDateFilter = !!(startDate || endDate);
+
+  const visitors = await prisma.visitor.findMany({
+    where: {
+      tenantId,
+      ...(siteId && { siteId }),
+      ...(hasDateFilter && {
+        checkInTime: {
+          ...(startDate && { gte: new Date(startDate) }),
+          ...(endDate && { lte: new Date(`${endDate}T23:59:59.999`) }),
+        }
+      })
+    },
     orderBy: { checkInTime: 'desc' },
-    take: 50,
+    // A date-filtered report needs the full range; the default recent-activity
+    // view stays capped so it doesn't pull the entire visitor history.
+    ...(!hasDateFilter && { take: 50 }),
     include: { loggedBy: { select: { firstName: true, lastName: true } }, site: { select: { name: true } } }
   });
   res.status(HttpStatus.OK).json({ status: "success", data: { visitors } });

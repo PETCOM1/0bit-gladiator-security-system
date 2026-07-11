@@ -2006,3 +2006,324 @@ export function exportSiteAnalyticsReport(data: SiteAnalyticsReportData, filenam
   doc.save(filename);
 }
 
+// ── Shared drawing helpers for the Occurrence Book & Visitor Book reports ──
+const REPORT_PRIMARY = [15, 23, 42];
+const REPORT_SECONDARY = [71, 85, 105];
+const REPORT_ACCENT = [249, 115, 22];
+const REPORT_BORDER = [226, 232, 240];
+
+function drawReportHeader(doc: jsPDF, pageTitle: string, pageNum: number) {
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+  doc.text("GLADIATOR PRO", 14, 15);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(239, 68, 68);
+  doc.text("CONFIDENTIAL", 95, 15);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(REPORT_SECONDARY[0], REPORT_SECONDARY[1], REPORT_SECONDARY[2]);
+  doc.text(`Page ${pageNum} - ${pageTitle}`, 196 - doc.getTextWidth(`Page ${pageNum} - ${pageTitle}`), 15);
+  doc.setDrawColor(REPORT_BORDER[0], REPORT_BORDER[1], REPORT_BORDER[2]);
+  doc.setLineWidth(0.5);
+  doc.line(14, 18, 196, 18);
+}
+
+function drawReportCover(doc: jsPDF, kicker: string, titleLines: string[], subtitle: string, meta: Array<[string, string]>, highlights: Array<[string, string]>) {
+  doc.setFillColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+  doc.rect(0, 0, 45, 297, "F");
+  doc.setFillColor(REPORT_ACCENT[0], REPORT_ACCENT[1], REPORT_ACCENT[2]);
+  doc.rect(40, 0, 5, 297, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(239, 68, 68);
+  doc.text(kicker, 60, 40);
+
+  doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  titleLines.forEach((line, i) => doc.text(line, 60, 50 + i * 10));
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(13);
+  doc.setTextColor(REPORT_SECONDARY[0], REPORT_SECONDARY[1], REPORT_SECONDARY[2]);
+  doc.text(subtitle, 60, 50 + titleLines.length * 10 + 8);
+
+  let metaY = 50 + titleLines.length * 10 + 30;
+  meta.forEach(([label, value]) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(REPORT_SECONDARY[0], REPORT_SECONDARY[1], REPORT_SECONDARY[2]);
+    doc.text(label.toUpperCase(), 60, metaY);
+    doc.setFontSize(14);
+    doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+    doc.text(value, 60, metaY + 6);
+    metaY += 22;
+  });
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(REPORT_SECONDARY[0], REPORT_SECONDARY[1], REPORT_SECONDARY[2]);
+  doc.text("SUMMARY HIGHLIGHTS", 60, metaY + 4);
+  doc.line(60, metaY + 7, 190, metaY + 7);
+
+  let hx = 60, hy = metaY + 24;
+  highlights.forEach(([count, label], i) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(REPORT_ACCENT[0], REPORT_ACCENT[1], REPORT_ACCENT[2]);
+    doc.text(count, hx, hy);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(REPORT_SECONDARY[0], REPORT_SECONDARY[1], REPORT_SECONDARY[2]);
+    doc.text(label, hx, hy + 6);
+    hx += 45;
+    if ((i + 1) % 3 === 0) { hx = 60; hy += 20; }
+  });
+}
+
+function drawReportStatRows(doc: jsPDF, rows: Array<[string, string]>, startY: number) {
+  let y = startY;
+  rows.forEach(([label, value]) => {
+    doc.setFillColor(241, 245, 249);
+    doc.rect(14, y, 182, 9, "F");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(REPORT_SECONDARY[0], REPORT_SECONDARY[1], REPORT_SECONDARY[2]);
+    doc.text(label, 18, y + 6);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+    doc.text(value, 180, y + 6, { align: "right" });
+    y += 11;
+  });
+  return y;
+}
+
+function drawReportFooter(doc: jsPDF) {
+  const pageCount = (doc.internal as any).getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(REPORT_BORDER[0], REPORT_BORDER[1], REPORT_BORDER[2]);
+    doc.line(14, 282, 196, 282);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(REPORT_SECONDARY[0], REPORT_SECONDARY[1], REPORT_SECONDARY[2]);
+    doc.text("GLADIATOR PRO © 2026 - CONFIDENTIAL SECURITY REPORT", 14, 288);
+    doc.text(`Page ${i} of ${pageCount}`, 196 - doc.getTextWidth(`Page ${i} of ${pageCount}`), 288);
+  }
+}
+
+export interface OccurrenceBookReportData {
+  siteName: string;
+  generatedDate: string;
+  dateRange: string;
+  entriesToday: number;
+  entriesThisWeek: number;
+  byCategory: Array<{ category: string; count: number }>;
+  peakReportingPeriods: Array<{ hourRange: string; count: number }>;
+  entries: Array<{ createdAt: string; category: string; loggedBy: string; entryText: string }>;
+}
+
+export function exportOccurrenceBookReport(data: OccurrenceBookReportData, filename: string = "Occurrence_Book_Report.pdf") {
+  const doc = new jsPDF();
+  const totalEntries = data.entries.length;
+  const topCategory = data.byCategory[0]?.category || "—";
+
+  // ── PAGE 1: COVER ──
+  drawReportCover(
+    doc,
+    "STRICTLY CONFIDENTIAL - INTERNAL USE ONLY",
+    ["OCCURRENCE BOOK", "REPORT"],
+    data.siteName,
+    [["Date Range", data.dateRange], ["Generated", data.generatedDate]],
+    [
+      [`${totalEntries}`, "Entries in Range"],
+      [`${data.entriesToday}`, "Entries Today"],
+      [`${data.entriesThisWeek}`, "Entries This Week"],
+      [`${data.byCategory.length}`, "Categories"],
+      [topCategory, "Top Category"],
+    ]
+  );
+
+  // ── PAGE 2: CATEGORY BREAKDOWN + PEAK PERIODS ──
+  doc.addPage();
+  drawReportHeader(doc, "Category Breakdown", 2);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+  doc.text("ENTRIES BY CATEGORY", 14, 30);
+
+  let y = 40;
+  if (data.byCategory.length === 0) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+    doc.text("No entries recorded in this range.", 18, y);
+    y += 10;
+  } else {
+    y = drawReportStatRows(doc, data.byCategory.map(c => [c.category, `${c.count}`] as [string, string]), y);
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+  doc.text("PEAK REPORTING PERIODS", 14, y + 14);
+  if (data.peakReportingPeriods.length === 0) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+    doc.text("Not enough data yet.", 18, y + 24);
+  } else {
+    drawReportStatRows(doc, data.peakReportingPeriods.map(p => [p.hourRange, `${p.count} entries`] as [string, string]), y + 24);
+  }
+
+  // ── PAGE 3+: FULL LOG ──
+  doc.addPage();
+  drawReportHeader(doc, "Occurrence Book Log", 3);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+  doc.text("FULL REGISTER", 14, 30);
+
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, 38, 182, 8, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(REPORT_SECONDARY[0], REPORT_SECONDARY[1], REPORT_SECONDARY[2]);
+  doc.text("DATE/TIME", 18, 44);
+  doc.text("CATEGORY", 65, 44);
+  doc.text("LOGGED BY", 100, 44);
+  doc.text("ENTRY", 140, 44);
+
+  let ey = 54;
+  let pageNum = 3;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  if (data.entries.length === 0) {
+    doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+    doc.text("No entries logged in this date range.", 18, ey);
+  } else {
+    data.entries.forEach(e => {
+      if (ey > 275) {
+        doc.addPage();
+        pageNum += 1;
+        drawReportHeader(doc, "Occurrence Book Log", pageNum);
+        ey = 30;
+      }
+      doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+      doc.text(new Date(e.createdAt).toLocaleString(), 18, ey);
+      doc.text(e.category, 65, ey);
+      doc.text(e.loggedBy, 100, ey);
+      doc.text(e.entryText.length > 55 ? `${e.entryText.slice(0, 52)}...` : e.entryText, 140, ey, { maxWidth: 56 });
+      doc.setDrawColor(REPORT_BORDER[0], REPORT_BORDER[1], REPORT_BORDER[2]);
+      doc.line(14, ey + 4, 196, ey + 4);
+      ey += 10;
+    });
+  }
+
+  drawReportFooter(doc);
+  doc.save(filename);
+}
+
+export interface VisitorBookReportData {
+  siteName: string;
+  generatedDate: string;
+  dateRange: string;
+  today: number;
+  thisWeek: number;
+  onSite: number;
+  avgVisitDurationMinutes: number | null;
+  frequentVisitors: Array<{ name: string; count: number }>;
+  visitors: Array<{ checkInTime: string; name: string; company: string; personVisiting: string; purpose: string; checkOutTime: string | null }>;
+}
+
+export function exportVisitorBookReport(data: VisitorBookReportData, filename: string = "Visitor_Book_Report.pdf") {
+  const doc = new jsPDF();
+  const totalVisitors = data.visitors.length;
+
+  // ── PAGE 1: COVER ──
+  drawReportCover(
+    doc,
+    "STRICTLY CONFIDENTIAL - INTERNAL USE ONLY",
+    ["VISITOR BOOK", "REPORT"],
+    data.siteName,
+    [["Date Range", data.dateRange], ["Generated", data.generatedDate]],
+    [
+      [`${totalVisitors}`, "Visitors in Range"],
+      [`${data.today}`, "Visitors Today"],
+      [`${data.thisWeek}`, "Visitors This Week"],
+      [`${data.onSite}`, "Currently On Site"],
+      [data.avgVisitDurationMinutes !== null ? `${data.avgVisitDurationMinutes}m` : "—", "Avg Visit Duration"],
+      [`${data.frequentVisitors.length}`, "Repeat Visitors"],
+    ]
+  );
+
+  // ── PAGE 2: FREQUENT VISITORS ──
+  doc.addPage();
+  drawReportHeader(doc, "Frequent Visitors", 2);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+  doc.text("FREQUENT VISITORS (90 DAYS)", 14, 30);
+
+  if (data.frequentVisitors.length === 0) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+    doc.text("No repeat visitors yet.", 18, 44);
+  } else {
+    drawReportStatRows(doc, data.frequentVisitors.map(v => [v.name, `${v.count} visits`] as [string, string]), 40);
+  }
+
+  // ── PAGE 3+: FULL LOG ──
+  doc.addPage();
+  drawReportHeader(doc, "Visitor Log", 3);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+  doc.text("FULL REGISTER", 14, 30);
+
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, 38, 182, 8, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(REPORT_SECONDARY[0], REPORT_SECONDARY[1], REPORT_SECONDARY[2]);
+  doc.text("DATE/TIME", 18, 44);
+  doc.text("NAME", 55, 44);
+  doc.text("VISITING", 100, 44);
+  doc.text("PURPOSE", 140, 44);
+  doc.text("CHECK-OUT", 170, 44);
+
+  let vy = 54;
+  let vPageNum = 3;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  if (data.visitors.length === 0) {
+    doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+    doc.text("No visitors logged in this date range.", 18, vy);
+  } else {
+    data.visitors.forEach(v => {
+      if (vy > 275) {
+        doc.addPage();
+        vPageNum += 1;
+        drawReportHeader(doc, "Visitor Log", vPageNum);
+        vy = 30;
+      }
+      doc.setTextColor(REPORT_PRIMARY[0], REPORT_PRIMARY[1], REPORT_PRIMARY[2]);
+      doc.text(new Date(v.checkInTime).toLocaleString(), 18, vy);
+      doc.text(v.name, 55, vy, { maxWidth: 42 });
+      doc.text(v.personVisiting || "—", 100, vy, { maxWidth: 37 });
+      doc.text(v.purpose || "—", 140, vy, { maxWidth: 27 });
+      doc.text(v.checkOutTime ? new Date(v.checkOutTime).toLocaleTimeString() : "On site", 170, vy);
+      doc.setDrawColor(REPORT_BORDER[0], REPORT_BORDER[1], REPORT_BORDER[2]);
+      doc.line(14, vy + 4, 196, vy + 4);
+      vy += 10;
+    });
+  }
+
+  drawReportFooter(doc);
+  doc.save(filename);
+}
+

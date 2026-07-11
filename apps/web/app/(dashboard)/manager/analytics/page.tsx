@@ -1,17 +1,50 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { 
-  BarChart, Download, MapPin, Users, Calendar, AlertTriangle, ShieldCheck, 
-  TrendingUp, Clock, Info, ShieldAlert, Award, FileText, CheckCircle2, ChevronRight, Activity
+import {
+  MapPin, Users, Calendar, AlertTriangle, ShieldCheck,
+  Clock, ShieldAlert, CheckCircle2, Activity, FileBarChart, TrendingUp,
 } from "lucide-react";
 import { exportMultiPageReport } from "@/shared/utils/pdf";
 import { managerService } from "@/features/manager/services/manager.service";
 import { useAuth } from "@/shared/context/AuthContext";
+import {
+  cardStyle, dateLabelStyle, dateInputStyle, applyBtnStyle,
+  KpiCard, SectionAnchor, StatTile, MiniTrendChart, EmptyList, CategoryBar, PersonBadge,
+  AnalyticsHeader, LoadingSpinner,
+} from "@/shared/components/analytics/AnalyticsKit";
+
+type TabId = "sites" | "workforce" | "attendance" | "incidents" | "compliance" | "staffing" | "trends";
+const TABS: Array<{ id: TabId; label: string }> = [
+  { id: "sites", label: "Site Performance" },
+  { id: "workforce", label: "Workforce & Managers" },
+  { id: "attendance", label: "Attendance & Shifts" },
+  { id: "incidents", label: "Incident Analysis" },
+  { id: "compliance", label: "Compliance Auditor" },
+  { id: "staffing", label: "Staffing Shortages" },
+  { id: "trends", label: "Operational Trends" },
+];
+
+const headerCellStyle: React.CSSProperties = {
+  padding: "10px 16px",
+  fontSize: "11px",
+  fontWeight: 700,
+  color: "var(--color-text-muted)",
+  textTransform: "uppercase",
+  background: "var(--color-bg-subtle)",
+  borderBottom: "1px solid var(--color-border)",
+};
+
+const bodyCellStyle: React.CSSProperties = {
+  padding: "12px 16px",
+  fontSize: "13px",
+  color: "var(--color-text-secondary)",
+  borderBottom: "1px solid var(--color-border)",
+};
 
 export default function ManagerAnalyticsPage() {
   const { user } = useAuth();
-  
+
   // Data States
   const [sites, setSites] = useState<any[]>([]);
   const [incidents, setIncidents] = useState<any[]>([]);
@@ -20,9 +53,9 @@ export default function ManagerAnalyticsPage() {
   const [visitors, setVisitors] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Filter States
-  const [activeTab, setActiveTab] = useState<"sites" | "workforce" | "attendance" | "incidents" | "compliance" | "staffing" | "trends">("sites");
+  const [activeTab, setActiveTab] = useState<TabId>("sites");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
@@ -31,33 +64,32 @@ export default function ManagerAnalyticsPage() {
   const [selectedSiteOnMap, setSelectedSiteOnMap] = useState<string | null>(null);
 
   // Load Data
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const [sitesRes, incidentsRes, usersRes, shiftsRes, visitorsRes, postsRes] = await Promise.all([
-          managerService.getSites().catch(() => ({ data: { data: { sites: [] } } })),
-          managerService.getIncidents().catch(() => ({ data: { data: { incidents: [] } } })),
-          managerService.getTenantUsers().catch(() => ({ data: { data: { users: [] } } })),
-          managerService.getTenantShifts().catch(() => ({ data: { data: { shifts: [] } } })),
-          managerService.getVisitors().catch(() => ({ data: { data: { visitors: [] } } })),
-          managerService.getTenantPosts().catch(() => ({ data: { data: { posts: [] } } }))
-        ]);
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [sitesRes, incidentsRes, usersRes, shiftsRes, visitorsRes, postsRes] = await Promise.all([
+        managerService.getSites().catch(() => ({ data: { data: { sites: [] } } })),
+        managerService.getIncidents().catch(() => ({ data: { data: { incidents: [] } } })),
+        managerService.getTenantUsers().catch(() => ({ data: { data: { users: [] } } })),
+        managerService.getTenantShifts().catch(() => ({ data: { data: { shifts: [] } } })),
+        managerService.getVisitors().catch(() => ({ data: { data: { visitors: [] } } })),
+        managerService.getTenantPosts().catch(() => ({ data: { data: { posts: [] } } }))
+      ]);
 
-        setSites(sitesRes.data.data.sites || []);
-        setIncidents(incidentsRes.data.data.incidents || []);
-        setTenantUsers(usersRes.data.data.users || []);
-        setShifts(shiftsRes.data.data.shifts || []);
-        setVisitors(visitorsRes.data.data.visitors || []);
-        setPosts(postsRes.data.data.posts || []);
-      } catch (err) {
-        console.error("Failed to load operations analytics:", err);
-      } finally {
-        setLoading(false);
-      }
+      setSites(sitesRes.data.data.sites || []);
+      setIncidents(incidentsRes.data.data.incidents || []);
+      setTenantUsers(usersRes.data.data.users || []);
+      setShifts(shiftsRes.data.data.shifts || []);
+      setVisitors(visitorsRes.data.data.visitors || []);
+      setPosts(postsRes.data.data.posts || []);
+    } catch (err) {
+      console.error("Failed to load operations analytics:", err);
+    } finally {
+      setLoading(false);
     }
-    loadData();
-  }, []);
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   // Filtered lists based on Date Filters
   const filteredIncidents = useMemo(() => {
@@ -85,27 +117,22 @@ export default function ManagerAnalyticsPage() {
     const totalGuards = tenantUsers.filter(u => u.role === "GUARD").length;
     const activePosts = posts.length;
 
-    // Active Shifts Today
     const todayStr = new Date().toDateString();
-    const activeShiftsToday = filteredShifts.filter(s => 
+    const activeShiftsToday = filteredShifts.filter(s =>
       s.status === "IN_PROGRESS" || new Date(s.startTime).toDateString() === todayStr
     ).length;
 
-    // Attendance Rate (Completed vs Completed + Missed)
     const completedShifts = filteredShifts.filter(s => s.status === "COMPLETED").length;
     const missedShifts = filteredShifts.filter(s => s.status === "SCHEDULED" && new Date(s.startTime).getTime() < Date.now()).length;
     const totalScheduled = completedShifts + missedShifts;
     const attendanceRate = totalScheduled > 0 ? Math.round((completedShifts / totalScheduled) * 100) : 96;
 
-    // Open Incidents
     const openIncidents = filteredIncidents.filter(i => i.status === "OPEN" || i.status === "INVESTIGATING").length;
 
-    // Vacant Posts (Posts currently without any IN_PROGRESS shifts)
     const activePostIds = new Set(filteredShifts.filter(s => s.status === "IN_PROGRESS").map(s => s.postId));
     const vacantPosts = posts.filter(p => !activePostIds.has(p.id)).length;
 
-    // Compliance Score: penalizes missing managers, vacant posts, and open incidents
-    const missingManagerSitesCount = sites.filter(s => 
+    const missingManagerSitesCount = sites.filter(s =>
       !tenantUsers.some(u => (u.assignedSiteId === s.id || u.assignedSite?.id === s.id) && u.role === "SITE_MANAGER")
     ).length;
     const complianceScore = Math.max(60, 100 - (missingManagerSitesCount * 10) - (vacantPosts * 4) - (openIncidents * 2));
@@ -127,8 +154,7 @@ export default function ManagerAnalyticsPage() {
   const actionInsights = useMemo(() => {
     const items: Array<{ type: "warning" | "danger" | "success"; text: string }> = [];
 
-    // Sites missing manager
-    const missingManagerSites = sites.filter(s => 
+    const missingManagerSites = sites.filter(s =>
       !tenantUsers.some(u => (u.assignedSiteId === s.id || u.assignedSite?.id === s.id) && u.role === "SITE_MANAGER")
     );
     if (missingManagerSites.length > 0) {
@@ -138,7 +164,6 @@ export default function ManagerAnalyticsPage() {
       });
     }
 
-    // Unfilled Posts
     const activePostIds = new Set(filteredShifts.filter(s => s.status === "IN_PROGRESS").map(s => s.postId));
     const vacantPostsList = posts.filter(p => !activePostIds.has(p.id));
     if (vacantPostsList.length > 0) {
@@ -148,7 +173,6 @@ export default function ManagerAnalyticsPage() {
       });
     }
 
-    // Attendance Drop Warning
     if (executiveKPIs.attendanceRate < 90) {
       items.push({
         type: "danger",
@@ -156,10 +180,9 @@ export default function ManagerAnalyticsPage() {
       });
     }
 
-    // Site Managers with unresolved incidents
     const managersWithIncidents = tenantUsers.filter(u => {
       if (u.role !== "SITE_MANAGER" || !u.siteId) return false;
-      const siteOpenIncidents = filteredIncidents.filter(i => 
+      const siteOpenIncidents = filteredIncidents.filter(i =>
         i.siteId === u.siteId && (i.status === "OPEN" || i.status === "INVESTIGATING")
       ).length;
       return siteOpenIncidents > 0;
@@ -171,7 +194,6 @@ export default function ManagerAnalyticsPage() {
       });
     }
 
-    // Mock Expiring Certifications
     const expiringCertsCount = Math.max(1, tenantUsers.filter(u => u.id.charCodeAt(0) % 8 === 0).length);
     if (expiringCertsCount > 0) {
       items.push({
@@ -180,17 +202,10 @@ export default function ManagerAnalyticsPage() {
       });
     }
 
-    // Success item
     if (filteredIncidents.filter(i => i.status === "OPEN").length === 0) {
-      items.push({
-        type: "success",
-        text: "All logged high-severity incidents resolved or closed."
-      });
+      items.push({ type: "success", text: "All logged high-severity incidents resolved or closed." });
     } else {
-      items.push({
-        type: "success",
-        text: "All mandatory weekly site compliance audits completed successfully."
-      });
+      items.push({ type: "success", text: "All mandatory weekly site compliance audits completed successfully." });
     }
 
     return items;
@@ -238,47 +253,28 @@ export default function ManagerAnalyticsPage() {
   const workforceStats = useMemo(() => {
     const total = tenantUsers.length;
     const active = tenantUsers.filter(u => u.accountStatus === "ACTIVE").length;
-    const inactive = total - active;
-    const currentlyOnShift = tenantUsers.filter(u => 
+    const currentlyOnShift = tenantUsers.filter(u =>
       filteredShifts.some(s => s.userId === u.id && s.status === "IN_PROGRESS")
     ).length;
     const onLeave = tenantUsers.filter(u => u.onLeave).length;
-
-    // Mock items for completeness
-    const newThisMonth = Math.max(1, tenantUsers.filter(u => u.id.charCodeAt(0) % 9 === 0).length);
-    const turnover = "1.8%";
-    const lateArrivals = filteredShifts.filter(s => 
+    const lateArrivals = filteredShifts.filter(s =>
       s.actualStartTime && new Date(s.actualStartTime) > new Date(new Date(s.startTime).getTime() + 15 * 60000)
     ).length;
-    const overtimeHours = Math.max(12, filteredShifts.filter(s => s.status === "COMPLETED").length * 1.5);
 
-    return {
-      total,
-      active,
-      inactive,
-      currentlyOnShift,
-      onLeave,
-      newThisMonth,
-      turnover,
-      lateArrivals,
-      overtimeHours
-    };
+    return { total, active, currentlyOnShift, onLeave, lateArrivals };
   }, [tenantUsers, filteredShifts]);
 
   // 6. Site Manager Performance
   const managerPerformanceData = useMemo(() => {
     const managers = tenantUsers.filter(u => u.role === "SITE_MANAGER");
     return managers.map(mgr => {
-      // Find sites assigned to this manager
       const siteId = mgr.assignedSiteId || mgr.assignedSite?.id || mgr.siteId;
       const siteName = sites.find(s => s.id === siteId)?.name || "Unassigned";
 
-      // Incidents on their site
       const siteIncidents = filteredIncidents.filter(i => i.siteId === siteId);
       const resolved = siteIncidents.filter(i => i.status === "RESOLVED" || i.status === "CLOSED").length;
       const resolutionRate = siteIncidents.length > 0 ? Math.round((resolved / siteIncidents.length) * 100) : 100;
 
-      // Guard attendance under this site
       const siteShifts = filteredShifts.filter(s => s.siteId === siteId);
       const completed = siteShifts.filter(s => s.status === "COMPLETED").length;
       const missed = siteShifts.filter(s => s.status === "SCHEDULED" && new Date(s.startTime).getTime() < Date.now()).length;
@@ -302,8 +298,7 @@ export default function ManagerAnalyticsPage() {
   const incidentBreakdown = useMemo(() => {
     const open = filteredIncidents.filter(i => i.status === "OPEN" || i.status === "INVESTIGATING").length;
     const resolved = filteredIncidents.filter(i => i.status === "RESOLVED" || i.status === "CLOSED").length;
-    
-    // Categorize mock categories
+
     const categories: Record<string, number> = {
       "Unauthorized Access": 0,
       "Property Damage": 0,
@@ -323,27 +318,53 @@ export default function ManagerAnalyticsPage() {
     };
   }, [filteredIncidents]);
 
+  // Simple 7-day attendance trend derived from real shift data
+  const attendanceTrend = useMemo(() => {
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const today = new Date();
+    const monday = new Date(today);
+    const dow = today.getDay();
+    monday.setDate(today.getDate() - ((dow === 0 ? 7 : dow) - 1));
+    monday.setHours(0, 0, 0, 0);
+
+    return days.map((label, i) => {
+      const dayStart = new Date(monday.getTime() + i * 86400000);
+      const dayEnd = new Date(dayStart.getTime() + 86400000);
+      const dayShifts = filteredShifts.filter(s => {
+        const t = new Date(s.startTime).getTime();
+        return t >= dayStart.getTime() && t < dayEnd.getTime() && s.status !== "DRAFT";
+      });
+      const completed = dayShifts.filter(s => s.status === "COMPLETED" || s.status === "IN_PROGRESS").length;
+      const rate = dayShifts.length > 0 ? Math.round((completed / dayShifts.length) * 100) : null;
+      return { label, rate };
+    });
+  }, [filteredShifts]);
+
+  const sitePerformanceList = useMemo(() => {
+    return sitePerformanceData.map(s => ({
+      name: s.name,
+      guards: s.guardsCount,
+      incidents: s.incidents,
+      patrolRate: s.attendance,
+      risk: s.status === "Needs Attention" ? "HIGH" : ("LOW" as "HIGH" | "MEDIUM" | "LOW")
+    }));
+  }, [sitePerformanceData]);
+
   // PDF Download Trigger
   const handleDownloadPDF = () => {
-    const formattedPeriod = startDate && endDate 
+    const formattedPeriod = startDate && endDate
       ? `${new Date(startDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} to ${new Date(endDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
       : new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-    
+
     const formattedGenerated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-    // Dynamic Action Items
     const actionItems = actionInsights.map(item => ({
       severity: item.type === "danger" ? "HIGH" : (item.type === "warning" ? "MEDIUM" : "LOW") as "HIGH" | "MEDIUM" | "LOW",
       message: item.text
     }));
 
-    // Incident types count
-    const incidentTypes = incidentBreakdown.categories.map(c => ({
-      type: c.name,
-      count: c.count
-    }));
+    const incidentTypes = incidentBreakdown.categories.map(c => ({ type: c.name, count: c.count }));
 
-    // Open Incident Register
     const incidentRegister = filteredIncidents
       .filter(i => i.status === "OPEN" || i.status === "INVESTIGATING")
       .map(i => ({
@@ -353,20 +374,12 @@ export default function ManagerAnalyticsPage() {
         status: i.status
       }));
 
-    // Site Performance formatting
     const sitePerformance = sitePerformanceList.map(s => ({
-      siteName: s.name,
-      guards: s.guards,
-      incidents: s.incidents,
-      patrolRate: s.patrolRate,
-      risk: s.risk
+      siteName: s.name, guards: s.guards, incidents: s.incidents, patrolRate: s.patrolRate, risk: s.risk
     }));
 
-    // Guard Performance formatting
     const topGuards = tenantUsers.filter(u => u.role === "GUARD").slice(0, 3).map((g, idx) => ({
-      rank: `#${idx + 1}`,
-      guardName: `${g.firstName} ${g.lastName}`,
-      score: 95 + idx
+      rank: `#${idx + 1}`, guardName: `${g.firstName} ${g.lastName}`, score: 95 + idx
     }));
 
     const guardPerformance = tenantUsers.filter(u => u.role === "GUARD").map(g => ({
@@ -386,18 +399,8 @@ export default function ManagerAnalyticsPage() {
       }));
 
     const auditPatrols = [
-      {
-        shift: "Morning Shift (06:00-14:00)",
-        siteName: sites[0]?.name || "All Sites",
-        completion: 96,
-        missed: 1
-      },
-      {
-        shift: "Night Shift (22:00-06:00)",
-        siteName: sites[0]?.name || "All Sites",
-        completion: 92,
-        missed: 2
-      }
+      { shift: "Morning Shift (06:00-14:00)", siteName: sites[0]?.name || "All Sites", completion: 96, missed: 1 },
+      { shift: "Night Shift (22:00-06:00)", siteName: sites[0]?.name || "All Sites", completion: 92, missed: 2 }
     ];
 
     const auditCategories = [
@@ -436,132 +439,49 @@ export default function ManagerAnalyticsPage() {
     });
   };
 
-  // Helper properties to keep typescript PDF exports compile-safe
-  const sitePerformanceList = useMemo(() => {
-    return sitePerformanceData.map(s => ({
-      name: s.name,
-      guards: s.guardsCount,
-      incidents: s.incidents,
-      patrolRate: s.attendance,
-      risk: s.status === "Needs Attention" ? "HIGH" : ("LOW" as "HIGH" | "MEDIUM" | "LOW")
-    }));
-  }, [sitePerformanceData]);
-
-  if (loading) {
-    return (
-      <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", gap: "12px", padding: "80px", color: "var(--color-text-muted)" }}>
-        <div style={{ width: "16px", height: "16px", border: "2px solid var(--color-border)", borderTopColor: "var(--color-accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-        <span style={{ fontSize: "14px" }}>Loading business & operational health telemetry...</span>
-      </div>
-    );
-  }
-
-  // Styles
-  const cardStyle = {
-    background: "var(--color-card-bg)",
-    borderRadius: "var(--radius-xl)",
-    border: "1px solid var(--color-border)",
-    boxShadow: "var(--color-card-shadow)",
-    padding: "20px 24px",
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "6px"
-  };
-
-  const tabButtonStyle = (tab: typeof activeTab) => ({
-    padding: "10px 20px",
-    fontSize: "13.5px",
-    fontWeight: 600,
-    borderRadius: "var(--radius-md)",
-    border: "none",
-    cursor: "pointer",
-    background: activeTab === tab ? "var(--color-accent)" : "transparent",
-    color: activeTab === tab ? "var(--color-accent-text)" : "var(--color-text-secondary)",
-    transition: "all var(--transition-fast)",
-  });
-
-  const headerCellStyle = {
-    padding: "12px 24px",
-    fontSize: "11px",
-    fontWeight: 700,
-    color: "var(--color-text-muted)",
-    textTransform: "uppercase" as const,
-    background: "var(--color-bg-subtle)",
-    borderBottom: "1px solid var(--color-border)",
-  };
-
-  const bodyCellStyle = {
-    padding: "16px 24px",
-    fontSize: "13.5px",
-    color: "var(--color-text-secondary)",
-    borderBottom: "1px solid var(--color-border)",
-  };
+  if (loading) return <LoadingSpinner />;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "28px", width: "100%", paddingBottom: "40px" }}>
-      
-      {/* Header Banner */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
-        <div>
-          <h1 style={{ fontSize: "22px", fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: "10px" }}>
-            <BarChart size={22} color="var(--color-accent)" /> Executive Operations &amp; Health Registry
-          </h1>
-          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
-            Tenant Manager high-level operational oversight, incident health risks, workforce metrics, and compliance audits.
-          </p>
-        </div>
-        <button
-          onClick={handleDownloadPDF}
-          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", background: "var(--color-accent)", border: "none", borderRadius: "var(--radius-md)", fontSize: "13.5px", fontWeight: 600, color: "var(--color-accent-text)", cursor: "pointer", boxShadow: "var(--color-card-shadow)", transition: "background var(--transition-fast)" }}
-        >
-          <Download size={15} /> Export Operations Report
-        </button>
-      </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", paddingBottom: "40px" }}>
+      <AnalyticsHeader
+        icon={<FileBarChart size={20} />}
+        title="Executive Operations & Health Registry"
+        subtitle="High-level operational oversight, incident health risks, workforce metrics, and compliance audits"
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onRefresh={loadData}
+        onDownload={handleDownloadPDF}
+        downloadLabel="Export Operations Report"
+      />
 
-      {/* Roster Date Filters */}
-      <div style={{ display: "flex", gap: "16px", padding: "16px 20px", background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", alignItems: "center", flexWrap: "wrap", boxShadow: "var(--color-card-shadow)" }}>
+      {/* Auditing date range */}
+      <div style={{ display: "flex", gap: "16px", padding: "16px 20px", ...cardStyle, alignItems: "flex-end", flexWrap: "wrap" }}>
         <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "6px" }}>
-          <Calendar size={15} /> Auditing Range:
+          <Calendar size={15} /> Auditing Range
         </span>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>From</span>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            style={{ padding: "6px 10px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", color: "var(--color-text-primary)", fontSize: "13px", outline: "none" }}
-          />
+        <div>
+          <label style={dateLabelStyle}>From</label>
+          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={dateInputStyle} />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>To</span>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            style={{ padding: "6px 10px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-bg-subtle)", color: "var(--color-text-primary)", fontSize: "13px", outline: "none" }}
-          />
+        <div>
+          <label style={dateLabelStyle}>To</label>
+          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={dateInputStyle} />
         </div>
         {(startDate || endDate) && (
-          <button
-            onClick={() => { setStartDate(""); setEndDate(""); }}
-            style={{ padding: "6px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "12px", cursor: "pointer", color: "var(--color-text-secondary)" }}
-          >
-            Reset
-          </button>
+          <button onClick={() => { setStartDate(""); setEndDate(""); }} style={applyBtnStyle}>Reset</button>
         )}
       </div>
 
-      {/* 12. Action Center Insights Panel */}
-      <div style={{ background: "rgba(245, 158, 11, 0.02)", border: "1px dashed rgba(245, 158, 11, 0.25)", borderRadius: "var(--radius-xl)", padding: "20px" }}>
-        <h3 style={{ margin: "0 0 12px 0", fontSize: "14.5px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px" }}>
-          <ShieldAlert size={16} color="var(--color-accent)" /> Executive Action Priorities
-        </h3>
+      {/* Action Center Insights Panel */}
+      <div style={{ ...cardStyle, background: "rgba(245, 158, 11, 0.02)", border: "1px dashed rgba(245, 158, 11, 0.25)" }}>
+        <SectionAnchor icon={<ShieldAlert size={16} color="var(--color-accent)" />} title="Executive Action Priorities" subtitle="Items surfaced across sites, workforce, and compliance" />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "10px" }}>
           {actionInsights.map((insight, idx) => (
-            <div 
-              key={idx} 
-              style={{ 
-                padding: "12px 14px", borderRadius: "var(--radius-lg)", 
+            <div
+              key={idx}
+              style={{
+                padding: "12px 14px", borderRadius: "var(--radius-lg)",
                 background: insight.type === "danger" ? "rgba(239, 68, 68, 0.04)" : (insight.type === "warning" ? "rgba(245, 158, 11, 0.03)" : "rgba(16, 185, 129, 0.03)"),
                 border: "1px solid " + (insight.type === "danger" ? "rgba(239, 68, 68, 0.15)" : (insight.type === "warning" ? "rgba(245, 158, 11, 0.15)" : "rgba(16, 185, 129, 0.15)")),
                 display: "flex", alignItems: "flex-start", gap: "10px", fontSize: "12.5px"
@@ -574,92 +494,46 @@ export default function ManagerAnalyticsPage() {
         </div>
       </div>
 
-      {/* 1. Executive overview KPI grid (9 cards) */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
-        <div style={cardStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Total Sites</span><MapPin size={15} color="var(--color-accent)" /></div>
-          <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-primary)", marginTop: "4px" }}>{executiveKPIs.totalSites}</span>
-        </div>
-        <div style={cardStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Active Managers</span><Users size={15} color="var(--color-info)" /></div>
-          <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-primary)", marginTop: "4px" }}>{executiveKPIs.activeManagers}</span>
-        </div>
-        <div style={cardStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Active Guards</span><Users size={15} color="var(--color-success)" /></div>
-          <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-primary)", marginTop: "4px" }}>{executiveKPIs.totalGuards}</span>
-        </div>
-        <div style={cardStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Active Posts</span><Activity size={15} color="var(--color-accent)" /></div>
-          <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-primary)", marginTop: "4px" }}>{executiveKPIs.activePosts}</span>
-        </div>
-        <div style={cardStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Active Shifts</span><Clock size={15} color="var(--color-info)" /></div>
-          <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-primary)", marginTop: "4px" }}>{executiveKPIs.activeShiftsToday}</span>
-        </div>
-        <div style={cardStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Attendance Rate</span><ShieldCheck size={15} color="var(--color-success)" /></div>
-          <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-success)", marginTop: "4px" }}>{executiveKPIs.attendanceRate}%</span>
-        </div>
-        <div style={cardStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Open Incidents</span><AlertTriangle size={15} color="var(--color-danger)" /></div>
-          <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-danger)", marginTop: "4px" }}>{executiveKPIs.openIncidents}</span>
-        </div>
-        <div style={cardStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Vacant Posts</span><AlertTriangle size={15} color="var(--color-warning)" /></div>
-          <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-warning)", marginTop: "4px" }}>{executiveKPIs.vacantPosts}</span>
-        </div>
-        <div style={cardStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Compliance</span><ShieldCheck size={15} color="var(--color-success)" /></div>
-          <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-success)", marginTop: "4px" }}>{executiveKPIs.complianceScore}%</span>
-        </div>
+      {/* Executive KPI grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "12px" }}>
+        <KpiCard icon={<MapPin size={18} />} label="Total Sites" value={executiveKPIs.totalSites} />
+        <KpiCard icon={<Users size={18} />} label="Active Managers" value={executiveKPIs.activeManagers} />
+        <KpiCard icon={<Users size={18} />} label="Active Guards" value={executiveKPIs.totalGuards} />
+        <KpiCard icon={<Activity size={18} />} label="Active Posts" value={executiveKPIs.activePosts} />
+        <KpiCard icon={<Clock size={18} />} label="Active Shifts" value={executiveKPIs.activeShiftsToday} />
+        <KpiCard icon={<ShieldCheck size={18} />} label="Attendance Rate" value={`${executiveKPIs.attendanceRate}%`} />
+        <KpiCard icon={<AlertTriangle size={18} />} label="Open Incidents" value={executiveKPIs.openIncidents} tone={executiveKPIs.openIncidents > 0 ? "var(--color-danger-subtle)" : undefined} />
+        <KpiCard icon={<AlertTriangle size={18} />} label="Vacant Posts" value={executiveKPIs.vacantPosts} tone={executiveKPIs.vacantPosts > 0 ? "var(--color-warning-subtle)" : undefined} />
+        <KpiCard icon={<ShieldCheck size={18} />} label="Compliance" value={`${executiveKPIs.complianceScore}%`} />
       </div>
 
-      {/* Tab Switcher strip */}
-      <div style={{ display: "flex", gap: "10px", padding: "6px", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-lg)", border: "1px solid var(--color-border)", alignSelf: "flex-start", flexWrap: "wrap", boxShadow: "var(--color-card-shadow)" }}>
-        <button onClick={() => setActiveTab("sites")} style={tabButtonStyle("sites")}>Site Performance</button>
-        <button onClick={() => setActiveTab("workforce")} style={tabButtonStyle("workforce")}>Workforce &amp; Managers</button>
-        <button onClick={() => setActiveTab("attendance")} style={tabButtonStyle("attendance")}>Attendance &amp; Shifts</button>
-        <button onClick={() => setActiveTab("incidents")} style={tabButtonStyle("incidents")}>Incident Analysis</button>
-        <button onClick={() => setActiveTab("compliance")} style={tabButtonStyle("compliance")}>Compliance Auditor</button>
-        <button onClick={() => setActiveTab("staffing")} style={tabButtonStyle("staffing")}>Staffing Shortages</button>
-        <button onClick={() => setActiveTab("trends")} style={tabButtonStyle("trends")}>Operational Trends</button>
-      </div>
-
-      {/* Display Board */}
-      <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", boxShadow: "var(--color-card-shadow)", overflow: "hidden" }}>
-        
-        {/* TAB 2: SITE PERFORMANCE COMPARISON & GEOGRAPHIC TOOL */}
+      {/* Tab content */}
+      <div style={cardStyle}>
         {activeTab === "sites" && (
-          <div>
-            <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", background: "var(--color-bg-subtle)" }}>
-              <div>
-                <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>Site Health Audit Matrix</h3>
-                <p style={{ fontSize: "12.5px", color: "var(--color-text-muted)", margin: "4px 0 0 0" }}>Compare operational metrics, absenteeism, and risk indicators per site location.</p>
-              </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+              <SectionAnchor icon={<MapPin size={16} color="var(--color-accent)" />} title="Site Health Audit Matrix" subtitle="Compare operational metrics, absenteeism, and risk indicators per site location" />
               <input
                 type="text"
                 placeholder="Search sites..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{ padding: "7px 12px", background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: "13px", color: "var(--color-text-primary)", outline: "none", width: "200px" }}
+                style={{ ...dateInputStyle, width: "200px" }}
               />
             </div>
-            
-            <div style={{ overflowX: "auto" }}>
+
+            <div style={{ overflowX: "auto", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                 <thead>
                   <tr>
-                    <th style={headerCellStyle}>Site Location</th>
-                    <th style={headerCellStyle}>Attendance Rate</th>
-                    <th style={headerCellStyle}>Total Incidents</th>
-                    <th style={headerCellStyle}>Vacant Posts</th>
-                    <th style={headerCellStyle}>Site Manager Status</th>
-                    <th style={headerCellStyle}>Risk Status</th>
+                    {["Site Location", "Attendance Rate", "Total Incidents", "Vacant Posts", "Site Manager Status", "Risk Status"].map(h => (
+                      <th key={h} style={headerCellStyle}>{h}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {sitePerformanceData.filter(s => s.name.toLowerCase().includes(search.toLowerCase())).map((s, idx) => (
-                    <tr key={s.id || idx} style={{ borderBottom: "1px solid var(--color-border)" }}>
+                    <tr key={s.id || idx}>
                       <td style={{ ...bodyCellStyle, fontWeight: 700, color: "var(--color-text-primary)" }}>{s.name}</td>
                       <td style={bodyCellStyle}>
                         <span style={{ fontWeight: 700, color: s.attendance >= 95 ? "var(--color-success)" : (s.attendance >= 90 ? "var(--color-warning)" : "var(--color-danger)") }}>{s.attendance}%</span>
@@ -667,13 +541,11 @@ export default function ManagerAnalyticsPage() {
                       <td style={{ ...bodyCellStyle, color: s.incidents > 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }}>{s.incidents}</td>
                       <td style={{ ...bodyCellStyle, color: s.vacantPosts > 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }}>{s.vacantPosts} vacant</td>
                       <td style={bodyCellStyle}>
-                        <span style={{ 
+                        <span style={{
                           fontSize: "11px", fontWeight: 700, padding: "3px 6px", borderRadius: "4px",
                           background: s.hasManager ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.08)",
                           color: s.hasManager ? "var(--color-success)" : "var(--color-danger)"
-                        }}>
-                          {s.hasManager ? "ASSIGNED" : "MISSING"}
-                        </span>
+                        }}>{s.hasManager ? "ASSIGNED" : "MISSING"}</span>
                       </td>
                       <td style={bodyCellStyle}>
                         <span style={{
@@ -687,13 +559,12 @@ export default function ManagerAnalyticsPage() {
                 </tbody>
               </table>
             </div>
-            
-            {/* 11. Optional Geographic View Map simulation */}
-            <div style={{ padding: "24px", borderTop: "1px solid var(--color-border)" }}>
-              <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "12px" }}>Interactive Geographic Sites Monitor</h4>
+
+            {/* Geographic map (kept as-is — bespoke feature, not part of the shared kit) */}
+            <div>
+              <SectionAnchor icon={<MapPin size={16} color="var(--color-accent)" />} title="Interactive Geographic Sites Monitor" subtitle="Click a site node to audit its details" />
               <div style={{ display: "flex", gap: "24px", flexWrap: "wrap" }}>
                 <div style={{ flex: 2, minWidth: "300px", height: "240px", background: "var(--color-bg-subtle)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
-                  {/* Mock Map graphics */}
                   <svg width="100%" height="100%" style={{ position: "absolute", opacity: 0.1 }}>
                     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
                       <rect width="40" height="40" fill="none" />
@@ -701,8 +572,6 @@ export default function ManagerAnalyticsPage() {
                     </pattern>
                     <rect width="100%" height="100%" fill="url(#grid)" />
                   </svg>
-                  
-                  {/* Markers */}
                   {sitePerformanceData.map((s, idx) => {
                     const x = 100 + (idx * 90) % 250;
                     const y = 50 + (idx * 60) % 150;
@@ -711,10 +580,7 @@ export default function ManagerAnalyticsPage() {
                       <button
                         key={s.id}
                         onClick={() => setSelectedSiteOnMap(s.id)}
-                        style={{
-                          position: "absolute", left: `${x}px`, top: `${y}px`, border: "none", background: "transparent",
-                          cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center"
-                        }}
+                        style={{ position: "absolute", left: `${x}px`, top: `${y}px`, border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center" }}
                       >
                         <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: color, border: "2px solid white", boxShadow: "0 0 10px rgba(0,0,0,0.3)" }} />
                         <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--color-text-secondary)", marginTop: "4px", background: "var(--color-card-bg)", padding: "1px 4px", borderRadius: "4px", border: "1px solid var(--color-border)" }}>{s.name}</span>
@@ -723,28 +589,26 @@ export default function ManagerAnalyticsPage() {
                   })}
                   <span style={{ fontSize: "12.5px", color: "var(--color-text-muted)", zIndex: 1, position: "absolute", bottom: "12px", right: "12px" }}>🔴 Critical | 🟡 Attention | 🟢 Healthy</span>
                 </div>
-                
+
                 <div style={{ flex: 1, minWidth: "200px", padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)" }}>
                   <h5 style={{ margin: "0 0 10px 0", fontSize: "13px", fontWeight: 700, color: "var(--color-text-primary)" }}>Map Details Panel</h5>
-                  {selectedSiteOnMap ? (
-                    (() => {
-                      const matched = sitePerformanceData.find(s => s.id === selectedSiteOnMap);
-                      if (!matched) return null;
-                      return (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px" }}>
-                          <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--color-accent)" }}>{matched.name}</div>
-                          <div><strong>Address:</strong> {matched.address}</div>
-                          <div><strong>Attendance:</strong> {matched.attendance}%</div>
-                          <div><strong>Open Incidents:</strong> {matched.incidents}</div>
-                          <div><strong>Unstaffed Posts:</strong> {matched.vacantPosts}</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "8px" }}>
-                            <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: matched.status === "Excellent" ? "var(--color-success)" : (matched.status === "Needs Attention" ? "var(--color-danger)" : "var(--color-warning)") }} />
-                            <span style={{ fontWeight: 700 }}>{matched.status}</span>
-                          </div>
+                  {selectedSiteOnMap ? (() => {
+                    const matched = sitePerformanceData.find(s => s.id === selectedSiteOnMap);
+                    if (!matched) return null;
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px" }}>
+                        <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--color-accent)" }}>{matched.name}</div>
+                        <div><strong>Address:</strong> {matched.address}</div>
+                        <div><strong>Attendance:</strong> {matched.attendance}%</div>
+                        <div><strong>Open Incidents:</strong> {matched.incidents}</div>
+                        <div><strong>Unstaffed Posts:</strong> {matched.vacantPosts}</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "8px" }}>
+                          <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: matched.status === "Excellent" ? "var(--color-success)" : (matched.status === "Needs Attention" ? "var(--color-danger)" : "var(--color-warning)") }} />
+                          <span style={{ fontWeight: 700 }}>{matched.status}</span>
                         </div>
-                      );
-                    })()
-                  ) : (
+                      </div>
+                    );
+                  })() : (
                     <span style={{ fontSize: "13px", color: "var(--color-text-muted)", fontStyle: "italic" }}>Click a site node on the map view to audit details.</span>
                   )}
                 </div>
@@ -753,56 +617,35 @@ export default function ManagerAnalyticsPage() {
           </div>
         )}
 
-        {/* TAB 3: WORKFORCE & SITE MANAGERS */}
         {activeTab === "workforce" && (
-          <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "28px" }}>
-            
-            {/* Workforce Grid */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             <div>
-              <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 14px 0" }}>Workforce Roster Statistics</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
-                <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                  <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>ACTIVE GUARDS</div>
-                  <div style={{ fontSize: "22px", fontWeight: 800, color: "var(--color-text-primary)", marginTop: "4px" }}>{workforceStats.active} <span style={{ fontSize: "12px", color: "var(--color-text-muted)", fontWeight: 500 }}>/ {workforceStats.total} total</span></div>
-                </div>
-                <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                  <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>ON DUTY NOW</div>
-                  <div style={{ fontSize: "22px", fontWeight: 800, color: "var(--color-success)", marginTop: "4px" }}>{workforceStats.currentlyOnShift}</div>
-                </div>
-                <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                  <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>STAFF ON LEAVE</div>
-                  <div style={{ fontSize: "22px", fontWeight: 800, color: "var(--color-warning)", marginTop: "4px" }}>{workforceStats.onLeave}</div>
-                </div>
-                <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                  <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>LATE ARRIVALS THIS MONTH</div>
-                  <div style={{ fontSize: "22px", fontWeight: 800, color: "var(--color-danger)", marginTop: "4px" }}>{workforceStats.lateArrivals}</div>
-                </div>
+              <SectionAnchor icon={<Users size={16} color="var(--color-accent)" />} title="Workforce Roster Statistics" subtitle="" />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "10px" }}>
+                <StatTile label="Active Guards" value={`${workforceStats.active} / ${workforceStats.total}`} />
+                <StatTile label="On Duty Now" value={workforceStats.currentlyOnShift} color="#22c55e" />
+                <StatTile label="Staff On Leave" value={workforceStats.onLeave} color="#f59e0b" />
+                <StatTile label="Late Arrivals" value={workforceStats.lateArrivals} color="#ef4444" />
               </div>
             </div>
 
-            {/* 6. Site Manager Audit list */}
             <div>
-              <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 14px 0" }}>Site Manager Executive Performance</h3>
-              <div style={{ overflowX: "auto", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)" }}>
+              <SectionAnchor icon={<ShieldCheck size={16} color="var(--color-accent)" />} title="Site Manager Executive Performance" subtitle="" />
+              <div style={{ overflowX: "auto", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                   <thead>
-                    <tr style={{ background: "var(--color-bg-subtle)" }}>
-                      <th style={headerCellStyle}>Site Manager</th>
-                      <th style={headerCellStyle}>Assigned Site</th>
-                      <th style={headerCellStyle}>Guard Attendance</th>
-                      <th style={headerCellStyle}>Incident Resolution Rate</th>
-                      <th style={headerCellStyle}>Open Incidents</th>
-                      <th style={headerCellStyle}>Average Response Time</th>
+                    <tr>
+                      {["Site Manager", "Assigned Site", "Guard Attendance", "Incident Resolution Rate", "Open Incidents", "Avg Response Time"].map(h => (
+                        <th key={h} style={headerCellStyle}>{h}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {managerPerformanceData.map((mgr, idx) => (
-                      <tr key={mgr.id || idx} style={{ borderBottom: idx === managerPerformanceData.length - 1 ? "none" : "1px solid var(--color-border)" }}>
+                      <tr key={mgr.id || idx}>
                         <td style={{ ...bodyCellStyle, fontWeight: 700, color: "var(--color-text-primary)" }}>{mgr.name}</td>
                         <td style={bodyCellStyle}>{mgr.siteName}</td>
-                        <td style={bodyCellStyle}>
-                          <span style={{ fontWeight: 600, color: mgr.attendance >= 95 ? "var(--color-success)" : "var(--color-warning)" }}>{mgr.attendance}%</span>
-                        </td>
+                        <td style={bodyCellStyle}><span style={{ fontWeight: 600, color: mgr.attendance >= 95 ? "var(--color-success)" : "var(--color-warning)" }}>{mgr.attendance}%</span></td>
                         <td style={bodyCellStyle}>{mgr.resolutionRate}%</td>
                         <td style={{ ...bodyCellStyle, color: mgr.outstandingTasks > 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }}>{mgr.outstandingTasks} open</td>
                         <td style={bodyCellStyle}>{mgr.avgResponse}</td>
@@ -815,253 +658,101 @@ export default function ManagerAnalyticsPage() {
                 </table>
               </div>
             </div>
-
           </div>
         )}
 
-        {/* TAB 4: ATTENDANCE & SHIFTS */}
         {activeTab === "attendance" && (
-          <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "28px" }}>
-            
-            {/* Attendance Analytics (Module 4) Line Chart */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             <div>
-              <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 12px 0" }}>Daily Guard Attendance Trend (Last 7 Days)</h3>
-              <div style={{ width: "100%", height: "200px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)", background: "var(--color-bg-subtle)", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
-                {/* SVG Line Chart */}
-                <svg viewBox="0 0 500 150" width="100%" height="100%">
-                  <defs>
-                    <linearGradient id="attGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--color-success)" stopOpacity="0.25"/>
-                      <stop offset="100%" stopColor="var(--color-success)" stopOpacity="0"/>
-                    </linearGradient>
-                  </defs>
-                  
-                  {/* Grid Lines */}
-                  <line x1="40" y1="20" x2="480" y2="20" stroke="var(--color-border)" strokeDasharray="4 4" />
-                  <line x1="40" y1="60" x2="480" y2="60" stroke="var(--color-border)" strokeDasharray="4 4" />
-                  <line x1="40" y1="100" x2="480" y2="100" stroke="var(--color-border)" strokeDasharray="4 4" />
-                  <line x1="40" y1="130" x2="480" y2="130" stroke="var(--color-border)" />
-
-                  {/* Line Path */}
-                  <path 
-                    d="M 40 40 Q 110 50 180 30 T 320 60 T 480 25" 
-                    fill="none" 
-                    stroke="var(--color-success)" 
-                    strokeWidth="3" 
-                  />
-                  <path 
-                    d="M 40 40 Q 110 50 180 30 T 320 60 T 480 25 L 480 130 L 40 130 Z" 
-                    fill="url(#attGrad)" 
-                  />
-
-                  {/* Nodes */}
-                  <circle cx="40" cy="40" r="4" fill="var(--color-success)" />
-                  <circle cx="180" cy="30" r="4" fill="var(--color-success)" />
-                  <circle cx="320" cy="60" r="4" fill="var(--color-success)" />
-                  <circle cx="480" cy="25" r="4" fill="var(--color-success)" />
-
-                  {/* Labels */}
-                  <text x="40" y="145" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Mon</text>
-                  <text x="110" y="145" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Tue</text>
-                  <text x="180" y="145" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Wed</text>
-                  <text x="250" y="145" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Thu</text>
-                  <text x="320" y="145" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Fri</text>
-                  <text x="400" y="145" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Sat</text>
-                  <text x="480" y="145" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Sun</text>
-
-                  <text x="35" y="24" fontSize="8" fill="var(--color-text-muted)" textAnchor="end">100%</text>
-                  <text x="35" y="64" fontSize="8" fill="var(--color-text-muted)" textAnchor="end">95%</text>
-                  <text x="35" y="104" fontSize="8" fill="var(--color-text-muted)" textAnchor="end">90%</text>
-                </svg>
-              </div>
+              <SectionAnchor icon={<TrendingUp size={16} color="var(--color-accent)" />} title="Daily Guard Attendance Trend" subtitle="Current week, filtered by the auditing range above" />
+              <MiniTrendChart data={attendanceTrend} dataKey="rate" xKey="label" color="#22c55e" unit="%" />
             </div>
 
-            {/* Shift Analytics (Module 5) */}
             <div>
-              <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 12px 0" }}>Weekly Shift Performance Metrics</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
-                <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                  <div style={{ fontSize: "11.5px", color: "var(--color-text-muted)" }}>SHIFTS COMPLETED</div>
-                  <div style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-primary)", marginTop: "4px" }}>{filteredShifts.filter(s => s.status === "COMPLETED").length}</div>
-                </div>
-                <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                  <div style={{ fontSize: "11.5px", color: "var(--color-text-muted)" }}>SHIFTS MISSED</div>
-                  <div style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-danger)", marginTop: "4px" }}>{filteredShifts.filter(s => s.status === "SCHEDULED" && new Date(s.startTime).getTime() < Date.now()).length}</div>
-                </div>
-                <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                  <div style={{ fontSize: "11.5px", color: "var(--color-text-muted)" }}>AVERAGE SHIFT COVERAGE</div>
-                  <div style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-success)", marginTop: "4px" }}>96.8%</div>
-                </div>
-                <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                  <div style={{ fontSize: "11.5px", color: "var(--color-text-muted)" }}>SHIFT COMPLETION RATE</div>
-                  <div style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-info)", marginTop: "4px" }}>{executiveKPIs.attendanceRate}%</div>
-                </div>
+              <SectionAnchor icon={<Clock size={16} color="var(--color-accent)" />} title="Weekly Shift Performance Metrics" subtitle="" />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "10px" }}>
+                <StatTile label="Shifts Completed" value={filteredShifts.filter(s => s.status === "COMPLETED").length} />
+                <StatTile label="Shifts Missed" value={filteredShifts.filter(s => s.status === "SCHEDULED" && new Date(s.startTime).getTime() < Date.now()).length} color="#ef4444" />
+                <StatTile label="Avg Shift Coverage" value="96.8%" color="#22c55e" />
+                <StatTile label="Shift Completion Rate" value={`${executiveKPIs.attendanceRate}%`} />
               </div>
             </div>
-
           </div>
         )}
 
-        {/* TAB 5: INCIDENT ANALYSIS */}
         {activeTab === "incidents" && (
-          <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "28px" }}>
-            
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
-              {/* Incident Stats */}
-              <div style={{ padding: "20px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)" }}>
-                <h4 style={{ margin: "0 0 14px 0", fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>Incident Registry Status</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13.5px" }}>
-                    <span>Active Open Investigations:</span>
-                    <span style={{ fontWeight: 700, color: "var(--color-danger)" }}>{incidentBreakdown.open} tickets</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13.5px" }}>
-                    <span>Resolved incidents:</span>
-                    <span style={{ fontWeight: 700, color: "var(--color-success)" }}>{incidentBreakdown.resolved} tickets</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13.5px" }}>
-                    <span>Incident Resolution Rate:</span>
-                    <span style={{ fontWeight: 700, color: "var(--color-accent)" }}>
-                      {filteredIncidents.length > 0 ? Math.round((incidentBreakdown.resolved / filteredIncidents.length) * 100) : 100}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Incident Categories */}
-              <div style={{ padding: "20px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)" }}>
-                <h4 style={{ margin: "0 0 14px 0", fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>Incidents by Category Classification</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {incidentBreakdown.categories.map((cat, idx) => (
-                    <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                      <span style={{ color: "var(--color-text-secondary)" }}>{cat.name}</span>
-                      <span style={{ fontWeight: 700 }}>{cat.count} logged</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* TAB 6: COMPLIANCE AUDITOR */}
-        {activeTab === "compliance" && (
-          <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "28px" }}>
-            
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
-              {/* Missing site managers list */}
-              <div style={{ padding: "20px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)" }}>
-                <h4 style={{ margin: "0 0 12px 0", fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <ShieldAlert size={15} color="var(--color-danger)" /> Sites Missing Site Managers
-                </h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {sites.filter(s => 
-                    !tenantUsers.some(u => (u.assignedSiteId === s.id || u.assignedSite?.id === s.id) && u.role === "SITE_MANAGER")
-                  ).map(s => (
-                    <div key={s.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", padding: "8px", background: "rgba(239, 68, 68, 0.04)", borderRadius: "var(--radius-md)", border: "1px solid rgba(239, 68, 68, 0.1)" }}>
-                      <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>{s.name}</span>
-                      <span style={{ color: "var(--color-danger)", fontWeight: 700 }}>VACANT</span>
-                    </div>
-                  ))}
-                  {sites.filter(s => 
-                    !tenantUsers.some(u => (u.assignedSiteId === s.id || u.assignedSite?.id === s.id) && u.role === "SITE_MANAGER")
-                  ).length === 0 && (
-                    <span style={{ fontSize: "13px", color: "var(--color-text-muted)", fontStyle: "italic" }}>All sites currently have assigned Site Managers.</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Expiring certs and certifications */}
-              <div style={{ padding: "20px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)" }}>
-                <h4 style={{ margin: "0 0 12px 0", fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>Workforce Licensing &amp; Docs</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Expired Employee Certifications:</span>
-                    <span style={{ fontWeight: 700, color: "var(--color-warning)" }}>3 files</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Missing Employee Onboarding Docs:</span>
-                    <span style={{ fontWeight: 700, color: "var(--color-danger)" }}>1 file</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Expired Site Business Licenses:</span>
-                    <span style={{ fontWeight: 700, color: "var(--color-success)" }}>0 files</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* TAB 7: STAFFING & SHORTAGES */}
-        {activeTab === "staffing" && (
-          <div style={{ padding: "24px" }}>
-            <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "16px" }}>Post Staffing Shortages Analytics</h4>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px", marginBottom: "24px" }}>
-              <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>Posts Configured</span>
-                <p style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-text-primary)", margin: "4px 0 0 0" }}>{posts.length}</p>
-              </div>
-              <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>Posts Currently Filled</span>
-                <p style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-success)", margin: "4px 0 0 0" }}>{posts.length - executiveKPIs.vacantPosts}</p>
-              </div>
-              <div style={{ padding: "16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>Employee-to-Post Ratio</span>
-                <p style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-info)", margin: "4px 0 0 0" }}>
-                  {posts.length > 0 ? (tenantUsers.filter(u => u.role === "GUARD").length / posts.length).toFixed(1) : "—"}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 8: OPERATIONAL TRENDS */}
-        {activeTab === "trends" && (
-          <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
             <div>
-              <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "12px" }}>Roster &amp; Site Scale Trends (Last 6 Months)</h4>
-              <div style={{ width: "100%", height: "180px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-xl)", background: "var(--color-bg-subtle)", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
-                {/* SVG Bar Chart */}
-                <svg viewBox="0 0 500 150" width="100%" height="100%">
-                  {/* Grid Lines */}
-                  <line x1="40" y1="20" x2="480" y2="20" stroke="var(--color-border)" strokeDasharray="4 4" />
-                  <line x1="40" y1="70" x2="480" y2="70" stroke="var(--color-border)" strokeDasharray="4 4" />
-                  <line x1="40" y1="120" x2="480" y2="120" stroke="var(--color-border)" />
+              <SectionAnchor icon={<ShieldAlert size={16} color="var(--color-accent)" />} title="Incident Registry Status" subtitle="" />
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <StatTile label="Active Open Investigations" value={incidentBreakdown.open} color="#ef4444" />
+                <StatTile label="Resolved Incidents" value={incidentBreakdown.resolved} color="#22c55e" />
+                <StatTile label="Resolution Rate" value={`${filteredIncidents.length > 0 ? Math.round((incidentBreakdown.resolved / filteredIncidents.length) * 100) : 100}%`} />
+              </div>
+            </div>
 
-                  {/* Bars */}
-                  {/* Jan */}
-                  <rect x="70" y="50" width="20" height="70" fill="var(--color-accent)" rx="2" />
-                  <text x="80" y="135" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Jan</text>
-                  {/* Feb */}
-                  <rect x="140" y="40" width="20" height="80" fill="var(--color-accent)" rx="2" />
-                  <text x="150" y="135" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Feb</text>
-                  {/* Mar */}
-                  <rect x="210" y="30" width="20" height="90" fill="var(--color-accent)" rx="2" />
-                  <text x="220" y="135" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Mar</text>
-                  {/* Apr */}
-                  <rect x="280" y="25" width="20" height="95" fill="var(--color-accent)" rx="2" />
-                  <text x="290" y="135" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Apr</text>
-                  {/* May */}
-                  <rect x="350" y="15" width="20" height="105" fill="var(--color-accent)" rx="2" />
-                  <text x="360" y="135" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">May</text>
-                  {/* Jun */}
-                  <rect x="420" y="10" width="20" height="110" fill="var(--color-accent)" rx="2" />
-                  <text x="430" y="135" fontSize="9" fill="var(--color-text-muted)" textAnchor="middle">Jun</text>
+            <div>
+              <SectionAnchor icon={<ShieldAlert size={16} color="var(--color-accent)" />} title="Incidents by Category" subtitle="" />
+              {incidentBreakdown.categories.every(c => c.count === 0) ? <EmptyList text="No incidents in this range." /> : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {incidentBreakdown.categories.map((cat, idx) => (
+                    <CategoryBar key={idx} label={cat.name} count={cat.count} max={Math.max(...incidentBreakdown.categories.map(c => c.count), 1)} color="#ef4444" />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
-                  <text x="35" y="24" fontSize="8" fill="var(--color-text-muted)" textAnchor="end">100</text>
-                  <text x="35" y="74" fontSize="8" fill="var(--color-text-muted)" textAnchor="end">50</text>
-                  <text x="35" y="124" fontSize="8" fill="var(--color-text-muted)" textAnchor="end">0</text>
-                </svg>
+        {activeTab === "compliance" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
+            <div>
+              <SectionAnchor icon={<ShieldAlert size={16} color="var(--color-danger)" />} title="Sites Missing Site Managers" subtitle="" />
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {sites.filter(s => !tenantUsers.some(u => (u.assignedSiteId === s.id || u.assignedSite?.id === s.id) && u.role === "SITE_MANAGER")).map(s => (
+                  <PersonBadge key={s.id} name={s.name} meta="VACANT" />
+                ))}
+                {sites.filter(s => !tenantUsers.some(u => (u.assignedSiteId === s.id || u.assignedSite?.id === s.id) && u.role === "SITE_MANAGER")).length === 0 && (
+                  <EmptyList text="All sites currently have assigned Site Managers." />
+                )}
+              </div>
+            </div>
+
+            <div>
+              <SectionAnchor icon={<ShieldCheck size={16} color="var(--color-accent)" />} title="Workforce Licensing & Docs" subtitle="" />
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <StatTile label="Expired Certifications" value="3 files" color="#f59e0b" />
+                <StatTile label="Missing Onboarding Docs" value="1 file" color="#ef4444" />
+                <StatTile label="Expired Business Licenses" value="0 files" color="#22c55e" />
               </div>
             </div>
           </div>
         )}
 
-      </div>
+        {activeTab === "staffing" && (
+          <div>
+            <SectionAnchor icon={<Users size={16} color="var(--color-accent)" />} title="Post Staffing Shortages" subtitle="" />
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "10px" }}>
+              <StatTile label="Posts Configured" value={posts.length} />
+              <StatTile label="Posts Currently Filled" value={posts.length - executiveKPIs.vacantPosts} color="#22c55e" />
+              <StatTile label="Employee-to-Post Ratio" value={posts.length > 0 ? (tenantUsers.filter(u => u.role === "GUARD").length / posts.length).toFixed(1) : "—"} />
+            </div>
+          </div>
+        )}
 
+        {activeTab === "trends" && (
+          <div>
+            <SectionAnchor icon={<TrendingUp size={16} color="var(--color-accent)" />} title="Roster & Site Scale Trends" subtitle="Last 6 months" />
+            <MiniTrendChart
+              data={[
+                { month: "Jan", count: 20 }, { month: "Feb", count: 22 }, { month: "Mar", count: 24 },
+                { month: "Apr", count: 25 }, { month: "May", count: 28 }, { month: "Jun", count: sites.length || 30 },
+              ]}
+              dataKey="count" xKey="month" color="var(--color-accent)"
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

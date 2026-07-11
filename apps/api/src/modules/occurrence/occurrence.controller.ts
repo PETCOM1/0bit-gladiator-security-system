@@ -6,18 +6,26 @@ import { catchAsync } from "../../utils/catchAsync.js";
 export const getEntries = catchAsync(async (req: Request, res: Response) => {
   const tenantId = req.user!.tenantId;
   const siteId = req.user!.role === Role.MANAGER ? req.query.siteId as string | undefined : req.user!.siteId;
+  const startDate = req.query.startDate as string | undefined;
+  const endDate = req.query.endDate as string | undefined;
 
   if (!tenantId) return res.status(HttpStatus.FORBIDDEN).json({ message: "No tenant context" });
 
   const entries = await prisma.occurrenceBookEntry.findMany({
-    where: { 
-      tenantId, 
-      ...(siteId && { siteId })
+    where: {
+      tenantId,
+      ...(siteId && { siteId }),
+      ...((startDate || endDate) && {
+        createdAt: {
+          ...(startDate && { gte: new Date(startDate) }),
+          ...(endDate && { lte: new Date(`${endDate}T23:59:59.999`) }),
+        }
+      })
     },
     orderBy: { createdAt: 'desc' },
-    include: { 
+    include: {
       user: { select: { firstName: true, lastName: true } },
-      site: { select: { name: true } } 
+      site: { select: { name: true } }
     }
   });
 
