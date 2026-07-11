@@ -34,7 +34,7 @@ export default function SiteManagerDashboard() {
           Site Supervisor at <strong style={{ color: "var(--color-text-primary)" }}>{companyName}</strong>
         </p>
       </div>
-      <SiteDetailsView siteId={user.siteId} hideBackButton={true} />
+      <SiteDetailsView siteId={user.siteId} hideBackButton={true} hideExtraTabs={true} />
     </div>
   );
 }

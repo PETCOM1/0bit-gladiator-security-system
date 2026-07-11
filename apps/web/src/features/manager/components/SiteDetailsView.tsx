@@ -8,6 +8,7 @@ import { MapPin, Users, ShieldAlert, Contact, Calendar, Info, ArrowLeft, Plus, C
 interface Props {
   siteId: string;
   hideBackButton?: boolean;
+  hideExtraTabs?: boolean;
 }
 
 const inputStyle = {
@@ -43,7 +44,7 @@ const labelStyle = {
   letterSpacing: "0.05em"
 };
 
-export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
+export default function SiteDetailsView({ siteId, hideBackButton, hideExtraTabs }: Props) {
   const router = useRouter();
   const [site, setSite] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -182,14 +183,16 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
 
   const hasSiteManager = site.users?.some((u: any) => u.role === "SITE_MANAGER");
 
-  const tabs = [
+  const tabs = hideExtraTabs ? ([
+    { id: "overview", label: "Overview", icon: <Info size={15} /> }
+  ] as const) : ([
     { id: "overview", label: "Overview", icon: <Info size={15} /> },
     { id: "incidents", label: "Occurrence Book", icon: <ShieldAlert size={15} /> },
     { id: "visitors", label: "Visitor Book", icon: <Contact size={15} /> },
     { id: "personnel", label: "Personnel", icon: <Users size={15} /> },
     { id: "shifts", label: "Shifts", icon: <Calendar size={15} /> },
     { id: "posts", label: "Posts", icon: <MapPin size={15} /> }
-  ] as const;
+  ] as const);
 
 
 
@@ -340,33 +343,35 @@ export default function SiteDetailsView({ siteId, hideBackButton }: Props) {
       )}
 
       {/* Tabs Selector Strip */}
-      <div style={{ display: "flex", gap: "4px", borderBottom: "1px solid var(--color-border)", paddingBottom: "1px", overflowX: "auto" }}>
-        {tabs.map(tab => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px",
-                background: "transparent",
-                color: isActive ? "var(--color-accent)" : "var(--color-text-secondary)",
-                border: "none", 
-                borderBottom: isActive ? "2px solid var(--color-accent)" : "2px solid transparent",
-                fontSize: "13.5px", 
-                fontWeight: isActive ? 600 : 500,
-                cursor: "pointer", 
-                transition: "all var(--transition-fast)", 
-                whiteSpace: "nowrap",
-                position: "relative",
-                bottom: "-1px"
-              }}
-            >
-              {tab.icon} {tab.label}
-            </button>
-          );
-        })}
-      </div>
+      {tabs.length > 1 && (
+        <div style={{ display: "flex", gap: "4px", borderBottom: "1px solid var(--color-border)", paddingBottom: "1px", overflowX: "auto" }}>
+          {tabs.map(tab => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px",
+                  background: "transparent",
+                  color: isActive ? "var(--color-accent)" : "var(--color-text-secondary)",
+                  border: "none", 
+                  borderBottom: isActive ? "2px solid var(--color-accent)" : "2px solid transparent",
+                  fontSize: "13.5px", 
+                  fontWeight: isActive ? 600 : 500,
+                  cursor: "pointer", 
+                  transition: "all var(--transition-fast)", 
+                  whiteSpace: "nowrap",
+                  position: "relative",
+                  bottom: "-1px"
+                }}
+              >
+                {tab.icon} {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Viewport Card System */}
       <div style={cardStyle}>
