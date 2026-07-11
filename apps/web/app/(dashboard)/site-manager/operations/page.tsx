@@ -726,9 +726,6 @@ function OperationsContent() {
                   <button onClick={() => setShiftSubTab("roster")} style={subTabBtnStyle(shiftSubTab === "roster")}>
                     <LayoutGrid size={14} /> Weekly Roster
                   </button>
-                  <button onClick={() => setShiftSubTab("autoschedule")} style={subTabBtnStyle(shiftSubTab === "autoschedule")}>
-                    <Wand2 size={14} /> Auto-Schedule
-                  </button>
                   <button onClick={() => setShiftSubTab("coverage")} style={subTabBtnStyle(shiftSubTab === "coverage")}>
                     <BarChart3 size={14} /> Shift Coverage
                   </button>
@@ -909,7 +906,7 @@ function OperationsContent() {
                               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                             >
                             {/* Guard name column */}
-                            <td style={{ padding: "14px 20px", whiteSpace: "nowrap" }}>
+                            <td style={{ padding: "24px 20px", whiteSpace: "nowrap", verticalAlign: "middle" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "var(--color-accent-subtle)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, color: "var(--color-accent)", flexShrink: 0 }}>
                                   {u.firstName?.[0]}{u.lastName?.[0]}
@@ -947,7 +944,7 @@ function OperationsContent() {
                                       background: assigned === "OFF" ? "var(--color-danger-subtle)" : tmpl ? `${tmpl.color}18` : "var(--color-bg-subtle)",
                                       color: assigned === "OFF" ? "var(--color-danger)" : tmpl ? tmpl.color : "var(--color-text-muted)",
                                       transition: "all var(--transition-fast)",
-                                      minHeight: "62px",
+                                      minHeight: "96px",
                                       display: "flex",
                                       flexDirection: "column",
                                       alignItems: "center",
@@ -1087,112 +1084,6 @@ function OperationsContent() {
                 </div>
               )}
 
-              {/* ─── SUB-TAB 3: AUTO-SCHEDULE ─── */}
-              {shiftSubTab === "autoschedule" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" }}>Auto-Schedule Generator</h3>
-                    <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--color-text-muted)" }}>Set your staffing requirements and let the system generate a full weekly roster automatically.</p>
-                  </div>
-
-                  {/* Config panel */}
-                  <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "1px solid var(--color-card-border)", padding: "28px", boxShadow: "var(--color-card-shadow)", display: "flex", flexDirection: "column", gap: "24px" }}>
-                    <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "flex-end" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <label style={labelStyle}>Week Starting</label>
-                        <input type="date" value={autoWeekStart} onChange={e => { setAutoWeekStart(e.target.value); setRosterWeekStart(e.target.value); }} style={{ ...inputStyle, width: "200px" }} />
-                      </div>
-                      <div style={{ fontSize: "13px", color: "var(--color-text-secondary)", padding: "10px 0" }}>
-                        <span style={{ fontWeight: 600 }}>{users.filter((u: any) => !u.onLeave).length}</span> guards available&nbsp;
-                        {users.filter((u: any) => u.onLeave).length > 0 && (
-                          <span style={{ color: "var(--color-warning)" }}>({users.filter((u: any) => u.onLeave).length} on leave excluded)</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                        <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" }}>Required Guards per Shift</h4>
-                        <button onClick={() => setAutoRequirements(prev => [...prev, { templateId: templates[0]?.id ?? "", count: 1 }])}
-                          style={{ padding: "6px 12px", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
-                          <Plus size={13} /> Add Row
-                        </button>
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                        {autoRequirements.map((req, ri) => (
-                          <div key={ri} style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-                            <select value={req.templateId} onChange={e => setAutoRequirements(prev => prev.map((r, i) => i === ri ? { ...r, templateId: e.target.value } : r))}
-                              style={{ ...inputStyle, width: "220px", flex: 1 }}>
-                              {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.startTime}–{t.endTime})</option>)}
-                            </select>
-                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                              <span style={{ fontSize: "13px", color: "var(--color-text-secondary)", whiteSpace: "nowrap" }}>Guards needed:</span>
-                              <input type="number" min={0} max={50} value={req.count} onChange={e => setAutoRequirements(prev => prev.map((r, i) => i === ri ? { ...r, count: parseInt(e.target.value) || 0 } : r))}
-                                style={{ ...inputStyle, width: "80px" }} />
-                            </div>
-                            <button onClick={() => setAutoRequirements(prev => prev.filter((_, i) => i !== ri))}
-                              style={{ padding: "8px", background: "transparent", border: "none", color: "var(--color-danger)", cursor: "pointer", display: "flex" }}>
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div style={{ borderTop: "1px solid var(--color-border)", paddingTop: "20px", display: "flex", gap: "12px" }}>
-                      <button onClick={handleGenerateRoster} disabled={isGenerating}
-                        style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", background: "linear-gradient(135deg, var(--color-accent) 0%, #7c3aed 100%)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: "pointer", fontSize: "14px", boxShadow: "0 4px 12px rgba(99,102,241,0.3)", transition: "opacity var(--transition-fast)" }}>
-                        <Wand2 size={18} /> {isGenerating ? "Generating..." : "Generate Weekly Roster"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Generated preview */}
-                  {autoResult && (
-                    <div style={{ background: "var(--color-card-bg)", borderRadius: "var(--radius-xl)", border: "2px solid var(--color-success)", padding: "0", boxShadow: "0 0 0 4px var(--color-success-subtle)", overflow: "hidden" }}>
-                      <div style={{ padding: "16px 24px", background: "var(--color-success-subtle)", borderBottom: "1px solid var(--color-success)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                          <CheckCircle2 size={18} color="var(--color-success)" />
-                          <span style={{ fontWeight: 700, fontSize: "15px", color: "var(--color-success)" }}>Roster Generated — Review Before Applying</span>
-                        </div>
-                        <div style={{ display: "flex", gap: "10px" }}>
-                          <button onClick={handleApplyAutoRoster} style={{ padding: "8px 20px", background: "var(--color-success)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontWeight: 700, cursor: "pointer", fontSize: "13px" }}>
-                            Apply to Roster
-                          </button>
-                          <button onClick={() => setAutoResult(null)} style={{ padding: "8px 16px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13px" }}>
-                            Discard
-                          </button>
-                        </div>
-                      </div>
-                      <div style={{ overflowX: "auto", padding: "16px" }}>
-                        {Object.entries(autoResult).map(([userId, days]) => {
-                          const guard = users.find((u: any) => u.id === userId);
-                          if (!guard) return null;
-                          return (
-                            <div key={userId} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 0", borderBottom: "1px solid var(--color-border)" }}>
-                              <div style={{ width: "130px", flexShrink: 0, fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)" }}>{guard.firstName} {guard.lastName}</div>
-                              <div style={{ display: "flex", gap: "6px" }}>
-                                {DAYS.map((day, di) => {
-                                  const val = days[di];
-                                  const tmpl = templates.find(t => t.id === val);
-                                  return (
-                                    <div key={di} style={{ textAlign: "center", width: "80px" }}>
-                                      <div style={{ fontSize: "10px", color: "var(--color-text-muted)", marginBottom: "3px" }}>{day}</div>
-                                      <div style={{ padding: "5px 4px", borderRadius: "6px", background: val === "OFF" ? "var(--color-danger-subtle)" : tmpl ? `${tmpl.color}22` : "var(--color-bg-subtle)", color: val === "OFF" ? "var(--color-danger)" : tmpl ? tmpl.color : "var(--color-text-muted)", fontSize: "10.5px", fontWeight: 700 }}>
-                                        {val === "OFF" ? "OFF" : tmpl ? tmpl.name.split(" ")[0] : "–"}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
 
               {/* ─── SUB-TAB 4: SHIFT COVERAGE ─── */}
               {shiftSubTab === "coverage" && (
