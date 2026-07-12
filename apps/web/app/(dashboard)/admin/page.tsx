@@ -36,13 +36,6 @@ const labelStyle: React.CSSProperties = {
   letterSpacing: "0.05em",
 };
 
-const mockGrowthData = [
-  { name: 'Week 1', tenants: 2 },
-  { name: 'Week 2', tenants: 5 },
-  { name: 'Week 3', tenants: 12 },
-  { name: 'Week 4', tenants: 18 },
-];
-
 function PlatformAdminDashboardContent() {
   const { user } = useAuth();
   const [tenants, setTenants] = useState<any[]>([]);
@@ -134,6 +127,34 @@ function PlatformAdminDashboardContent() {
   const paginatedTenants = filteredTenants.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => { setCurrentPage(1); }, [searchTerm, filterPlan]);
+
+  // Cumulative tenant count per month, derived from each tenant's real
+  // signup date — spans from the first tenant's onboarding month through
+  // the current month, so the trend line reflects actual platform growth.
+  const growthData = React.useMemo(() => {
+    if (tenants.length === 0) return [];
+    const sorted = [...tenants].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const now = new Date();
+    const cursor = new Date(new Date(sorted[0].createdAt).getFullYear(), new Date(sorted[0].createdAt).getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const months: { label: string; monthStart: Date }[] = [];
+    while (cursor <= end) {
+      months.push({
+        label: cursor.toLocaleDateString("en-ZA", { month: "short", year: "2-digit" }),
+        monthStart: new Date(cursor),
+      });
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+
+    return months.map(({ label, monthStart }) => {
+      const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0, 23, 59, 59, 999);
+      const cutoff = monthEnd < now ? monthEnd : now;
+      const count = sorted.filter(t => new Date(t.createdAt) <= cutoff).length;
+      return { name: label, tenants: count };
+    });
+  }, [tenants]);
+  const growthTickInterval = Math.max(0, Math.ceil(growthData.length / 7) - 1);
 
   const cardStyle: React.CSSProperties = {
     background: "var(--color-card-bg)",
@@ -260,20 +281,29 @@ function PlatformAdminDashboardContent() {
         border: "1px solid var(--color-card-border)", 
         boxShadow: "var(--color-card-shadow)" 
       }}>
-        <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "24px" }}>Tenant Growth Telemetry (30 Days)</h3>
+        <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "24px" }}>
+          Tenant Growth Telemetry {growthData.length > 0 ? `(${growthData.length}-Month Trend)` : ""}
+        </h3>
         <div style={{ height: "250px", width: "100%" }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockGrowthData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} dx={-10} />
-              <Tooltip 
-                contentStyle={{ background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "8px", boxShadow: "var(--color-card-shadow)" }}
-                itemStyle={{ color: "var(--color-text-primary)", fontSize: "14px", fontWeight: 600 }}
-              />
-              <Line type="monotone" dataKey="tenants" stroke="var(--color-accent)" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-            </LineChart>
-          </ResponsiveContainer>
+          {growthData.length === 0 ? (
+            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", color: "var(--color-text-muted)" }}>
+              No tenant signups yet.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={growthData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} interval={growthTickInterval} tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} dx={-10} />
+                <Tooltip
+                  contentStyle={{ background: "var(--color-card-bg)", border: "1px solid var(--color-border)", borderRadius: "8px", boxShadow: "var(--color-card-shadow)" }}
+                  itemStyle={{ color: "var(--color-text-primary)", fontSize: "14px", fontWeight: 600 }}
+                  formatter={(value) => [`${value} tenants`, "Cumulative"]}
+                />
+                <Line type="monotone" dataKey="tenants" stroke="var(--color-accent)" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
