@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   LayoutDashboard, Building2, Users, MapPin, Ban, CheckCircle2, LifeBuoy,
-  Radio, ChevronRight,
+  ChevronRight,
 } from "lucide-react";
 import { superAdminService } from "@/features/super-admin/services/tenant.service";
 import { useAuth } from "@/shared/context/AuthContext";
@@ -86,15 +86,6 @@ export function OverviewPage() {
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginTop: "4px" }}>
             Your tenant onboarding and support activity at a glance.
           </p>
-        </div>
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: "8px",
-          padding: "6px 14px", background: "var(--color-accent-subtle)",
-          border: "1px solid var(--color-accent-border)", borderRadius: "999px",
-          fontSize: "12px", fontWeight: 600, color: "var(--color-accent)",
-          letterSpacing: "0.06em", textTransform: "uppercase",
-        }}>
-          <Radio size={12} /> LIVE
         </div>
       </div>
 
