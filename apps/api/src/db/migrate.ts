@@ -396,53 +396,6 @@ export async function runMigrationsAndSeed(): Promise<void> {
       console.log("🌱 [MIGRATE] Super admin already exists — skipping seed");
     }
 
-    // ── Seed mock accounts ───────────────────────────────────────────────────
-    const defaultPassword = await bcrypt.hash("Password123!", 12);
-
-    // Platform Admin
-    await client.query(`
-      INSERT INTO "User" ("id", "email", "password", "role", "accountStatus", "firstName", "lastName", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid()::text, 'admin@example.com', $1, 'ADMIN', 'ACTIVE', 'Platform', 'Admin', NOW(), NOW())
-      ON CONFLICT ("email") DO NOTHING;
-    `, [defaultPassword]);
-
-    // Mock Tenant
-    const tenantId = 'mock-tenant-id';
-    await client.query(`
-      INSERT INTO "Tenant" ("id", "name", "subscriptionStatus", "createdAt", "updatedAt")
-      VALUES ($1, 'Gladiator Pro', 'ACTIVE', NOW(), NOW())
-      ON CONFLICT ("id") DO NOTHING;
-    `, [tenantId]);
-
-    // Mock Site
-    const siteId = 'mock-site-id';
-    await client.query(`
-      INSERT INTO "Site" ("id", "tenantId", "name", "address", "createdAt", "updatedAt")
-      VALUES ($1, $2, 'Main Office Complex', '123 Business Rd', NOW(), NOW())
-      ON CONFLICT ("id") DO NOTHING;
-    `, [siteId, tenantId]);
-
-    // Tenant Manager
-    await client.query(`
-      INSERT INTO "User" ("id", "email", "password", "role", "accountStatus", "firstName", "lastName", "tenantId", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid()::text, 'manager@example.com', $1, 'MANAGER', 'ACTIVE', 'Tenant', 'Manager', $2, NOW(), NOW())
-      ON CONFLICT ("email") DO NOTHING;
-    `, [defaultPassword, tenantId]);
-
-    // Site Manager
-    await client.query(`
-      INSERT INTO "User" ("id", "email", "password", "role", "accountStatus", "firstName", "lastName", "tenantId", "siteId", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid()::text, 'sitemanager@example.com', $1, 'SITE_MANAGER', 'ACTIVE', 'Site', 'Supervisor', $2, $3, NOW(), NOW())
-      ON CONFLICT ("email") DO NOTHING;
-    `, [defaultPassword, tenantId, siteId]);
-
-    // Security Guard
-    await client.query(`
-      INSERT INTO "User" ("id", "email", "password", "role", "accountStatus", "firstName", "lastName", "tenantId", "siteId", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid()::text, 'guard@example.com', $1, 'GUARD', 'ACTIVE', 'Security', 'Guard', $2, $3, NOW(), NOW())
-      ON CONFLICT ("email") DO NOTHING;
-    `, [defaultPassword, tenantId, siteId]);
-
   } catch (err: any) {
     console.error("❌ [MIGRATE] Migration failed:", err.message);
     throw err; // re-throw so server startup aborts — don't run a broken app
