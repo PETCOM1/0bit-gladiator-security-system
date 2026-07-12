@@ -7,7 +7,7 @@ import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isCleanPage = pathname === "/login" || pathname === "/";
+  const isCleanPage = pathname === "/login" || pathname === "/" || pathname === "/set-password";
 
   if (isCleanPage) {
     return <>{children}</>;

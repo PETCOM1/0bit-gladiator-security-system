@@ -514,17 +514,6 @@ export default function LoginPage() {
             </button>
           </form>
         </div>
-
-        {/* Footer info text */}
-        <p className="footer-text" style={{
-          marginTop: "32px",
-          fontSize: "13px",
-          color: "#64748b",
-          textAlign: "center",
-          fontWeight: 500,
-        }}>
-          New here? Sign in with Google above to create an account.
-        </p>
       </div>
     </div>
   );

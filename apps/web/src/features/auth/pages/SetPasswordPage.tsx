@@ -7,21 +7,6 @@ import { useAuth } from "@/shared/context/AuthContext";
 import { BRAND } from "@/shared/config/branding.config";
 import { GladiatorLogo } from "@/shared/components/GladiatorLogo";
 
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "11px 14px",
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.1)",
-  borderRadius: "8px", fontSize: "14px", color: "#fff",
-  outline: "none", boxSizing: "border-box",
-  transition: "border-color 0.15s, box-shadow 0.15s",
-};
-
-const labelStyle: React.CSSProperties = {
-  display: "block", fontSize: "12px", fontWeight: 600,
-  color: "rgba(255,255,255,0.5)", marginBottom: "6px",
-  textTransform: "uppercase", letterSpacing: "0.06em",
-};
-
 // ─── Password strength ────────────────────────────────────────────────────────
 function PasswordStrength({ password }: { password: string }) {
   const checks = [
@@ -31,7 +16,7 @@ function PasswordStrength({ password }: { password: string }) {
     { label: "Number",           pass: /[0-9]/.test(password)       },
   ];
   const passed = checks.filter((c) => c.pass).length;
-  const barColor = passed <= 1 ? "#ef4444" : passed === 2 ? "#f59e0b" : passed === 3 ? "#f59e0b" : "var(--color-accent)";
+  const barColor = passed <= 1 ? "#ef4444" : passed <= 3 ? "#f59e0b" : "var(--color-accent)";
 
   if (!password) return null;
 
@@ -42,7 +27,7 @@ function PasswordStrength({ password }: { password: string }) {
         {[1, 2, 3, 4].map((i) => (
           <div key={i} style={{
             height: "3px", flex: 1, borderRadius: "999px",
-            background: i <= passed ? barColor : "rgba(255,255,255,0.1)",
+            background: i <= passed ? barColor : "#e2e8f0",
             transition: "background 0.2s",
           }} />
         ))}
@@ -51,10 +36,10 @@ function PasswordStrength({ password }: { password: string }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px" }}>
         {checks.map(({ label, pass }) => (
           <div key={label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ fontSize: "12px", color: pass ? "var(--color-accent)" : "rgba(255,255,255,0.3)" }}>
+            <span style={{ fontSize: "12px", color: pass ? "var(--color-accent)" : "#cbd5e1" }}>
               {pass ? "✓" : "○"}
             </span>
-            <span style={{ fontSize: "12px", color: pass ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.3)" }}>
+            <span style={{ fontSize: "12px", color: pass ? "#334155" : "#94a3b8" }}>
               {label}
             </span>
           </div>
@@ -122,101 +107,395 @@ export default function SetPasswordPage() {
 
   return (
     <div style={{
-      minHeight: "calc(100vh - 57px)",
-      display: "flex", alignItems: "center", justifyContent: "center", padding: "24px",
+      display: "flex",
+      minHeight: "100vh",
+      width: "100vw",
+      overflow: "hidden",
+      background: "#080c18",
+      fontFamily: "var(--font-inter), sans-serif",
     }}>
-      <div style={{ width: "100%", maxWidth: "400px" }}>
-        {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <div style={{ display: "flex", justifyContent: "center", margin: "0 auto 16px" }}>
-            <GladiatorLogo size={48} />
+      <style>{`
+        @media (max-width: 768px) {
+          .left-panel {
+            display: none !important;
+          }
+          .right-panel {
+            width: 100% !important;
+            flex: 1 !important;
+            padding: 24px !important;
+            background: #080c18 !important;
+          }
+          .login-card {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            padding: 32px 24px !important;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6) !important;
+            border-radius: 16px !important;
+          }
+          .login-title {
+            color: #ffffff !important;
+          }
+          .login-subtitle {
+            color: rgba(255, 255, 255, 0.5) !important;
+          }
+          .input-field {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+          }
+          .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.3) !important;
+          }
+          .input-label {
+            color: rgba(255, 255, 255, 0.5) !important;
+          }
+          .footer-text {
+            color: rgba(255, 255, 255, 0.3) !important;
+          }
+        }
+      `}</style>
+
+      {/* Left Panel - Branding (Dark Navy Theme) */}
+      <div className="left-panel" style={{
+        flex: 1.1,
+        background: "linear-gradient(135deg, #070b13 0%, #0d1527 100%)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "48px",
+        position: "relative",
+        borderRight: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        {/* Glow Effects */}
+        <div style={{
+          position: "absolute",
+          top: "10%",
+          left: "10%",
+          width: "250px",
+          height: "250px",
+          borderRadius: "50%",
+          background: "rgba(245, 158, 11, 0.08)",
+          filter: "blur(80px)",
+          pointerEvents: "none",
+        }} />
+        <div style={{
+          position: "absolute",
+          bottom: "15%",
+          right: "10%",
+          width: "300px",
+          height: "300px",
+          borderRadius: "50%",
+          background: "rgba(30, 41, 59, 0.6)",
+          filter: "blur(100px)",
+          pointerEvents: "none",
+        }} />
+
+        {/* Top Header/Product Tag */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div style={{
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: "var(--color-accent)",
+            boxShadow: "0 0 8px var(--color-accent)",
+          }} />
+          <span style={{
+            fontSize: "11px",
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.4)",
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+          }}>
+            Ironclad Security Management
+          </span>
+        </div>
+
+        {/* Center Content */}
+        <div style={{ maxWidth: "480px", margin: "auto 0" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
+            <GladiatorLogo size={56} style={{ filter: "drop-shadow(0 0 16px rgba(245, 158, 11, 0.5))" }} />
+            <span style={{
+              fontSize: "28px",
+              fontWeight: 900,
+              color: "#ffffff",
+              letterSpacing: "-0.03em",
+              fontFamily: "var(--font-outfit), sans-serif",
+            }}>
+              {BRAND.name}
+            </span>
           </div>
-          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#fff", marginBottom: "6px" }}>
-            Activate your account
-          </h1>
-          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>
-            Set a password to complete your {BRAND.name} setup
+
+          <h2 style={{
+            fontSize: "36px",
+            fontWeight: 800,
+            color: "#ffffff",
+            lineHeight: 1.2,
+            letterSpacing: "-0.02em",
+            marginBottom: "16px",
+            fontFamily: "var(--font-outfit), sans-serif",
+          }}>
+            Transforming Site Security into Complete Visibility.
+          </h2>
+          <p style={{
+            fontSize: "16px",
+            lineHeight: 1.6,
+            color: "rgba(255,255,255,0.55)",
+            fontWeight: 450,
+          }}>
+            Ironclad shift management, digital occurrence logbooks, and real-time visitor registration tailored for modern security operations.
           </p>
         </div>
 
-        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", padding: "32px" }}>
+        {/* Footer/Meta Info */}
+        <div>
+          {/* Horizontal Modules List */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            fontSize: "10px",
+            fontWeight: 800,
+            color: "rgba(255,255,255,0.35)",
+            letterSpacing: "0.08em",
+            marginBottom: "24px",
+            flexWrap: "wrap",
+            textTransform: "uppercase",
+          }}>
+            <span>Visitor Register</span>
+            <span style={{ color: "var(--color-accent)" }}>•</span>
+            <span>Occurrence Book</span>
+            <span style={{ color: "var(--color-accent)" }}>•</span>
+            <span>Shift Logistics</span>
+            <span style={{ color: "var(--color-accent)" }}>•</span>
+            <span>Patrol Tracker</span>
+          </div>
+
+          <div style={{
+            fontSize: "12px",
+            color: "rgba(255,255,255,0.3)",
+            fontWeight: 500,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            paddingTop: "20px",
+          }}>
+            <span>PRODUCT OF ZERO BIT STUDIO</span>
+            <span>© {BRAND.year} {BRAND.name}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Form (Sleek Light Theme by default) */}
+      <div className="right-panel" style={{
+        flex: 0.9,
+        background: "#ffffff",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "48px",
+      }}>
+        <div className="login-card" style={{ width: "100%", maxWidth: "420px" }}>
           {isDone ? (
-            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
-              <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-subtle)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", color: "var(--color-accent)" }}>✓</div>
+            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", padding: "24px 0" }}>
+              <div style={{
+                width: "52px", height: "52px", borderRadius: "50%",
+                background: "rgba(245, 158, 11, 0.12)", border: "1px solid rgba(245, 158, 11, 0.25)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "22px", color: "var(--color-accent)",
+              }}>✓</div>
               <div>
-                <p style={{ fontSize: "16px", fontWeight: 600, color: "#fff", marginBottom: "6px" }}>Password set</p>
-                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>Redirecting you to sign in...</p>
+                <p className="login-title" style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", marginBottom: "6px" }}>Password set</p>
+                <p className="login-subtitle" style={{ fontSize: "13px", color: "#64748b" }}>Redirecting you to sign in...</p>
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-              {/* Password */}
-              <div>
-                <label style={labelStyle}>Password</label>
-                <div style={{ position: "relative" }}>
+            <>
+              {/* Header */}
+              <div style={{ marginBottom: "32px" }}>
+                <h1 className="login-title" style={{
+                  fontSize: "30px",
+                  fontWeight: 800,
+                  color: "#0f172a",
+                  marginBottom: "8px",
+                  letterSpacing: "-0.03em",
+                  fontFamily: "var(--font-outfit), sans-serif",
+                }}>
+                  Activate your account
+                </h1>
+                <p className="login-subtitle" style={{
+                  fontSize: "14px",
+                  color: "#475569",
+                  fontWeight: 500,
+                }}>
+                  Set a password to complete your {BRAND.name} setup.
+                </p>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                {/* Password */}
+                <div>
+                  <label className="input-label" style={{
+                    display: "block",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "#64748b",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                  }}>
+                    Password
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      className="input-field"
+                      type={showPw ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Create a strong password"
+                      required
+                      autoFocus
+                      style={{
+                        width: "100%",
+                        padding: "12px 14px",
+                        paddingRight: "52px",
+                        background: "#ffffff",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "10px",
+                        fontSize: "14px",
+                        color: "#0f172a",
+                        outline: "none",
+                        boxSizing: "border-box",
+                        transition: "border-color 0.15s, box-shadow 0.15s",
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "var(--color-accent)";
+                        e.target.style.boxShadow = "0 0 0 3px rgba(245, 158, 11, 0.15)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "#cbd5e1";
+                        e.target.style.boxShadow = "none";
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPw(!showPw)}
+                      style={{
+                        position: "absolute",
+                        right: "12px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "12px",
+                        color: "#64748b",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {showPw ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                  <PasswordStrength password={password} />
+                </div>
+
+                {/* Confirm */}
+                <div>
+                  <label className="input-label" style={{
+                    display: "block",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "#64748b",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                  }}>
+                    Confirm password
+                  </label>
                   <input
+                    className="input-field"
                     type={showPw ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Create a strong password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repeat your password"
                     required
-                    autoFocus
-                    style={{ ...inputStyle, paddingRight: "52px" }}
-                    onFocus={(e) => { e.target.style.borderColor = "var(--color-accent)"; e.target.style.boxShadow = "0 0 0 3px rgba(132,204,22,0.12)"; }}
-                    onBlur={(e)  => { e.target.style.borderColor = "rgba(255,255,255,0.1)"; e.target.style.boxShadow = "none"; }}
+                    style={{
+                      width: "100%",
+                      padding: "12px 14px",
+                      background: "#ffffff",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: "10px",
+                      fontSize: "14px",
+                      color: "#0f172a",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      transition: "border-color 0.15s, box-shadow 0.15s",
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "var(--color-accent)";
+                      e.target.style.boxShadow = "0 0 0 3px rgba(245, 158, 11, 0.15)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#cbd5e1";
+                      e.target.style.boxShadow = "none";
+                    }}
                   />
-                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: "12px", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
-                    {showPw ? "Hide" : "Show"}
-                  </button>
+                  {confirmPassword && password !== confirmPassword && (
+                    <p style={{ fontSize: "12px", color: "#ef4444", marginTop: "5px" }}>Passwords do not match</p>
+                  )}
                 </div>
-                <PasswordStrength password={password} />
-              </div>
 
-              {/* Confirm */}
-              <div>
-                <label style={labelStyle}>Confirm password</label>
-                <input
-                  type={showPw ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repeat your password"
-                  required
-                  style={inputStyle}
-                  onFocus={(e) => { e.target.style.borderColor = "var(--color-accent)"; e.target.style.boxShadow = "0 0 0 3px rgba(132,204,22,0.12)"; }}
-                  onBlur={(e)  => { e.target.style.borderColor = "rgba(255,255,255,0.1)"; e.target.style.boxShadow = "none"; }}
-                />
-                {confirmPassword && password !== confirmPassword && (
-                  <p style={{ fontSize: "12px", color: "#f87171", marginTop: "5px" }}>Passwords do not match</p>
+                {/* Error Message */}
+                {error && (
+                  <div style={{
+                    padding: "10px 14px",
+                    background: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    borderRadius: "8px",
+                    fontSize: "13px",
+                    color: "#ef4444",
+                    fontWeight: 500,
+                  }}>
+                    {error}
+                  </div>
                 )}
-              </div>
 
-              {/* Error */}
-              {error && (
-                <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", fontSize: "13px", color: "#f87171" }}>
-                  {error}
-                </div>
-              )}
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={!isValid || isSubmitting}
-                style={{
-                  width: "100%", padding: "12px",
-                  background: isValid && !isSubmitting ? "var(--color-accent)" : "var(--color-accent-subtle)",
-                  border: "none", borderRadius: "8px", fontSize: "14px", fontWeight: 700,
-                  color: "var(--color-accent-text)", cursor: isValid && !isSubmitting ? "pointer" : "not-allowed",
-                }}
-              >
-                {isSubmitting ? "Activating..." : "Activate account"}
-              </button>
-            </form>
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={!isValid || isSubmitting}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    background: isValid && !isSubmitting ? "var(--color-accent)" : "var(--color-accent-subtle)",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    color: "var(--color-accent-text)",
+                    cursor: isValid && !isSubmitting ? "pointer" : "not-allowed",
+                    boxShadow: "0 4px 12px rgba(245, 158, 11, 0.15)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    transition: "opacity 0.15s, transform 0.1s",
+                  }}
+                  onMouseDown={(e) => {
+                    if (isValid && !isSubmitting) e.currentTarget.style.transform = "scale(0.98)";
+                  }}
+                  onMouseUp={(e) => {
+                    if (isValid && !isSubmitting) e.currentTarget.style.transform = "scale(1)";
+                  }}
+                >
+                  {isSubmitting ? "Activating..." : "Activate account →"}
+                </button>
+              </form>
+            </>
           )}
         </div>
-
-        <p style={{ textAlign: "center", marginTop: "24px", fontSize: "13px", color: "rgba(255,255,255,0.3)" }}>
-          {BRAND.name}
-        </p>
       </div>
     </div>
   );
