@@ -1,7 +1,13 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { authService } from "@/features/auth/services/auth.service";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+
+// Pages that must never inherit whatever session cookie happens to be
+// sitting in the browser (e.g. an invite link opened while the inviter is
+// still signed in). AuthProvider's own session check is skipped on these
+// so it can't race the page's own logout-and-clear effect.
+const NO_SESSION_CHECK_PATHS = ["/set-password"];
 
 export type UserRole = "SUPER_ADMIN" | "ADMIN" | "ACCOUNT_MANAGER" | "MANAGER" | "SITE_MANAGER" | "GUARD";
 
@@ -58,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter(); // ← moved inside the component
+  const pathname = usePathname();
 
   const loadUser = async () => {
     try {
@@ -72,7 +79,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => { await loadUser(); };
 
-  useEffect(() => { loadUser(); }, []);
+  useEffect(() => {
+    // Skip the session check entirely on pages that must start "logged out"
+    // regardless of whatever cookie is already in the browser — otherwise
+    // this GET /me can race a page's own logout-and-clear effect and
+    // silently re-authenticate the wrong user (e.g. an invite link opened
+    // while the inviter is still signed in). Only runs once on mount, so
+    // this only matters for a fresh page load landing directly on the path
+    // (which is how invite links are opened).
+    if (NO_SESSION_CHECK_PATHS.includes(pathname)) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+    loadUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const login = async (email: string, password: string) => {   
 
