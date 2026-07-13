@@ -59,11 +59,13 @@ app.use(
       
       const isAllowed = allowedOrigins.some((allowed) =>
         origin.startsWith(allowed)
-      ) || 
-      origin.endsWith('.vercel.app') || 
+      ) ||
+      origin.endsWith('.vercel.app') ||
       origin.endsWith('.vercel.live') ||
       origin === 'https://webmobilefirst.com' ||
-      origin.endsWith('.webmobilefirst.com');
+      origin.endsWith('.webmobilefirst.com') ||
+      origin === 'https://gladiatorpro.co.za' ||
+      origin.endsWith('.gladiatorpro.co.za');
 
       const isDevOrigin = !isProduction && (
         origin.startsWith('http://localhost:') ||
