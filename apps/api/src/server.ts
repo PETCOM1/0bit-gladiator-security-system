@@ -40,6 +40,13 @@ import siteManagerRoutes  from "./modules/site-manager/site-manager.routes.js";
 const app: Express = express();
 const isProduction = process.env.NODE_ENV === "production";
 
+// Render (like Heroku/Railway) sits one reverse-proxy hop in front of this
+// app and forwards the real client IP via X-Forwarded-For. Without this,
+// express-rate-limit refuses to trust that header and throws on every
+// rate-limited request, and every request otherwise appears to come from
+// Render's internal proxy IP instead of the actual visitor.
+if (isProduction) app.set("trust proxy", 1);
+
 // ── 1. SECURITY & LOGGING ─────────────────────────────────────────────────────
 app.use(helmet());
 app.use(morgan(isProduction ? "combined" : "dev"));
