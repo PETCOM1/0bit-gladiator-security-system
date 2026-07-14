@@ -3,6 +3,7 @@ import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/shared/context/AuthContext";
 import { ThemeProvider } from "@/shared/context/ThemeContext";
+import { StaleChunkReload } from "@/shared/components/StaleChunkReload";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
       <body>
+        <StaleChunkReload />
         <ThemeProvider>
           <AuthProvider>
             {children}
