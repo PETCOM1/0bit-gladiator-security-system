@@ -4,6 +4,15 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM   = `${process.env.EMAIL_FROM_NAME || "Gladiator Pro Team"} <${process.env.SENDER_EMAIL || "noreply@gladiatorpro.co.za"}>`;
 const APP    = process.env.APP_NAME || "Gladiator Pro";
 
+const ROLE_LABELS: Record<string, string> = {
+  SUPER_ADMIN:     "Super Admin",
+  ADMIN:           "Admin",
+  ACCOUNT_MANAGER: "Account Manager",
+  MANAGER:         "Manager",
+  SITE_MANAGER:    "Site Manager",
+  GUARD:           "Security Guard",
+};
+
 async function send(payload: Parameters<typeof resend.emails.send>[0]) {
   const { data, error } = await resend.emails.send(payload);
   if (error) {
@@ -26,7 +35,7 @@ export async function sendInviteEmail(
   }
 ) {
   const invitedByText = context?.invitedBy ? `<strong>Invited by:</strong> ${context.invitedBy}<br>` : "";
-  const roleText = context?.role ? `<strong>Role:</strong> ${context.role}<br>` : "";
+  const roleText = `<strong>Role:</strong> ${context?.role ? (ROLE_LABELS[context.role] ?? context.role) : "Team Member"}<br>`;
   const assignedSiteText = context?.assignedSite ? `<strong>Assigned Site:</strong> ${context.assignedSite}<br>` : "";
   
   await send({
@@ -44,8 +53,8 @@ export async function sendInviteEmail(
           <p style="color:#334155;font-size:16px;line-height:1.5;">You have been invited to join Gladiator Pro as part of a security operations team.</p>
           
           <div style="margin:24px 0;padding:16px;background:#f8fafc;border-radius:8px;color:#334155;font-size:15px;line-height:1.6;">
-            ${invitedByText || "<strong>Role:</strong> Invited User<br>"}
             ${roleText}
+            ${invitedByText}
             ${assignedSiteText}
           </div>
 

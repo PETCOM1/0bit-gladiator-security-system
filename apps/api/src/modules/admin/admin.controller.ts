@@ -132,7 +132,7 @@ export const inviteUser = catchAsync(async (req: Request, res: Response) => {
   });
 
   const inviteLink = `${process.env.FRONTEND_URL}/set-password?token=${code}&email=${encodeURIComponent(email)}`;
-  await sendInviteEmail(email, inviteLink, firstName ?? "User");
+  await sendInviteEmail(email, inviteLink, firstName ?? "User", { role: "GUARD" });
 
   await prisma.auditLog.create({
     data: { userId: req.user!.userId, action: "USER_INVITED", meta: { email } },
@@ -178,7 +178,7 @@ export const inviteStaffMember = catchAsync(async (req: Request, res: Response) 
   });
 
   const inviteLink = `${process.env.FRONTEND_URL}/set-password?token=${code}&email=${encodeURIComponent(email)}`;
-  await sendInviteEmail(email, inviteLink, firstName ?? "Staff Member");
+  await sendInviteEmail(email, inviteLink, firstName ?? "Staff Member", { role: "ACCOUNT_MANAGER" });
 
   await prisma.auditLog.create({
     data: { userId: req.user!.userId, action: "ACCOUNT_MANAGER_INVITED", meta: { email } },

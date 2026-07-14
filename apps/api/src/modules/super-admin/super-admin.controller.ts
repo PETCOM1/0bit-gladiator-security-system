@@ -129,7 +129,7 @@ export const inviteAdmin = catchAsync(async (req: Request, res: Response) => {
   });
 
   const inviteLink = `${process.env.FRONTEND_URL}/set-password?token=${code}&email=${encodeURIComponent(email)}`;
-  await sendInviteEmail(email, inviteLink, firstName ?? "Admin");
+  await sendInviteEmail(email, inviteLink, firstName ?? "Admin", { role: "ADMIN" });
 
   await prisma.auditLog.create({
     data: { userId: req.user!.userId, action: "ADMIN_INVITED", meta: { email } },

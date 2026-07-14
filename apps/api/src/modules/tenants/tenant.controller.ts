@@ -151,7 +151,7 @@ export const createTenant = catchAsync(async (req: Request, res: Response) => {
   });
 
   const inviteLink = `${process.env.FRONTEND_URL}/set-password?token=${inviteCode}&email=${encodeURIComponent(adminEmail)}`;
-  await sendInviteEmail(adminEmail, inviteLink, adminFirstName || "Admin");
+  await sendInviteEmail(adminEmail, inviteLink, adminFirstName || "Admin", { role: "MANAGER" });
 
   res.status(HttpStatus.CREATED).json({ status: "success", data: result });
 });
